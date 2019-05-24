@@ -1,0 +1,37 @@
+### BEGIN INIT INFO
+# Provides: rfpi
+# Required-Start:    $local_fs $syslog $remote_fs dbus
+# Required-Stop:     $local_fs $syslog $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: This is the RFPI routine to use the RFberryPi
+### END INIT INFO
+
+
+# First configure the user you want to run this under - this will generally be pi, unless you've created your own users
+export USER='root'
+
+eval cd ~$USER
+
+# Check the state of the command - this'll either be start or stop 
+case "$1" in
+  start)
+    # if it's start, then start RFPI using the details below
+	#su $USER -c '/etc/rfpi/bbb/bbbloadall.sh'
+	su $USER -c '/etc/rfpi/bbb/service_rfbbb.sh'
+    #su $USER -c '/etc/rfpi/bin/rfpi'
+    echo "Starting RFPI for $USER "
+    ;;
+  stop)
+    # if it's stop, then just kill the process
+    pkill rfpi
+    echo "RFPI stopped"
+    ;;
+  *)
+    echo "Usage: /etc/init.d/rfpi {start|stop}"
+    exit 1
+    ;;
+esac
+exit 0
+
+# thanks

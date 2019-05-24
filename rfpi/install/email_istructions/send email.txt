@@ -1,0 +1,42 @@
+install ssmtp
+
+	apt-get install ssmtp
+
+then edit:
+
+	nano /etc/ssmtp/ssmtp.conf
+
+edit following line:
+
+	root=myemail@gmail.com
+
+	mailhub=smtp.gmail.com:465
+
+	rewriteDomain=gmail.com
+
+	AuthUser=myemail	
+	AuthPass=mypassword
+	FromLineOverride=YES
+
+	UseTLS=YES
+
+If you need send email with GMAIL add this:
+
+
+	TLS_CA_File=/etc/ssmtp/ca-bundle.crt
+
+
+Then edit:
+
+	nano /etc/rfpi/lib/email.c
+
+
+Then recompile:
+
+	/etc/rfpi/buildrfpi.sh
+
+
+Send an email with this command	:
+
+
+	ssmtp myemail@gmail.com < /tmp/my_message.txt

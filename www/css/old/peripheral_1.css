@@ -1,0 +1,48 @@
+
+.img_button_square_enable{
+	cursor:hand;
+	
+	position: relative;
+	top: 7px;
+
+	height: 42; 
+	width: 42;
+}
+.img_button_square_disable{
+	cursor:hand;
+	
+	position: relative;
+	top: 7px;
+
+	height: 42; 
+	width: 42;
+}
+
+.img_switch_on{
+	cursor:hand;
+	
+	position: relative;
+	top: 8px;
+
+	height: 42; 
+	width: 32;
+}
+.img_switch_off{
+	cursor:hand;
+	
+	position: relative;
+	top: 8px;
+
+	height: 42; 
+	width: 32;
+}
+
+.img_ant{
+	height: 30; 
+	width: 30;
+}
+
+.img_led{
+	height: 30; 
+	width: 30;
+}

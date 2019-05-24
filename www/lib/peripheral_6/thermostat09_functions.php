@@ -1,0 +1,253 @@
+<?php
+/******************************************************************************************
+
+Programmer: 		Emanuele Aimone
+Last Update: 		27/11/2015
+
+Description: this is a panel where to setup the THERMOSTAT
+
+
+ *    RFPI is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU Lesser General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    RFPI is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public License
+ *    along with RFPI.  If not, see <http://www.gnu.org/licenses/>.
+
+******************************************************************************************/
+
+//---------------------------------BEGIN INCLUDE-------------------------------------------//
+//		Specific library for the Peri
+		include './lib/peri_lib.php';  
+
+//		library with all useful functions to use RFPI
+		include './../../lib/rfberrypi.php';  
+		
+//----------------------------------END INCLUDE--------------------------------------------//
+
+$position_id=$_GET['position_id'];
+
+$address_peri=$_GET['address_peri'];
+
+$thermostat_enabled=$_GET['thermostat_enabled'];
+
+$id_packet=$_GET['id_packet'];
+
+$j=0;
+while ($j<10) {
+	$temperatures[$j]=$_GET['temperatures_'.$j];
+	//echo $temperatures[$j]; echo '<br>';
+	$j++;
+}
+
+
+echo '<html>';
+echo ' <meta content="width=device-width, initial-scale=1" name="viewport"/>';
+echo '<head>';
+echo '<script type="text/JavaScript">';
+
+echo 'var timeRTC ="';
+echo str_rtc_time();
+echo '";';
+
+	?> 	
+	//var timeRTC ="11:dd:ff";
+	var lastRtcTime;
+	var secondRTC;
+	var minuteRTC;
+	var hourRTC;
+	
+	function startYourTime() {
+		var today=new Date();
+		var h=today.getHours();
+		var m=today.getMinutes();
+		var s=today.getSeconds();
+		m = checkTime(m);
+		s = checkTime(s);
+		document.getElementById('ytime').innerHTML = "Your time = "+h+":"+m+":"+s;
+		var t = setTimeout(function(){startYourTime()},500);
+	}
+	
+	
+	function RtcTime() {
+		var today=new Date();
+		var h=today.getHours();
+		var m=today.getMinutes();
+		s=today.getSeconds();
+		
+		if(s != lastRtcTime){
+			lastRtcTime = s;
+			
+			secondRTC++;
+			if(secondRTC>59){
+				secondRTC = 0;
+				minuteRTC++;
+				if(minuteRTC>59){
+					minuteRTC=0;
+					hourRTC++;
+					if(hourRTC>23){
+						hourRTC=0;
+					}
+				}
+			}
+			
+			var mm = checkTime(minuteRTC);
+			var ss = checkTime(secondRTC);
+			
+			document.getElementById('rtc').innerHTML = "RTC time = "+hourRTC+":"+mm+":"+ss;
+		}
+		var t = setTimeout(function(){RtcTime()},500);
+	}
+	
+	function startRtcTime() {
+		startYourTime();
+		
+		if(timeRTC.substring(0, 2) != "NO"){ //if there is a RTC
+			hourRTC=parseInt(timeRTC.substring(0, 2));
+			minuteRTC=parseInt(timeRTC.substring(3, 5));
+			secondRTC=parseInt(timeRTC.substring(6, 7));
+			
+			document.getElementById('rtc').innerHTML = "RTC time = "+hourRTC+":"+minuteRTC+":"+secondRTC;
+			var t = setTimeout(function(){RtcTime()},500);
+		}
+	}
+
+	function checkTime(i) {
+		if (i<10) {i = "0" + i};  // add zero in front of numbers < 10
+		return i;
+	}
+	
+	function setYourTime(){
+		var setYourTime_today=new Date();
+		var setYourTime_h=setYourTime_today.getHours();
+		var setYourTime_m=setYourTime_today.getMinutes();
+		var setYourTime_s=setYourTime_today.getSeconds();
+		
+		peri6_btn_set_temperature09.temperatures_5.value="" + setYourTime_h.toString();
+		peri6_btn_set_temperature09.temperatures_6.value="" + setYourTime_m.toString();
+		peri6_btn_set_temperature09.temperatures_7.value="" + setYourTime_s.toString();
+	}
+	
+	<?
+echo '</script>';
+echo '</head>';
+echo '<body  onload="startRtcTime()">';
+echo '<div class="div_home">';
+
+echo '<br>';
+
+//button HOME
+echo '<p align=left>';
+echo '<form name="home" action="/index.php" method=GET>';
+echo '<input type=submit value="Home" class="btn_pag">';
+echo '</form>';
+echo '</p>';
+
+echo '<form name="peri6_btn_set_temperature09" action="./cmd_set_thermostat09_setting.php" method=GET>';
+echo '<input type=hidden name="position_id" value="'. $position_id . '">';
+echo '<input type=hidden name="address_peri" value="'. $address_peri . '">';
+echo '<input type=hidden name="id_packet" value="'. $id_packet . '">';
+
+echo '<table class="table_peripheral">';
+
+echo '<tr class="table_title_field_line">';
+echo '<td class="td_peripheral">HOURS</td>';  
+echo '<td class="td_peripheral">SetPoints</td>';  
+echo '</tr>';
+
+$i=20; //show hours from 20 to 23
+$max_to_show=4; //show 4 lines of temperature
+if($id_packet==0) $i=0;  //show hours from 0 to 9
+if($id_packet==1) $i=10; //show hours from 10 to 19
+if($id_packet<2) $max_to_show=10; //show 10 lines
+
+$j=0;
+while ($j<$max_to_show) { 
+	if($j%2==0){
+		echo '<tr class="table_line_even">';
+	}else{
+		echo '<tr class="table_line_odd">';
+	}
+	echo '<td class="td_peripheral">Hour '.$i.'</td>'; 
+	echo '<td class="td_peripheral" align=center>';
+	echo '<input type="text" name="temperatures_'.$j.'" value="'; echo $temperatures[$j]; echo '" size="1" maxlength="3">';
+	echo '&#176C';
+	echo '</td>';
+	echo '</tr>';
+	$j++;
+	$i++;
+}
+if($id_packet>1){
+	echo '<tr class="table_line_even">';
+	echo '<td class="td_peripheral">Trigger Offset</td>'; 
+	echo '<td class="td_peripheral" align=center>';
+	echo 'SetPoint - <input type="text" name="temperatures_4" value="'; echo $temperatures[4]; echo '" size="1" maxlength="3">';
+	echo '&#176C';
+	echo '<br>If temperature is lower than this value then<br>the relay is turned ON until reach the SetPoint.';
+	echo '</td>';
+	echo '</tr>';
+	
+	echo '<tr class="table_line_odd">';
+	echo '<td class="td_peripheral">Time Now HH:MM:SS</td>'; 
+	echo '<td class="td_peripheral" align=center>';
+	echo '<input type="text" name="temperatures_5" value="'; echo $temperatures[5]; echo '" size="1" maxlength="2">';
+	echo ':<input type="text" name="temperatures_6" value="'; echo $temperatures[6]; echo '" size="1" maxlength="2">';
+	echo ':<input type="text" name="temperatures_7" value="'; echo $temperatures[7]; echo '" size="1" maxlength="2">';
+	echo ' <input type=button value="Set your time" class="btn_pag" onclick="setYourTime();">';
+	echo '</td>';
+	echo '</tr>';
+		
+	//juist filling the data for the next page
+	$j=8;
+	while ($j<10) { 
+		echo '<input type=hidden name="temperatures_'.$j.'" value="46">';
+		$j++;
+	}
+		
+	echo '<tr class="table_line_even">';
+
+	echo '<td class="td_peripheral">Thermostat Enabled</td>'; 
+	echo '<td class="td_peripheral" align=center>';
+	if(intval($thermostat_enabled, 10)==0){
+		echo '<input type="checkbox" name="thermostat_enabled" value="0" onchange="if(this.value==0) this.value=1; else this.value=0;">';
+	}else{
+		echo '<input type="checkbox" name="thermostat_enabled" value="1" onchange="if(this.value==0) this.value=1; else this.value=0;" checked>';
+	}
+	echo '</td>';
+	echo '</tr>';
+}
+
+echo '<tr class="table_title_field_line">';
+echo '<td colspan=6 align=center>';
+echo '<input type=submit value="APPLY" class="btn_functions">';		
+echo '</td>';
+echo '</tr>';	
+
+echo '</table>';
+
+echo '</form>';
+
+//END: READING THE FILE WHERE ALL SIGNALS ARE STORED AND BULDING THE TABLE
+
+
+//button HOME
+echo '<p align=left>';
+echo '<form name="home" action="/index.php" method=GET>';
+echo '<input type=submit value="Home" class="btn_pag">';
+echo '</form>';
+echo '</p>';
+
+
+echo '<div id="rtc"></div>';
+echo '<div id="ytime"></div>';
+
+echo '</div>';
+
+echo '</body></html>';
+?>

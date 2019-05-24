@@ -1,0 +1,15 @@
+percorso logo e immagine sfondo:
+	/opt/desktop-background.jpg
+
+percorso icona start:
+	/usr/share/lxde/images/lxde-icon.png
+
+percorso immagine background:
+	/usr/share/lxpanel/images/background.png
+
+
+Cambiare percorso immagine background:
+	nano /etc/xdg/lxpanel/profile/LXDE/panels/panel
+
+Configurare desktop mode
+	nano /etc/xdg/pcmanfm/LXDE/pcmanfm.conf
