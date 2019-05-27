@@ -16,7 +16,7 @@ if [ ! -d "$DIRECTORY_RFPI" ]; then
 	echo "Creating foolder RFPI....."
 	sudo mkdir $DIRECTORY_RFPI
 else
-	echo "RFPI Exist! Thus going to stop the service and uptate the RFPI Software....."
+	echo "RFPI Exist! Thus going to stop the service and update the RFPI Software....."
 	sudo pkill rfpi
 fi
 
