@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					24/05/2019
+Last Update: 					25/05/2019
 
 
 Description: library for the RFPI
@@ -2882,6 +2882,18 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						}
 					} //printf(" CIAO \n"); fflush(stdout); // Prints immediately to screen
 					if(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+
+						//converting lower case in upper case. value2 is the hex data to send to the transceiver
+						for( i=0; i<strlen(value2); i++){
+							if(value2[i]=='a') value2[i]=='A';
+							else if(value2[i]=='b') value2[i]='B';
+							else if(value2[i]=='c') value2[i]='C';
+							else if(value2[i]=='d') value2[i]='D';
+							else if(value2[i]=='e') value2[i]='E';
+							else if(value2[i]=='f') value2[i]='F';
+			
+						}
+						
 						//printf("DATA RF | id_position = %d | 16byte_hexadecimal_ascii = %s\n", peri_id_position, value2);
 						printf("DATA RF | Address = %s | 16byte_hexadecimal_ascii = %s\n", value1, value2);
 
@@ -2892,7 +2904,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						//cmd C30 is to load data to send and the 1 is the tag to make understand the peripheral 
 						//how to treat the following bytes 
 						strcpy(strCmd,"C30RBxxxxxxxxxxxxxx"); //C30 is cmd to load the following data to send
-						
+
 						for( i=0,pos=0; i<16; i++,pos+=2){
 							strCmd[i+3]=convert_2ChrHex_to_byte(&value2[pos]);
 						}

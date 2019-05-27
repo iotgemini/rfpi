@@ -11,8 +11,14 @@ sudo apt-get update
 DIRECTORY_RFPI=/etc/rfpi
 DIRECTORY_WWW=/var/www
 
-echo "Creating foolder RFPI....."
-sudo mkdir $DIRECTORY_RFPI
+if [ ! -d "$DIRECTORY_RFPI" ]; then
+	# Control will enter here if $DIRECTORY doesn't exist.
+	echo "Creating foolder RFPI....."
+	sudo mkdir $DIRECTORY_RFPI
+else
+	echo "RFPI Exist! Thus going to stop the service and uptate the RFPI Software....."
+	sudo pkill rfpi
+fi
 
 if [ ! -d "$DIRECTORY_RFPI" ]; then
   # Control will enter here if $DIRECTORY doesn't exist.

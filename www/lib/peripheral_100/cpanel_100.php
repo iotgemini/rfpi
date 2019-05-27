@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		24/05/2019
+Last Update: 		25/05/2019
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -366,7 +366,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		echo 'document.peri_100_btn_rgb_functions_'.$id.'.REDCOLOR.value = value_hex_RED_LED;';
 		echo 'document.peri_100_btn_rgb_functions_'.$id.'.GREENCOLOR.value = value_hex_GREEN_LED;';
 		echo 'document.peri_100_btn_rgb_functions_'.$id.'.BLUECOLOR.value = value_hex_BLUE_LED;';
-		echo 'var value_TAG3 = "52426F' . $id_hex_special_function . '0020"+value_hex_RED_LED+value_hex_GREEN_LED+value_hex_BLUE_LED+"2E2E2E2E2E2E2E";';
+		echo 'var value_TAG3 = "52426F' . $id_hex_special_function . '0018"+value_hex_RED_LED+value_hex_GREEN_LED+value_hex_BLUE_LED+"2E2E2E2E2E2E2E";';
 		echo 'document.peri_100_btn_rgb_functions_'.$id.'.TAG3.value = value_TAG3;';
 		echo 'document.peri_100_btn_rgb_functions_'.$id.'.submit();';
 		echo '}';
