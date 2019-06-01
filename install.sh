@@ -10,7 +10,7 @@ echo "Installing rfpi ........."
 
 DIRECTORY_RFPI=/etc/rfpi
 DIRECTORY_WWW=/var/www
-DIRECTORY_SAMBA=/var/samba
+DIRECTORY_SAMBA=/etc/samba
 
 if [ ! -d "$DIRECTORY_RFPI" ]; then
 	# Control will enter here if $DIRECTORY doesn't exist.
