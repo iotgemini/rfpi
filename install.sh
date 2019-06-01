@@ -3,8 +3,8 @@ clear
 echo "Last update of this script was on 01-06-2019"
 echo "Installing rfpi ........."
 
-echo "Updating apt-get..."
-sudo apt-get update
+#echo "Updating apt-get..."
+#sudo apt-get update
 #sudo apt-get update && time sudo apt-get dist-upgrade
 
 
