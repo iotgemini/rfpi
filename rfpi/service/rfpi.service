@@ -3,6 +3,6 @@ Description=Starts the RFPI routine
 After=syslog.target network.target
 [Service]
 Type=simple
-ExecStart=/etc/rfpi/runrfpi.sh
+ExecStart=/etc/rfpi/bin/rfpi
 [Install]
 WantedBy=multi-user.target
