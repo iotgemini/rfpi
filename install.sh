@@ -10,6 +10,7 @@ echo "Installing rfpi ........."
 
 DIRECTORY_RFPI=/etc/rfpi
 DIRECTORY_WWW=/var/www
+DIRECTORY_SAMBA=/var/samba
 
 if [ ! -d "$DIRECTORY_RFPI" ]; then
 	# Control will enter here if $DIRECTORY doesn't exist.
@@ -95,29 +96,32 @@ sudo systemctl disable serial-getty@ttyS0.service
 
 
 
-read -p "------------Do you want install samba and share rfpi and www folders? (Y or N) " -n 1 -r
-echo "" #new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-	echo "Install Samba:"
-	sudo apt-get -y install samba samba-common-bin
+########################## BEGIN INSTALL SAMBA ##########################
+if [ ! -d "$DIRECTORY_SAMBA" ]; then
+	read -p "------------Do you want install samba and share rfpi and www folders? (Y or N) " -n 1 -r
+	echo "" #new line
+	if [[ $REPLY =~ ^[Yy]$ ]]
+	then
+		echo "Install Samba:"
+		sudo apt-get -y install samba samba-common-bin
 
-	echo " " >> /etc/samba/smb.conf
-	echo "[www]" >> /etc/samba/smb.conf
-	echo "comments = www share" >> /etc/samba/smb.conf
-	echo "path = /var/www" >> /etc/samba/smb.conf
-	echo "read only = no" >> /etc/samba/smb.conf
-	echo "guest ok = yes" >> /etc/samba/smb.conf
-	echo "force user = root" >> /etc/samba/smb.conf
-	echo " " >> /etc/samba/smb.conf
-	echo "[rfpi]" >> /etc/samba/smb.conf
-	echo "comments = rfpi share" >> /etc/samba/smb.conf
-	echo "path = /etc/rfpi" >> /etc/samba/smb.conf
-	echo "read only = no" >> /etc/samba/smb.conf
-	echo "guest ok = yes" >> /etc/samba/smb.conf
-	echo "force user = root" >> /etc/samba/smb.conf
+		echo " " >> /etc/samba/smb.conf
+		echo "[www]" >> /etc/samba/smb.conf
+		echo "comments = www share" >> /etc/samba/smb.conf
+		echo "path = /var/www" >> /etc/samba/smb.conf
+		echo "read only = no" >> /etc/samba/smb.conf
+		echo "guest ok = yes" >> /etc/samba/smb.conf
+		echo "force user = root" >> /etc/samba/smb.conf
+		echo " " >> /etc/samba/smb.conf
+		echo "[rfpi]" >> /etc/samba/smb.conf
+		echo "comments = rfpi share" >> /etc/samba/smb.conf
+		echo "path = /etc/rfpi" >> /etc/samba/smb.conf
+		echo "read only = no" >> /etc/samba/smb.conf
+		echo "guest ok = yes" >> /etc/samba/smb.conf
+		echo "force user = root" >> /etc/samba/smb.conf
+	fi
 fi
-
+########################## END INSTALL SAMBA ##########################
 
 
 #echo "Change network name:"
