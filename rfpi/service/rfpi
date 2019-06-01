@@ -17,8 +17,7 @@ eval cd ~$USER
 case "$1" in
   start)
     # if it's start, then start RFPI using the details below
-	su $USER -c '/etc/rfpi/bin/setserial.sh'
-    su $USER -c '/etc/rfpi/bin/rfpi'
+	su $USER -c '/etc/rfpi/runrfpi.sh'
     echo "Starting RFPI for $USER "
     ;;
   stop)
@@ -32,5 +31,3 @@ case "$1" in
     ;;
 esac
 exit 0
-
-# thanks - check http://support.rfberrypi.com
