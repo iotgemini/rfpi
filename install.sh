@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 24-05-2019"
+echo "Last update of this script was on 01-06-2019"
 echo "Installing rfpi ........."
 
 echo "Updating apt-get..."
@@ -31,8 +31,9 @@ SOURCE="./rfpi"
 DESTINATION=$DIRECTORY_RFPI
 sudo cp -r "$SOURCE/"* "$DESTINATION/"
 
-echo "Installing GCC and LIBRARY:"
+echo "Installing GCC, G++ and LIBRARY:"
 sudo apt-get -y install gcc libi2c-dev
+sudo apt-get -y install g++
 
 echo "Compiling the rfpi.c ......"
 sudo gcc -o $DIRECTORY_RFPI/rfpi $DIRECTORY_RFPI/rfpi.c
