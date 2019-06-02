@@ -70,16 +70,20 @@ Description: library for the RFPI
 void blink_led_OPZ_PA18(void){
 	for (;;){
 		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			linux_gpio_set_value(18, HIGH_GPIO);	// Led On
-			printf (" blink ON\n") ;
+		if(sem_serial_port_USB == 0){
+			//if(sem_ctrl_led == 1){
+				linux_gpio_set_value(18, HIGH_GPIO);	// Led On
+				printf (" blink ON\n") ;
+			//}
 		}
 		#endif
 		usleep  (200*1000) ;	//200 mS
 		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			linux_gpio_set_value(18, LOW_GPIO);	// Led Off
-			printf (" blink OFF\n") ;
+		if(sem_serial_port_USB == 0){
+			//if(sem_ctrl_led == 1){
+				linux_gpio_set_value(18, LOW_GPIO);	// Led Off
+				printf (" blink OFF\n") ;
+			//}
 		}
 		#endif
 		usleep  (200*1000) ;	//200 mS
@@ -114,7 +118,7 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 	unsigned int varTmpExit=1;
 	
 	printf("\nI am going to set the speed of the serial port to %d on the path %s\n", BAUD_RATE_SERIAL_PORT, serial_port_path);
-	/*
+	
 	varTmpExit=0;
 	do{
 		
@@ -178,10 +182,15 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 		}
 			
 	}while(baud<=115200 && varTmpExit==0);	
-	*/
-	//if(baud<=115200){
-		*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
-	//}	
+	
+	if(baud<=115200){
+		if(strcmp(serial_port_path,"null")!=0){
+			*handleUART = serialOpen (serial_port_path, BAUD_RATE_SERIAL_PORT) ;
+		}else{
+			*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
+		}
+		//*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
+	}	
 		
 	printf(" Baud rate set: %d\n", baud);
 	
@@ -195,65 +204,72 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 void ResetRFPI(void){ 
 	
 	#ifndef SERIAL_PORT_FTDI_USB
+	if(sem_serial_port_USB == 0){
+		if(PLATFORM == PLATFORM_RPI){
+		//#if PLATFORM == PLATFORM_RPI
+			// Set the pin to be an output
+			bcm2835_gpio_fsel(PIN_RESET, BCM2835_GPIO_FSEL_OUTP);
+			#ifdef LED_YES
+		
+				//if(sem_ctrl_led == 1){
+					bcm2835_gpio_fsel(PIN_LED_DS1, BCM2835_GPIO_FSEL_OUTP);
+					bcm2835_gpio_fsel(PIN_LED_DS2, BCM2835_GPIO_FSEL_OUTP);
+					bcm2835_gpio_set(PIN_LED_DS1);
+					// Turn it on
+					bcm2835_gpio_write(PIN_LED_DS2, HIGH);
+				//}
+			
+			#endif
+			bcm2835_gpio_write(PIN_RESET, LOW);
+			// wait
+			delay_ms(1000);
+			// turn it off
+			#ifdef LED_YES
 	
-	if(PLATFORM == PLATFORM_RPI){
-	//#if PLATFORM == PLATFORM_RPI
-		// Set the pin to be an output
-		bcm2835_gpio_fsel(PIN_RESET, BCM2835_GPIO_FSEL_OUTP);
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			bcm2835_gpio_fsel(PIN_LED_DS1, BCM2835_GPIO_FSEL_OUTP);
-			bcm2835_gpio_fsel(PIN_LED_DS2, BCM2835_GPIO_FSEL_OUTP);
-			bcm2835_gpio_set(PIN_LED_DS1);
-			// Turn it on
-			bcm2835_gpio_write(PIN_LED_DS2, HIGH);
+			//if(sem_ctrl_led == 1){
+				bcm2835_gpio_write(PIN_LED_DS2, LOW);
+			//}
+	
+			#endif
+			bcm2835_gpio_write(PIN_RESET, HIGH);
+			// wait 
+			delay_ms(1000);
+		//#endif
+		}else if(PLATFORM == PLATFORM_BBB){
+		//#if PLATFORM == PLATFORM_BBB
+			#ifdef LED_YES
+			//if(sem_ctrl_led == 1){
+				linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
+			//}
+			#endif
+			linux_gpio_set_value(BBB_PIN_RESET, LOW_GPIO);
+			// wait
+			delay_ms(1000);
+			#ifdef LED_YES
+			//if(sem_ctrl_led == 1){
+				linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
+			//}
+			#endif
+			linux_gpio_set_value(BBB_PIN_RESET, HIGH_GPIO);
+		}else if(PLATFORM == PLATFORM_OPZ){
+		//#if PLATFORM == PLATFORM_OPZ
+			#ifdef LED_YES
+		
+			//if(sem_ctrl_led == 1){
+				linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);	// Led On
+			//}
+			
+			#endif
+			linux_gpio_set_value(OPZ_PIN_RESET, LOW_GPIO);
+			// wait
+			delay_ms(1000);
+			#ifdef LED_YES
+			//if(sem_ctrl_led == 1){
+				linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);	// Led On
+			//}
+			#endif
+			linux_gpio_set_value(OPZ_PIN_RESET, HIGH_GPIO);
 		}
-		#endif
-		bcm2835_gpio_write(PIN_RESET, LOW);
-		// wait
-		delay_ms(1000);
-		// turn it off
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			bcm2835_gpio_write(PIN_LED_DS2, LOW);
-		}
-		#endif
-		bcm2835_gpio_write(PIN_RESET, HIGH);
-		// wait 
-		delay_ms(1000);
-	//#endif
-	}else if(PLATFORM == PLATFORM_BBB){
-	//#if PLATFORM == PLATFORM_BBB
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
-		}
-		#endif
-		linux_gpio_set_value(BBB_PIN_RESET, LOW_GPIO);
-		// wait
-		delay_ms(1000);
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
-		}
-		#endif
-		linux_gpio_set_value(BBB_PIN_RESET, HIGH_GPIO);
-	}else if(PLATFORM == PLATFORM_OPZ){
-	//#if PLATFORM == PLATFORM_OPZ
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);	// Led On
-		}
-		#endif
-		linux_gpio_set_value(OPZ_PIN_RESET, LOW_GPIO);
-		// wait
-		delay_ms(1000);
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);	// Led On
-		}
-		#endif
-		linux_gpio_set_value(OPZ_PIN_RESET, HIGH_GPIO);
 	}
 	#endif
 	
@@ -2225,7 +2241,7 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 
 //################################ V1.0 ############################################
 //send trough the serial port a specified number of characters to the Transceiver module.
-void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, unsigned char *answerRFPI, int delayMs){
+/*void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, unsigned char *answerRFPI, int delayMs){
 			
 			int i, numC;
 			
@@ -2238,10 +2254,10 @@ void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, un
 			
 			
 			printf(" Serial data: ");
-			/*for(i=0;i<numCharacters;i++){
-				serialPutchar(*handleUART, strCmd[i]);
-				printf("%c", strCmd[i]);
-			}*/
+			//for(i=0;i<numCharacters;i++){
+			//	serialPutchar(*handleUART, strCmd[i]);
+			//	printf("%c", strCmd[i]);
+			//}
 			write (*handleUART, strCmd, numCharacters) ;
 			printf("%s", strCmd);
 			
@@ -2270,7 +2286,7 @@ void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, un
 			
 			fflush(stdout); // Prints immediately to screen 
 			
-}
+}*/
 
 
 //send trough the serial port a specified number of characters to the Transceiver module and then send the command C31 and wait the answer from the peipheral.
@@ -2458,11 +2474,18 @@ extern void SerialCmdRFPi(int *handleUART, unsigned char *strCmd, char *answerRF
 			numCharacters = strlen(strCmd);
 			
 			printf("\n CMD to the Radio: ");
-			for(i=0;i<numCharacters;i++){
+			/*for(i=0;i<numCharacters;i++){
 				serialPutchar(*handleUART, strCmd[i]);
 				printf("%c", strCmd[i]);
-			}
+			}*/
+			write (*handleUART, strCmd, numCharacters) ;
+			printf("%s", strCmd);
+			
 			printf(" -> ");
+			
+			//delay_ms(CMD_WAIT1);
+			
+			//write (*handleUART, strCmd, numCharacters) ;
 			
 			contMs = 0;
 			
@@ -4024,46 +4047,59 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 	//if an error happen then it will be rewritten
 	strcpy(statusInit,"TRUE");
 	
-	if(PLATFORM==PLATFORM_RPI){
-	//#if PLATFORM == PLATFORM_RPI
-		if (!bcm2835_init()){
-			printf(ERROR001);printf("\n");
-			strcpy(statusInit,ERROR001);
-			file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
-			fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
-			fclose(file_pointer_error);
-		}
-	//#endif
-	}else if(PLATFORM==PLATFORM_BBB){
-	//#if PLATFORM == PLATFORM_BBB
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			#ifndef SERIAL_PORT_FTDI_USB
-			linux_gpio_export(BBB_PIN_LED_DS2);    // The LED DS2
-			linux_gpio_set_dir(BBB_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
-			#endif
-		}
-		#endif
-	}
-	//#endif
-	else if(PLATFORM==PLATFORM_OPZ){
-	//#if PLATFORM == PLATFORM_OPZ
-		#ifdef LED_YES
-		if(sem_ctrl_led == 1){
-			linux_gpio_export(OPZ_PIN_LED_DS2);    // The LED DS2
-			linux_gpio_set_dir(OPZ_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
-		
-			#ifndef SERIAL_PORT_FTDI_USB
-			linux_gpio_export(OPZ_PIN_BUSY);    // The Busy signal from the radio
-			linux_gpio_set_dir(OPZ_PIN_BUSY, INPUT_PIN);   //  The Busy signal from the radio is an input for the OPZ
-			#endif
-		}
-		#endif
-		
-	}
-	//#endif
 	
+	#ifndef SERIAL_PORT_FTDI_USB
+	if(sem_serial_port_USB == 0){
+		
+		if(PLATFORM==PLATFORM_RPI){
+		//#if PLATFORM == PLATFORM_RPI
+			if (!bcm2835_init()){
+				printf(ERROR001);printf("\n");
+				strcpy(statusInit,ERROR001);
+				file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
+				fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
+				fclose(file_pointer_error);
+			}
+		//#endif
+		}else if(PLATFORM==PLATFORM_BBB){
+		//#if PLATFORM == PLATFORM_BBB
+			#ifdef LED_YES
+			
+				///if(sem_ctrl_led == 1){
+					//#ifndef SERIAL_PORT_FTDI_USB
+					linux_gpio_export(BBB_PIN_LED_DS2);    // The LED DS2
+					linux_gpio_set_dir(BBB_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
+					//#endif
+				//}
+			
+			#endif
+		}
+		//#endif
+		else if(PLATFORM==PLATFORM_OPZ){
+		//#if PLATFORM == PLATFORM_OPZ
+			#ifdef LED_YES
+			
+				//if(sem_ctrl_led == 1){
+					linux_gpio_export(OPZ_PIN_LED_DS2);    // The LED DS2
+					linux_gpio_set_dir(OPZ_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
+				
+					//#ifndef SERIAL_PORT_FTDI_USB
+			
+					linux_gpio_export(OPZ_PIN_BUSY);    // The Busy signal from the radio
+					linux_gpio_set_dir(OPZ_PIN_BUSY, INPUT_PIN);   //  The Busy signal from the radio is an input for the OPZ
+					
+					//#endif
+				//}
+			
+			#endif
+			
+		}
+	}
+	#endif
+	
+
 	ResetRFPI(); //it reset the Transceiver and turn on the LED called DS2
+	
 	
 	//Initialisation of the serial communication with the Transceiver
 	if(!InitSerialCommunication(&handleUART, serial_port_path)){
@@ -4136,31 +4172,33 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 void blinkLed(){
 
 	#ifdef LED_YES
-	if(sem_ctrl_led == 1){
-		#if PLATFORM == PLATFORM_RPI
-			bcm2835_gpio_write(PIN_LED_DS2, HIGH);
+	
+		if(sem_serial_port_USB == 0){
+			#if PLATFORM == PLATFORM_RPI
+				bcm2835_gpio_write(PIN_LED_DS2, HIGH);
+				delay_ms(BLINK_LED_DELAY);
+				bcm2835_gpio_write(PIN_LED_DS2, LOW);
+				delay_ms(BLINK_LED_DELAY);
+			#endif
+			
+			#if PLATFORM == PLATFORM_BBB
+				linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
+				delay_ms(BLINK_LED_DELAY);
+				linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
+				delay_ms(BLINK_LED_DELAY);
+			#endif
+			
+			#if PLATFORM == PLATFORM_OPZ
+				linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);
+				delay_ms(BLINK_LED_DELAY);
+				linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
+				delay_ms(BLINK_LED_DELAY);
+			#endif
+		}else{
 			delay_ms(BLINK_LED_DELAY);
-			bcm2835_gpio_write(PIN_LED_DS2, LOW);
 			delay_ms(BLINK_LED_DELAY);
-		#endif
-		
-		#if PLATFORM == PLATFORM_BBB
-			linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
-			delay_ms(BLINK_LED_DELAY);
-			linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
-			delay_ms(BLINK_LED_DELAY);
-		#endif
-		
-		#if PLATFORM == PLATFORM_OPZ
-			linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);
-			delay_ms(BLINK_LED_DELAY);
-			linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
-			delay_ms(BLINK_LED_DELAY);
-		#endif
-	}else{
-		delay_ms(BLINK_LED_DELAY);
-		delay_ms(BLINK_LED_DELAY);
-	}	
+		}	
+	
 	#else 
 		delay_ms(BLINK_LED_DELAY);
 		delay_ms(BLINK_LED_DELAY);
@@ -5230,6 +5268,8 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 
 	char varTmpReturn[50]="null";
 
+	sem_serial_port_USB = 0;
+	
 	#ifdef ENABLE_SEARCH_SERIAL_PORT_PATH
 	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
 	unsigned int i,j;
@@ -5240,6 +5280,8 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 	char port_path[12][10]={"ttyAMA0", "ttyS0", "ttyS1", "serial0", "ttyUSB0", "ttyUSB1", "ttyUSB2", "ttyUSB3", "ttyO0", "ttyO1", "ttyO2", "ttyO3"};
 	char temp_path_serial_port[50];
 
+	
+	
 	printf(" Searching the serial port path...\n");
 		
 	for(j=0; j<12 && varTmpExit==0; j++){
@@ -5259,6 +5301,7 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 			printf("-> path opened! Going to test if the transceiver reply......\n"); fflush(stdout); // Prints immediately to screen 
 			serialClose (*handleUART) ; //closing the serial
 			printf(" Testing all baud rate of the serial port...\n");
+			
 			do{
 				*handleUART = serialOpen (temp_path_serial_port, baud) ;
 
@@ -5308,11 +5351,18 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 				printf("\nTRANSCEIVER FOUND!! Baud rate used: %d\n", baud);
 				fflush(stdout); // Prints immediately to screen 
 				strcpy(varTmpReturn, temp_path_serial_port); //to return the serial port path
-				if(j>3 && j<8){ //4 to 7 are the index of the USB serial port path
+				/*if(j>3 && j<8){ //4 to 7 are the index of the USB serial port path
 					sem_ctrl_led = 1;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
 				}else{
 					sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
+				}*/
+				
+				if(j>3 && j<8){//4 to 7 are the index of the USB serial port path
+					sem_serial_port_USB = 1;
+				}else{
+					sem_serial_port_USB = 0;
 				}
+			
 			}else{
 				printf("\nI DID NOT FIND THE TRANSCEIVER!\n", baud);
 				fflush(stdout); // Prints immediately to screen 

@@ -56,7 +56,7 @@ int main(int argc, char **argv){
 	char str_net_name_and_address[50];
 
 	sem_serial_communication_via_usb=0; //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
-	sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
+	//sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
 	//this function test all serial port under the path given by path_search
 	serial_port_path_str = return_serial_port_path(path_to_search_serial_port, serial_port_path_str, &handleUART); 
 	printf("Serial port path found: %s", serial_port_path_str);
@@ -106,7 +106,8 @@ int main(int argc, char **argv){
 			delay_ms(ERROR_BLINK_LED_DELAY);
 			//if(PLATFORM == PLATFORM_RPI){
 			#ifdef LED_YES
-			if(sem_ctrl_led == 1){
+			//if(sem_ctrl_led == 1){
+			if(sem_serial_port_USB == 0){
 				#if PLATFORM == PLATFORM_RPI
 				
 					bcm2835_gpio_write(PIN_LED_DS1, LOW); //led which indicate if an error occurred
@@ -124,7 +125,8 @@ int main(int argc, char **argv){
 			#endif
 		}else{ 
 			#ifdef LED_YES
-			if(sem_ctrl_led == 1){
+			//if(sem_ctrl_led == 1){
+			if(sem_serial_port_USB == 0){
 				//if(PLATFORM == PLATFORM_RPI){
 				#if PLATFORM == PLATFORM_RPI
 					bcm2835_gpio_write(PIN_LED_DS1, HIGH); //led which indicate if an error occurred

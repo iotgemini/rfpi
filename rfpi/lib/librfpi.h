@@ -57,7 +57,7 @@ Description: library for the RFPI
 #define ENABLE_SEARCH_SERIAL_PORT_PATH					
 #define PATH_TO_SEARCH_SERIAL_PORT				"/dev"
 
-#define SERIAL_PORT_FTDI_USB	//deccoment to enable usb communication
+//#define SERIAL_PORT_FTDI_USB	//deccoment to enable usb communication
 
 #define PATH_RFPI_SW	 			"/etc/rfpi"
 //#define PATH_RFPI_SW	 			"/etc/rfpi_usb"
@@ -162,7 +162,7 @@ int var_dummy1,var_dummy2;
 #define MAX_LEN_PATH 				255 	//it is the maximum length in number of characters for the path included the name of the file
 #define MAX_LEN_BUFFER_ANSWER_RF	47 		//into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
 
-#define CMD_WAIT1					620 	//it is a delay needed after each command sent through the uart to the Transceiver
+#define CMD_WAIT1					420 	//it is a delay needed after each command sent through the uart to the Transceiver
 #define CMD_WAIT2					1200 	//it is a longer delay used to wait answer after radio frequency transmission
 
 #define MAX_NUM_RETRY				3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
@@ -245,9 +245,10 @@ unsigned char array10BytesToSend[10];
 
 //variable used for the serial communication
 char *serial_port_path_str;
+unsigned char sem_serial_port_USB;
 char path_to_search_serial_port[]=PATH_TO_SEARCH_SERIAL_PORT;
 unsigned char sem_serial_communication_via_usb;  //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
-unsigned char sem_ctrl_led; //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
+//unsigned char sem_ctrl_led; //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
 	
 //delay milliseconds
 void delay_ms(unsigned int millis);
@@ -315,7 +316,7 @@ peripheraldata *deletePeripheralByAddress(char *addressPeri, peripheraldata *roo
 extern peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralData);
 
 //send trough the serial port a specified number of characters to the Transceiver module.
-extern void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, unsigned char *answerRFPI, int delayMs);
+//extern void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, unsigned char *answerRFPI, int delayMs);
 
 //send trough the serial port a specified number of characters to the Transceiver module and then send the command C31 and wait the answer from the peipheral.
 extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arrayData, int numCharacters, char *answerRFPI, int maxTimeOutMs, unsigned char mustReply);
