@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					23/05/2019
+Last Update: 					02/06/2019
 
 
 Description: application rfpi.c to run the RFPI network
@@ -58,12 +58,12 @@ int main(int argc, char **argv){
 	sem_serial_communication_via_usb=0; //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
 	sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
 	//this function test all serial port under the path given by path_search
-	serial_port_path = return_serial_port_path(path_to_search_serial_port, serial_port_path, &handleUART); 
-	
+	serial_port_path_str = return_serial_port_path(path_to_search_serial_port, serial_port_path_str, &handleUART); 
+	printf("Serial port path found: %s", serial_port_path_str);
 	
 	
 	//it init the RFPI
-	rootPeripheralData=InitRFPI(rootPeripheralData);
+	rootPeripheralData=InitRFPI(rootPeripheralData, serial_port_path_str);
 	
 	#ifdef RTC_MODEL
 	if(RTC_MODEL==RTC_DS1307){

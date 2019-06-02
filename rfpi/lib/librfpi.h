@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					24/05/2019
+Last Update: 					02/06/2019
 
 
 Description: library for the RFPI
@@ -57,7 +57,7 @@ Description: library for the RFPI
 #define ENABLE_SEARCH_SERIAL_PORT_PATH					
 #define PATH_TO_SEARCH_SERIAL_PORT				"/dev"
 
-//#define SERIAL_PORT_FTDI_USB	//deccoment to enable usb communication
+#define SERIAL_PORT_FTDI_USB	//deccoment to enable usb communication
 
 #define PATH_RFPI_SW	 			"/etc/rfpi"
 //#define PATH_RFPI_SW	 			"/etc/rfpi_usb"
@@ -103,7 +103,8 @@ Description: library for the RFPI
 
 
 //#define		BAUD_RATE_SERIAL_PORT	115200
-#define		BAUD_RATE_SERIAL_PORT	57600
+//#define		BAUD_RATE_SERIAL_PORT	57600
+#define		BAUD_RATE_SERIAL_PORT	9600
 
 //#define 	SEND_COMAND_TO_SET_OPERATING_BAUDRATE 	SerialCmdRFPi(handleUART, "C557", answerRFPI, CMD_WAIT1)	//set a baud rate of 115200 (no compatible with Black Transceiver)
 //#define 	SEND_COMAND_TO_SET_OPERATING_BAUDRATE 	SerialCmdRFPi(handleUART, "C556", answerRFPI, CMD_WAIT1) 	//set a baud rate of 57600
@@ -161,7 +162,7 @@ int var_dummy1,var_dummy2;
 #define MAX_LEN_PATH 				255 	//it is the maximum length in number of characters for the path included the name of the file
 #define MAX_LEN_BUFFER_ANSWER_RF	47 		//into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
 
-#define CMD_WAIT1					120 	//it is a delay needed after each command sent through the uart to the Transceiver
+#define CMD_WAIT1					620 	//it is a delay needed after each command sent through the uart to the Transceiver
 #define CMD_WAIT2					1200 	//it is a longer delay used to wait answer after radio frequency transmission
 
 #define MAX_NUM_RETRY				3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
@@ -243,7 +244,7 @@ unsigned char RTC_date_bcd, RTC_month_bcd, RTC_year_bcd;
 unsigned char array10BytesToSend[10];
 
 //variable used for the serial communication
-char *serial_port_path;
+char *serial_port_path_str;
 char path_to_search_serial_port[]=PATH_TO_SEARCH_SERIAL_PORT;
 unsigned char sem_serial_communication_via_usb;  //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
 unsigned char sem_ctrl_led; //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
@@ -254,7 +255,7 @@ void delay_ms(unsigned int millis);
 //it will init the serial communication between Transceiver and Raspberry Pi. 
 //First it will find the baud rate set on the Transceiver and then keep open 
 //the Raspberry Pi serial with the same baud rate.
-extern unsigned int InitSerialCommunication(int *handleUART);
+extern unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path);
 		
 //it reset the Transceiver and turn on the LED called DS2
 extern void ResetRFPI(void);
@@ -360,7 +361,7 @@ unsigned char convert_2ChrHex_to_byte(unsigned char *chr);
 char* convert_byte_to_2ChrHex(unsigned char byte, char *str2chr);
 
 //it init the RFPI
-extern peripheraldata *InitRFPI(peripheraldata *rootPeripheralData);
+extern peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_path);
 
 //it blink the led and gives a delay to stay under the transmission limit
 extern void blinkLed();

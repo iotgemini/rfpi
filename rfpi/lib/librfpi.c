@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/05/2019
+Last Update: 					02/06/2019
 
 
 Description: library for the RFPI
@@ -104,17 +104,18 @@ void delay_ms(unsigned int millis){
 
 
 //it will init the serial communication between Transceiver and Raspberry Pi. 
-unsigned int InitSerialCommunication(int *handleUART){ 	
+unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){ 	
 	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
 	char *cmd;
 	unsigned int i;
 	int numCharacters;
 	unsigned int baud=9600;
-	unsigned int varTmpExit=0;
+	//unsigned int varTmpExit=0;
+	unsigned int varTmpExit=1;
 	
-	printf("\nI am going to set the speed of the serial port to %d\n", BAUD_RATE_SERIAL_PORT);
-	
-	
+	printf("\nI am going to set the speed of the serial port to %d on the path %s\n", BAUD_RATE_SERIAL_PORT, serial_port_path);
+	/*
+	varTmpExit=0;
 	do{
 		
 		//if(PLATFORM == PLATFORM_RPI)
@@ -177,10 +178,10 @@ unsigned int InitSerialCommunication(int *handleUART){
 		}
 			
 	}while(baud<=115200 && varTmpExit==0);	
-	
-	if(baud<=115200){
+	*/
+	//if(baud<=115200){
 		*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
-	}	
+	//}	
 		
 	printf(" Baud rate set: %d\n", baud);
 	
@@ -2237,10 +2238,14 @@ void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, un
 			
 			
 			printf(" Serial data: ");
-			for(i=0;i<numCharacters;i++){
+			/*for(i=0;i<numCharacters;i++){
 				serialPutchar(*handleUART, strCmd[i]);
 				printf("%c", strCmd[i]);
-			}
+			}*/
+			write (*handleUART, strCmd, numCharacters) ;
+			printf("%s", strCmd);
+			
+			
 			printf(" -> ");
 			
 			delay_ms(delayMs); //delay to wait for the execution of the command by the Transceiver
@@ -4006,7 +4011,7 @@ char* convert_byte_to_2ChrHex(unsigned char byte, char *str2chr){
 
 
 //it init the RFPI
-peripheraldata *InitRFPI(peripheraldata *rootPeripheralData){
+peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_path){
 
 	FILE *file_pointer; 				//generic pointer to file, used in multiple places
 	FILE *file_pointer_error; 			//used for the file of the error history
@@ -4061,7 +4066,7 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData){
 	ResetRFPI(); //it reset the Transceiver and turn on the LED called DS2
 	
 	//Initialisation of the serial communication with the Transceiver
-	if(!InitSerialCommunication(&handleUART)){
+	if(!InitSerialCommunication(&handleUART, serial_port_path)){
 		printf("\n"); printf(ERROR002); printf("\n");
 		strcpy(statusInit,ERROR002);
 		file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
@@ -5261,6 +5266,14 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 				serialPrintf(*handleUART, "C54" ) ; //sending the command to the Radio	
 				delay_ms(CMD_WAIT1);
 				
+				
+				//delay_ms(500);
+				
+				serialPrintf(*handleUART, "C54" ) ; //sending the command to the Radio	
+				
+				delay_ms(120);
+				//delay_ms(CMD_WAIT1);
+				
 				numCharacters=serialDataAvail (*handleUART) ;
 				if(numCharacters>0){ 
 					if(numCharacters>=MAX_LEN_BUFFER_ANSWER_RF) printf("\n Too high quantity of data: %d \n", numCharacters);
@@ -5271,7 +5284,10 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 					}
 					//if(answerRFPI[0]=='*')//this work for command C85
 					//	varTmpExit=1;
-					if( (answerRFPI[0]=='I' && answerRFPI[1]=='O' && answerRFPI[2]=='T') ||  (answerRFPI[0]=='G' && answerRFPI[1]=='3' && answerRFPI[2]=='P') ) //this work for command C54
+					if( (answerRFPI[0]=='I' && answerRFPI[1]=='O' && answerRFPI[2]=='T') 
+						||  (answerRFPI[0]=='G' && answerRFPI[1]=='3' && answerRFPI[2]=='P')
+						||  (answerRFPI[0]=='*' && answerRFPI[1]=='I' && answerRFPI[2]=='O' && answerRFPI[3]=='T')
+						) //this work for command C54
 						varTmpExit=1;
 
 					numCharacters = 0;
