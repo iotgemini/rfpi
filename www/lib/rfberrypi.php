@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		23/05/2019
+Last Update: 		12/06/2019
 
 Description: it is the library with all useful function to use RFPI
 
@@ -89,6 +89,7 @@ define("FIFO_RFPI_NET_NAME", "/etc/rfpi/fifo/fifonetname"); 		//used to get the 
 define("FIFO_RTC", "/etc/rfpi/fifo/fifortc"); 						//used to get the time from the RTC
 define("FIFO_GET_BYTES_U", "/etc/rfpi/fifo/fifogetbytesu"); 		//used to get GET_BYTES_U
 define("FIFO_SEND_BYTES_U", "/etc/rfpi/fifo/fifosendbytesf"); 		//used to get SEND_BYTES_F
+define("CONF_PATH", "/etc/rfpi/config/"); 							//whwere all JSON file are kept
 
 
 //DEFINES of message to write into the FIFO RFPI DATA

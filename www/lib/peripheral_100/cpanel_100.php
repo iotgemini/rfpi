@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		25/05/2019
+Last Update: 		12/06/2019
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -93,6 +93,180 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 									$array_input_formula_to_show
 									);
 									
+	
+	
+	
+/************************************* BEGIN: DECODE JSON FILE *************************************/
+	
+	
+	// Define recursive function to extract nested values
+	function printValues($array_conf_json) {
+		global $count;
+		global $values;
+		
+		// Check input is an array
+		if(!is_array($array_conf_json)){
+			die("ERROR: Input is not an array");
+		}
+		
+		/*
+		Loop through array, if value is itself an array recursively call the
+		function else add the value found to the output items array,
+		and increment counter by 1 for each value found
+		*/
+		foreach($array_conf_json as $key=>$value){
+			if(is_array($value)){
+				printValues($value);
+			} else{
+				$values[] = $value;
+				$count++;
+			}
+		}
+		
+		// Return total count and values found in array
+		return array('total' => $count, 'values' => $values);
+	}
+	 
+	// Assign JSON encoded string to a PHP variable
+	/*$json = '{
+		"book": {
+			"name": "Harry Potter and the Goblet of Fire",
+			"author": "J. K. Rowling",
+			"year": 2000,
+			"characters": ["Harry Potter", "Hermione Granger", "Ron Weasley"],
+			"genre": "Fantasy Fiction",
+			"price": {
+				"paperback": "$10.40", "hardcover": "$20.32", "kindle": "4.11"
+			}
+		}
+	}';*/
+	
+	$json = "";
+	$path_conf_json = CONF_PATH . $address_peri . ".json";
+	if(file_exists($path_conf_json)){
+		$myfile = fopen($path_conf_json, 'r');
+		while(feof($myfile)!==TRUE){
+			$json .= fgets($myfile);
+		}
+		fclose($myfile);
+	
+	}else{
+		//$_SESSION["language"]="EN";
+	}
+	
+	
+	
+	// Decode JSON data into PHP associative array format
+	$array_conf_json = json_decode($json, true);
+	 
+	//var_dump($array_conf_json);
+	
+	
+	 
+	// Call the function and print all the values
+	//$result = printValues($array_conf_json);
+	//echo "<h3>" . $result["total"] . " value(s) found: </h3>";
+	//echo implode("<br>", $result["values"]); 
+	//echo "<hr>";
+	 
+	// Print a single value
+	//echo $array_conf_json["book"]["author"] . "<br>";  // Output: J. K. Rowling
+	//echo $array_conf_json["book"]["characters"][0] . "<br>";  // Output: Harry Potter
+	//echo $array_conf_json["book"]["price"]["hardcover"] . "<br>";  // Output: $20.32
+	
+	
+	/*echo $array_conf_json["MODULE"]["SHIELD_0"]["PINOUT"]["MASK_0"];
+	
+	if($array_conf_json["MODULE"]["SHIELD_5"]["PINOUT"]["MASK_0"]) 
+		echo " ESISTE!"; 
+	else 
+		echo " NON ESISTE!";
+	*/
+	
+	$array_pin_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_pin_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_pin_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_pin_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	
+	$array_shield_name_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_name_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_name_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_name_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		
+	$array_id_analogue_outputs_json = [0,0,0,0,0,0,0,0];
+	
+	
+	$varExit=0;
+	$var_shields_count=0;
+	//echo $array_conf_json["MODULE"].length;
+	for($i=0; $i<100 && $varExit==0; $i++){
+		if($array_conf_json["MODULE"]["SHIELD_" . $i]){
+			$var_shields_count++;
+		}else{
+			$varExit=1;
+			//echo " NON ESISTE!";
+		}
+		
+	}
+	 
+	//echo " NUM SHIELDS=".$var_shields_count;
+	
+	$count_digital_input_json = 0;
+	$count_digital_output_json = 0;
+	$count_analogue_input_json = 0;
+	$count_analogue_output_json = 0;
+	
+	$sem_RGB_Shield_connected = 0;
+	
+	//going to get the values for each shield
+	for($i=0; $i<$var_shields_count; $i++){
+		$id_shield = $array_conf_json["MODULE"]["SHIELD_" . $i][ID];
+		
+		//parsing data by ID
+		if($id_shield==1){ //DIGITAL OUTPUT
+			$array_pin_digital_outputs_json [$count_digital_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+			$array_shield_name_digital_outputs_json [$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			$count_digital_output_json++;
+		}else if($id_shield==2){ //DIGITAL INPUT
+			$array_pin_digital_inputs_json [$count_digital_input_json]  = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+			$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			$count_digital_input_json++;
+		}else if($id_shield==3){ //ANALOGUE INPUT
+			$array_pin_analogue_inputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+			$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			$count_analogue_input_json++;
+		}else if($id_shield==4){ //RGB SHIELD
+			$sem_RGB_Shield_connected = 1;
+			$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+			$count_analogue_output_json++;
+			$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_1];
+			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+			$count_analogue_output_json++;
+			$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_2];
+			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+			$count_analogue_output_json++;
+		}else if($id_shield==5){ //ANALOGUE OUTPUT
+			$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+			$count_analogue_output_json++;
+		}
+	}
+	
+	
+/************************************* END: DECODE JSON FILE *************************************/
+	
+	
+	
+	
+	
+	
+	
+	
 	//echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css" type="text/css" >';
 	
 	//echo '<td>' . $id . '</td>';  
@@ -119,8 +293,236 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	echo '</tr></table>';
 	echo '</td>';  
 				
+
+/**************************************** BEGIN: PRINTING INPUS	****************************************/
 	//print the name of the input and the status
 	echo '<td>';
+	//begin to print the digital input
+	$l=0;
+	$counter=0;
+	while ($l<$count_digital_input_json) { 
+
+			echo '<div style="border:1px solid #000;border-radius:4px;padding: 2px;">'; //background: #d2f4f3;">';
+			echo $array_shield_name_digital_inputs_json[$l] . ' ';
+			echo $array_pin_digital_inputs_json[$l].' ';
+			echo 'ID' . $counter;
+			echo '<br>';
+			/*if($arrayStatusInput[$counter]==-1){
+				echo ' = &#63;';
+			}else{	
+				echo ' = ';
+				echo $arrayStatusInput[$counter];
+			}*/
+			echo '<h2>';
+			if($arrayStatusInput[$counter]==1){
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_green.png" class="img_led" alt="'.$lang_msg_on.'"> ';
+				//echo ' = 1';
+			}else if($arrayStatusInput[$counter]==0){
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_red.png" class="img_led" alt="'.$lang_msg_off.'"> ';
+				//echo ' = 0';
+			}else{
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_grey.png" class="img_led" alt="'.DEFINE_lang_msg_no_communication.'"> ';
+				//echo ' = &#63;';
+			}
+			echo '</h2>';
+			echo '</div>';
+	
+
+		$l++;
+		$counter++;
+		
+	}
+	//printing the analogue input
+	$l=0;
+	while ($l<$count_analogue_input_json) { 
+
+			echo '<div style="border:1px solid #000;border-radius:4px;padding: 2px;">'; //background: #d2f4f3;">';
+			echo $array_shield_name_analogue_inputs_json[$l] . ' ';
+			echo $array_pin_analogue_inputs_json[$l].' ';
+			echo 'ID' . $counter;
+			
+			echo '<br>';
+			
+			if($arrayStatusInput[$counter]==-1){
+				echo '&#63;';
+			}else{	
+				//echo ' = ';
+				if($array_shield_name_analogue_inputs_json[$l]==="temp-sensor"){
+					$temperature = temperature_MCP9701_from_ADC_raw_value_peri_100($arrayStatusInput[$counter]);
+					echo '<h2>';
+					echo number_format((float)strval($temperature), 1, '.', '');
+					echo '&nbsp&#176C&nbsp'; //°C
+					echo '</h2>';
+				}else{
+					echo '<h2>';
+					echo $arrayStatusInput[$counter];
+					echo '</h2>';
+				}
+			}
+			
+			//echo '<br>';
+			//echo '(' . $array_pin_analogue_inputs_json[$l].' ';
+			//echo 'ID' . $counter . ')';
+			
+			echo '</div>';
+
+		$l++;
+		$counter++;
+		
+	}
+	echo '</td>';
+/**************************************** END: PRINTING INPUS	****************************************/
+
+
+
+/**************************************** BEGIN: PRINTING OUTPUS	****************************************/
+	
+				
+	//print the name of the output and the status
+	echo '<td>';
+	$l=0;
+	$counter=0;
+	while ($l<$count_digital_output_json) {
+		
+
+			echo '<script type="text/JavaScript">';
+			echo 'function change' . $id . '_' . $counter . '(value){';
+			echo 'document.set_' . $id . '_output_' . $counter . '.output_value.value=value;';
+			echo 'document.set_' . $id . '_output_' . $counter . '.submit();';
+			echo '}';
+			echo '</script>';
+		
+			echo '<div style="border:1px solid #000;border-radius:4px;padding: 2px;">'; //background: #d2f4f3;">';
+			echo $array_shield_name_digital_outputs_json[$l] . ' ';
+			echo $array_pin_digital_outputs_json[$l].' ';
+			echo 'ID' . $counter;
+			
+			echo '<form name="set_' . $id . '_output_' . $counter . '" action="set_output.php" method=GET>';
+
+			echo '<input type=hidden name="peripheral_id" value="' . $id . '">';
+			echo '<input type=hidden name="output_id" value="' . $counter . '">';
+
+			echo '<input type=hidden name="output_value" value="' . $arrayStatusOutput[$counter] . '">';
+			if($arrayStatusOutput[$counter]==0){
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'switch_off.png" onclick="change' . $id . '_' . $counter . '(1)"  class="img_switch_off" alt="'.$lang_msg_turn_on.'"> ';
+			}else{
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'switch_on.png" onclick="change' . $id . '_' . $counter . '(0)"  class="img_switch_on" alt="'.$lang_msg_turn_off.'"> ';
+			}
+
+			if($arrayStatusOutput[$counter]==1){
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_green.png" class="img_led" alt="'.$lang_msg_on.'"> ';
+			}else if($arrayStatusOutput[$counter]==0){
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_red.png" class="img_led" alt="'.$lang_msg_off.'"> ';
+			}else{
+				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_grey.png" class="img_led" alt="'.DEFINE_lang_msg_no_communication.'"> ';
+			}
+
+			echo '</form>';
+			echo '</div>';
+
+		$l++;
+		$counter++;
+	}
+	
+	
+	//printing analogue outputs
+	$l=0;
+	while ($l<$count_analogue_output_json && $sem_RGB_Shield_connected == 0) {
+		
+
+			echo '<script type="text/JavaScript">';
+			echo 'function change' . $id . '_' . $counter . '(value){';
+			echo 'document.set_' . $id . '_output_' . $counter . '.output_value.value=value;';
+			echo 'document.set_' . $id . '_output_' . $counter . '.submit();';
+			echo '}';
+			echo '</script>';
+		
+			echo '<div style="border:1px solid #000;border-radius:4px;padding: 2px;">'; //background: #d2f4f3;">';
+			echo $array_shield_name_analogue_outputs_json[$l] . ' ';
+			echo $array_pin_analogue_outputs_json[$l].' ';
+			echo 'ID' . $counter;
+			
+			echo '<form name="set_' . $id . '_output_' . $counter . '" action="set_output.php" method=GET>';
+
+			echo '<input type=hidden name="peripheral_id" value="' . $id . '">';
+			echo '<input type=hidden name="output_id" value="' . $counter . '">';
+
+			if($sem_RGB_Shield_connected == 0){
+				echo '<input type=text name="output_value" value="' . $arrayStatusOutput [$counter] . '" class="text_value_io">';
+				echo '<input type=submit value="Set Output">';
+			}
+
+			echo '</form>';
+			echo '</div>';
+
+		$l++;
+		$counter++;
+	}
+	
+	
+	if($sem_RGB_Shield_connected == 1){	//if the first output is analogue and there are other 2 output analogue then is the RGB shield connected
+		echo '<div style="border:1px solid #000;border-radius:4px;padding: 2px;">'; //background: #d2f4f3;">';
+		echo '<form name="peri_100_btn_rgb_functions_'.$id.'" action="./lib/peripheral_100/cmd_send_rgb_data.php" method=GET>';
+		$value_hex_RED_LED =  convert_byte_to_2ChrHex($arrayStatusOutput[$numOutput-3]); //"00";
+		$value_hex_GREEN_LED = convert_byte_to_2ChrHex($arrayStatusOutput[$numOutput-1]); //"00";
+		$value_hex_BLUE_LED = convert_byte_to_2ChrHex($arrayStatusOutput[$numOutput-2]); //"00";
+		
+		echo '<h2>RGB<br>';
+		echo '  <input type="color" name="favcolor" value="#' . $value_hex_RED_LED . $value_hex_GREEN_LED . $value_hex_BLUE_LED .'" onchange="change_RGB_'.$id.'(0)">';
+		echo '</h2>';
+		echo 'RED PIN3 ID' . $array_id_analogue_outputs_json[0] . '<br>';
+		echo 'BLUE PIN6 ID' . $array_id_analogue_outputs_json[1] . '<br>';
+		echo 'GREEN PIN9 ID' . $array_id_analogue_outputs_json[2] ;
+
+		$byte_to_convert=$numOutput-3;
+		$id_hex_special_function = convert_byte_to_2ChrHex($byte_to_convert); //"00"; //hexadecimal format. example 0x02 as to be written as "02"
+		//echo $id_hex_special_function;
+		echo '<input type=hidden name="position_id" value="'.$id.'">';
+		echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+		echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
+		echo '<input type=hidden name="TAG0" value="DATA">'; 				//Command
+		echo '<input type=hidden name="TAG1" value="RF">'; 					//second parameter
+		echo '<input type=hidden name="TAG2" value="'.$address_peri.'">';	//third parameter
+		
+		$str_TAG3 = "52426F" . $id_hex_special_function . "0018" . $value_hex_RED_LED . $value_hex_GREEN_LED . $value_hex_BLUE_LED . "2E2E2E2E2E2E2E"; 
+		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
+		echo '<input type=hidden name="page_to_show_data" value="login.php">';
+		//echo '<input type=text name="VALUECOLOR" value="'.$address_peri.'"><br>';	
+		echo '<input type=hidden name="REDCOLOR" value="'.$value_hex_RED_LED.'">';	
+		echo '<input type=hidden name="GREENCOLOR" value="'.$value_hex_GREEN_LED.'">';	
+		echo '<input type=hidden name="BLUECOLOR" value="'.$value_hex_BLUE_LED.'">';
+		
+		//echo '<input type=button value="'.$lang_btn_rgb.'" onclick="change_RGB_'.$id.'(0)" class="btn_functions">';
+		
+		echo '<script type="text/JavaScript">';
+		echo 'function change_RGB_'.$id.'(value){';
+		echo 'var selected_color = document.peri_100_btn_rgb_functions_'.$id.'.favcolor.value;';
+		echo 'selected_color = selected_color.toUpperCase();';
+		echo 'var value_hex_RED_LED = selected_color[1]+selected_color[2];';
+		echo 'var value_hex_GREEN_LED = selected_color[3]+selected_color[4];';
+		echo 'var value_hex_BLUE_LED = selected_color[5]+selected_color[6];';
+		//echo 'document.peri_100_btn_rgb_functions_'.$id.'.VALUECOLOR.value = selected_color;';
+		echo 'document.peri_100_btn_rgb_functions_'.$id.'.REDCOLOR.value = value_hex_RED_LED;';
+		echo 'document.peri_100_btn_rgb_functions_'.$id.'.GREENCOLOR.value = value_hex_GREEN_LED;';
+		echo 'document.peri_100_btn_rgb_functions_'.$id.'.BLUECOLOR.value = value_hex_BLUE_LED;';
+		echo 'var value_TAG3 = "52426F' . $id_hex_special_function . '0018"+value_hex_RED_LED+value_hex_GREEN_LED+value_hex_BLUE_LED+"2E2E2E2E2E2E2E";';
+		echo 'document.peri_100_btn_rgb_functions_'.$id.'.TAG3.value = value_TAG3;';
+		echo 'document.peri_100_btn_rgb_functions_'.$id.'.submit();';
+		echo '}';
+		echo '</script>';
+		echo '</form>';
+		echo '</div>';
+	}
+	echo '</td>';
+	
+	
+/**************************************** END: PRINTING OUTPUS	****************************************/
+
+
+
+
+	//print the name of the input and the status
+	/*echo '<td>';
 	$l=0;
 	while ($l<$numInput) { 
 
@@ -133,7 +535,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 				echo '= ';
 				echo $arrayStatusInput[$l];
 			}
-			/*	
+				
 			if($arrayStatusInput[$l]==1){
 				//echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_green.png" class="img_led" alt="'.$lang_msg_on.'"> ';
 				echo '= 1';
@@ -143,118 +545,17 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 			}else{
 				//echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_grey.png" class="img_led" alt="'.DEFINE_lang_msg_no_communication.'"> ';
 				echo '= &#63;';
-			}*/
+			}
 			echo '<br>';
 		//}
 		$l++;
 		
 	}
-	
 	echo '</td>';
 	
 				
 	//print the name of the output and the status
 	echo '<td>';
-	
-
-	
-	/*
-	echo '<script src="sliders.js"></script>';
-	
-	
-	echo '<div id="demo" class="example">';
-	
-	
-	echo '<div class="sliders yui3-skin-sam">';
-	//echo '<div class="sliders">';
-    echo '<dl>';
-    echo '    <dt>R: <span id="r-val" class="val"></span></dt><dd id="r-slider"></dd>';
-    echo '    <dt>G: <span id="g-val" class="val"></span></dt><dd id="g-slider"></dd>';
-    echo '    <dt>B: <span id="b-val" class="val"></span></dt><dd id="b-slider"></dd>';
-	echo '	</dl>';
-	echo '</div>';
-	echo '<div class="color"></div>';
-	echo '<div class="output">';
-	echo '	<dl>';
-	echo '		<dt>Hex:</dt><dd id="hex"></dd>';
-	echo '		<dt>RGB:</dt><dd id="rgb"></dd>';
-	echo '		<dt>HSL:</dt><dd id="hsl"></dd>';
-	echo '	</dl>';
-	echo '</div>';
-	
-
-  echo '<script type="text/JavaScript">';
-    echo '        YUI().use("slider", "color", function(Y){';
-                // sliders
-    echo 'var rSlider = new Y.Slider({ min: 0, max: 255, value: Math.round(Math.random()*255) }),';
-     echo '   gSlider = new Y.Slider({ min: 0, max: 255, value: Math.round(Math.random()*255) }),';
-     echo '   bSlider = new Y.Slider({ min: 0, max: 255, value: Math.round(Math.random()*255) }),';
-
-        // slider values
-     echo '   rVal = Y.one("#r-val"),';
-    echo '    gVal = Y.one("#g-val"),';
-    echo '    bVal = Y.one("#b-val"),';
-
-        // color strings
-    echo '    hex = Y.one("#hex"),';
-     echo '   rgb = Y.one("#rgb"),';
-     echo '   hsl = Y.one("#hsl"),';
-
-        // color chip
-    echo '    color = Y.one(".color");';
-
-    // render sliders
-    echo 'rSlider.render("#r-slider");';
-    echo 'gSlider.render("#g-slider");';
-    echo 'bSlider.render("#b-slider");';
-
-
-                // register update events
-    echo 'rSlider.after("thumbMove", function(e) {';
-    echo '    rVal.set("text", rSlider.get("value"));';
-    echo '    updateColors();';
-    echo '});';
-    echo 'gSlider.after("thumbMove", function(e) {';
-    echo '    gVal.set("text", gSlider.get("value"));';
-    echo '    updateColors();';
-    echo '});';
-    echo ' bSlider.after("thumbMove", function(e) {';
-    echo '    bVal.set("text", bSlider.get("value"));';
-    echo '    updateColors();';
-    echo '});';
-
-    // update the colors strings
-    echo 'function updateColors() {';
-    echo '    var r = rSlider.get("value"),';
-    echo '        g = gSlider.get("value"),';
-    echo '        b = bSlider.get("value"),';
-    echo '        rgbStr = Y.Color.fromArray([r,g,b], Y.Color.TYPES.RGB);';
-
-    echo '    color.setStyle("backgroundColor", rgbStr);';
-
-    echo '    rgb.set("text", rgbStr);';
-
-    echo '    hex.set("text", Y.Color.toHex(rgbStr));';
-    echo '   hsl.set("text", Y.Color.toHSL(rgbStr));';
-    echo '}';
-
-
-            
-    echo 'rVal.set("text", rSlider.get("value"));';
-    echo 'gVal.set("text", gSlider.get("value"));';
-    echo 'bVal.set("text", bSlider.get("value"));';
-	echo ' updateColors();';
-
-    echo '        });';
-    echo '    </script>';
-	
-	
-	echo '</div>';
-
-
-*/
-
-
 	$contAnalogueOutputs = 0;
 	$firstOutputIsAnalogue = 0;
 	while ($l<$numOutput) {
@@ -267,9 +568,10 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$l++;
 	}
 	$sem_RGB_Shield_connected = 0;
-	if(/*$firstOutputIsAnalogue == 1 &&*/ $contAnalogueOutputs >= 3){	//if the first output is analogue and there are other 2 output analogue then is the RGB shield connected
+	if($contAnalogueOutputs >= 3){	//if the first output is analogue and there are other 2 output analogue then is the RGB shield connected
 		$sem_RGB_Shield_connected = 1;
 	}
+	
 	
 	$l=0;
 	while ($l<$numOutput) {
@@ -374,7 +676,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		echo '</form>';
 	}
 	echo '</td>';
-	
+	*/
 	//special functions
 	echo '<td>';
 	

@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		20/04/2019
+Last Update: 		12/06/2019
 
 Description: it is the library with all useful function to use RFPI
 
@@ -69,8 +69,6 @@ define("DIRECTORY_IMG_PERI_100", "/img/peripheral/"); 		//where all default pict
 define("DIRECTORY_CSS_PERI_100", "/css/"); 					//where all default style for any peripheral are kept
 
 
-define("MAX_TEMPERATURE_MCP9701", 128);
-define("MIN_TEMPERATURE_MCP9701", 0);
 
 define("MAX_VOLTAGE_ADC_INPUT", 3.3);
 
@@ -86,18 +84,13 @@ echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css"
 //-------------------------------END INCLUDE CSS----------------------------------//
 
 
-function temperature_MCP9701_from_8bit_value_peri_100($ADC_8bit_value){
-	$tempearure = (($ADC_8bit_value * MAX_TEMPERATURE_MCP9701) / 256)-MIN_TEMPERATURE_MCP9701; 
+function temperature_MCP9701_from_ADC_raw_value_peri_100($ADC_value){
+	$tempearure = (((($ADC_value)*0.0048828125) - 0.4) / 0.0195);
 	//$tempearure = ceil($tempearure);
 	//$tempearure = round($tempearure);
 	return $tempearure;
 }
 
-function the_8bit_value_from_temperature_MCP9701_peri_100($tempearure){
-	$value_8bit = (($tempearure * 256) / MAX_TEMPERATURE_MCP9701)+MIN_TEMPERATURE_MCP9701; 
-	//$value_8bit = ceil($value_8bit);
-	return $value_8bit;
-}
 
 function voltage_0to10V_from_8bit_value_peri_100($ADC_8bit_value){
 	$voltage = $ADC_8bit_value; 
