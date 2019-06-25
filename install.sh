@@ -90,6 +90,9 @@ echo "Installing the service rfpi...."
 #cd /etc/init.d
 #sudo update-rc.d rfpi defaults
 
+#making executable
+chmod u+x /etc/rfpi/runrfpi.sh
+
 echo "copying the service under /lib/systemd/"
 sudo cp $DIRECTORY_RFPI/service/rfpi.service /lib/systemd/
 
@@ -103,13 +106,12 @@ sudo systemctl daemon-reload
 sudo systemctl start rfpi.service
 sudo systemctl enable rfpi.service
 
-if [ $disable_getty == 1 ]; then
+if [[ $disable_getty == 1 ]]; then
 	echo "Edit the file inittab - Disable the getty"
 	#sed -i 's/TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/#TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/g' /etc/inittab
 	sudo sysctl -p
 	sudo systemctl stop serial-getty@ttyS0.service
 	sudo systemctl disable serial-getty@ttyS0.service
-	exit 2
 fi
 ########################## END INSTALL RFPI SERVICE ##########################
 
