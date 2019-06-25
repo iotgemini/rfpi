@@ -106,9 +106,11 @@ sudo systemctl daemon-reload
 sudo systemctl start rfpi.service
 sudo systemctl enable rfpi.service
 
-if [[ $disable_getty == 1 ]]; then
-	echo "Edit the file inittab - Disable the getty"
+
+if [ "$disable_getty" -eq "1" ]; then
+	#echo "Edit the file inittab - Disable the getty"
 	#sed -i 's/TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/#TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/g' /etc/inittab
+	echo "Disabling the getty....."
 	sudo sysctl -p
 	sudo systemctl stop serial-getty@ttyS0.service
 	sudo systemctl disable serial-getty@ttyS0.service
