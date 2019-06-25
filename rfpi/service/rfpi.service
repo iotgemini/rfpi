@@ -7,7 +7,7 @@ After=network-online.target
 After=rc-local.service
 
 [Service]
-Type=forking
+Type=simple
 Restart=always
 RestartSec=2
 ExecStart=/etc/rfpi/runrfpi.sh
