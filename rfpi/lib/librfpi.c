@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					02/06/2019
+Last Update: 					25/06/2019
 
 
 Description: library for the RFPI
@@ -35,8 +35,12 @@ Description: library for the RFPI
 
 ******************************************************************************************/
 
-#include "bcm2835.c"		//library to manage the GPIO (used version 1.33). 
-							//Source: http://www.airspayce.com/mikem/bcm2835/
+
+#if PLATFORM == PLATFORM_RPI
+	#include "bcm2835.c"		//library to manage the GPIO (used version 1.33). 
+								//Source: http://www.airspayce.com/mikem/bcm2835/
+#endif
+
 #include "wiringSerial.c"	//library to manage the serial port ttyAMA0 (used version). 
 							//Source: https://projects.drogon.net/raspberry-pi/wiringpi/ 
 							//	( http://wiringpi.com/reference/serial-library/ )
@@ -53,6 +57,7 @@ Description: library for the RFPI
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
 
 #include<linux/i2c-dev.h>
 
@@ -88,6 +93,25 @@ void blink_led_OPZ_PA18(void){
 		#endif
 		usleep  (200*1000) ;	//200 mS
 	}
+}
+
+
+int nsleep(long miliseconds)
+{
+   struct timespec req, rem;
+
+   if(miliseconds > 999)
+   {   
+        req.tv_sec = (int)(miliseconds / 1000);                            /* Must be Non-Negative */
+        req.tv_nsec = (miliseconds - ((long)req.tv_sec * 1000)) * 1000000; /* Must be in range of 0 to 999999999 */
+   }   
+   else
+   {   
+        req.tv_sec = 0;                         /* Must be Non-Negative */
+        req.tv_nsec = miliseconds * 1000000;    /* Must be in range of 0 to 999999999 */
+   }   
+
+   return nanosleep(&req , &rem);
 }
 
 //delay milliseconds
@@ -205,8 +229,8 @@ void ResetRFPI(void){
 	
 	#ifndef SERIAL_PORT_FTDI_USB
 	if(sem_serial_port_USB == 0){
-		if(PLATFORM == PLATFORM_RPI){
-		//#if PLATFORM == PLATFORM_RPI
+		//if(PLATFORM == PLATFORM_RPI){
+		#if PLATFORM == PLATFORM_RPI
 			// Set the pin to be an output
 			bcm2835_gpio_fsel(PIN_RESET, BCM2835_GPIO_FSEL_OUTP);
 			#ifdef LED_YES
@@ -234,9 +258,9 @@ void ResetRFPI(void){
 			bcm2835_gpio_write(PIN_RESET, HIGH);
 			// wait 
 			delay_ms(1000);
-		//#endif
-		}else if(PLATFORM == PLATFORM_BBB){
-		//#if PLATFORM == PLATFORM_BBB
+		#endif
+		//}else if(PLATFORM == PLATFORM_BBB){
+		#if PLATFORM == PLATFORM_BBB
 			#ifdef LED_YES
 			//if(sem_ctrl_led == 1){
 				linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
@@ -251,8 +275,9 @@ void ResetRFPI(void){
 			//}
 			#endif
 			linux_gpio_set_value(BBB_PIN_RESET, HIGH_GPIO);
-		}else if(PLATFORM == PLATFORM_OPZ){
-		//#if PLATFORM == PLATFORM_OPZ
+		#endif
+		//}else if(PLATFORM == PLATFORM_OPZ){
+		#if PLATFORM == PLATFORM_OPZ
 			#ifdef LED_YES
 		
 			//if(sem_ctrl_led == 1){
@@ -269,7 +294,8 @@ void ResetRFPI(void){
 			//}
 			#endif
 			linux_gpio_set_value(OPZ_PIN_RESET, HIGH_GPIO);
-		}
+		//}
+		#endif
 	}
 	#endif
 	
@@ -405,21 +431,22 @@ void printPeripheralStructData(peripheraldata *rootPeripheralData){
 	currentPeripheralData=rootPeripheralData;
 	printf("\n\n");
 	int i=0;
-	while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+	while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 		printf("IDtype=%d    TYPE=%d    NAME=%s\n", i, currentPeripheralData->IDtype, currentPeripheralData->Name);
 		
 		printf("   ---------INPUT(%d)---------\n", currentPeripheralData->NumInput);
 		currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 		currentPeripheralDataNameInput->StatusInput;
 		while(currentPeripheralDataNameInput!=0){
-			printf("   %s  %d \n", currentPeripheralDataNameInput->NameInput, currentPeripheralDataNameInput->StatusInput);
+			printf("   %s  %d \n", currentPeripheralDataNameInput->NameInput, (int)(currentPeripheralDataNameInput->StatusInput));
 			
 			currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
 		}
 		printf("   ---------OUTPUT(%d)---------\n", currentPeripheralData->NumOutput);
 		currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 		while(currentPeripheralDataNameOutput!=0){
-			printf("   %s  %d \n", currentPeripheralDataNameOutput->NameOutput, currentPeripheralDataNameOutput->StatusOutput);
+			printf("   %s  %d \n", currentPeripheralDataNameOutput->NameOutput, (int)(currentPeripheralDataNameOutput->StatusOutput));
 			
 			currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
 		}
@@ -541,7 +568,7 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 
 					field = 0;
 					while ((token = strtok(pointer, " ")) != NULL){
-						printf("line %zu, field %zu -> %s\n", cont_line, field, token);
+						//printf("line %zu, field %zu -> %s\n", cont_line, field, token);
 						
 						token[strcspn(token, "\n")] = 0;
 						
@@ -1181,7 +1208,8 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 	currentPeripheralData=rootPeripheralData;
 		
 	i=0;
-	while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+	while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 		
 			//write first line
 			data[0]='\0';
@@ -1558,7 +1586,8 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	i=0;
 	if(!(rootPeripheralData==0)){
 		currentPeripheralData=rootPeripheralData;
-		while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+		//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+		while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 			i++;
 			
 			sscanf(currentPeripheralData->PeriAddress,"%X",&numPeripheral); //convert string hex in integer
@@ -2000,7 +2029,8 @@ void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, in
 	currentPeripheralData=rootPeripheralData;
 	
 	i=0; l=0;
-	while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ 
+	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ 
+	while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
 		currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 		if(i==*IDposition){
 			while(currentPeripheralDataNameOutput!=0  && varExit==0){
@@ -2074,7 +2104,8 @@ peripheraldata *deletePeripheralByAddress(char *addressPeri, peripheraldata *roo
 	int varExit=0;
 	if(rootPeripheralData!=0){
 		currentPeripheralData=rootPeripheralData;
-		while(varExit==0 && currentPeripheralData!=0 && ((int)currentPeripheralData)>0){
+		//while(varExit==0 && currentPeripheralData!=0 && ((int)currentPeripheralData)>0){
+		while(varExit==0 && currentPeripheralData!=0 && (currentPeripheralData)>0){//for LINUX_MINT
 			//check if the address it is same
 			if(addressPeri[0]==currentPeripheralData->PeriAddress[0] 
 			&& addressPeri[1]==currentPeripheralData->PeriAddress[1] 
@@ -2119,7 +2150,8 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 	i=0;
 	if(!(rootPeripheralData==0)){
 		currentPeripheralData=rootPeripheralData;
-		while(i!=positionId && currentPeripheralData!=0 && ((int)currentPeripheralData)>0){
+		//while(i!=positionId && currentPeripheralData!=0 && ((int)currentPeripheralData)>0){
+		while(i!=positionId && currentPeripheralData!=0 && (currentPeripheralData)>0){//for LINUX_MINT
 			currentPeripheralData=currentPeripheralData->next;
 			i++;
 			
@@ -2187,7 +2219,8 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 		currentPeripheralData=rootPeripheralData;
 		previoustPeripheralData=rootPeripheralData;
 		//will rewrite the whole file
-		while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+		//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+		while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 			if(i==positionId){
 				if(i==0){
 					rootPeripheralData=currentPeripheralData->next;
@@ -2610,7 +2643,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				if(rootPeripheralData!=0){
 					i=0;
 					currentPeripheralData=rootPeripheralData;
-					while(i<peri_id_position && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					//while(i<peri_id_position && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					while(i<peri_id_position && (currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 						i++;
 						currentPeripheralData=currentPeripheralData->next;
 					}
@@ -2676,7 +2710,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				if(rootPeripheralData!=0 && strlen(address_peri)==4){
 					i=0;
 					currentPeripheralData=rootPeripheralData;
-					while(strcmp(currentPeripheralData->PeriAddress,address_peri)!=0 && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					//while(strcmp(currentPeripheralData->PeriAddress,address_peri)!=0 && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					while(strcmp(currentPeripheralData->PeriAddress,address_peri)!=0 && (currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 						i++;
 						currentPeripheralData=currentPeripheralData->next;
 					}
@@ -2780,7 +2815,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						 
 						if(rootPeripheralData!=0){
 							currentPeripheralData=rootPeripheralData;
-							while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+							//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+							while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 								//delete the file descriptor
 								strcpy(strPathFile,PATH_CONFIG_FILE);
 								strcat(strPathFile,currentPeripheralData->NameFileDescriptor);
@@ -2833,7 +2869,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					i=0;
 					currentPeripheralData=rootPeripheralData;
 					//will rewrite the whole file
-					while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){ 
+					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){ 
+					while((currentPeripheralData)>0 && currentPeripheralData!=0){ //for LINUX_MINT
 						if(strcmp(value2, currentPeripheralData->PeriAddress)==0){ 
 						
 							free(currentPeripheralData->Name);
@@ -2902,14 +2939,16 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					i=0; //used as var exit
 					currentPeripheralData=rootPeripheralData; 
 					//while(i<peri_id_position && currentPeripheralData!=0){
-					while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && i==0){
+					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && i==0){
+					while((currentPeripheralData)>0 && currentPeripheralData!=0 && i==0){//for LINUX_MINT
 						if(strcmp(currentPeripheralData->PeriAddress,value1)!=0){
 							currentPeripheralData=currentPeripheralData->next;
 						}else{
 							i=1; //used as var exit
 						}
 					} //printf(" CIAO \n"); fflush(stdout); // Prints immediately to screen
-					if(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					//if(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					if((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 
 						//converting lower case in upper case. value2 is the hex data to send to the transceiver
 						for( i=0; i<strlen(value2); i++){
@@ -3023,7 +3062,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				if(rootPeripheralData!=0){
 					i=0;
 					currentPeripheralData=rootPeripheralData;
-					while(i<peri_id_position && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					//while(i<peri_id_position && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					while(i<peri_id_position && (currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 						i++;
 						currentPeripheralData=currentPeripheralData->next;
 					}
@@ -3175,7 +3215,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				if(rootPeripheralData!=0){
 					i=0;
 					currentPeripheralData=rootPeripheralData;
-					while(i<peri_id_position && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					//while(i<peri_id_position && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					while(i<peri_id_position && (currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 						i++;
 						currentPeripheralData=currentPeripheralData->next;
 					}
@@ -3465,7 +3506,8 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 
 					i=0; l=0; varExit=0;
 					currentPeripheralData=rootPeripheralData;
-					while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
+					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
+					while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){//for LINUX_MINT
 						currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 						if(strcmp(addressPeri,currentPeripheralData->PeriAddress)==0){
 							while(currentPeripheralDataNameInput!=0  && varExit==0){
@@ -3508,7 +3550,8 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					
 					i=0; l=0; varExit=0;
 					currentPeripheralData=rootPeripheralData;
-					while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
+					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
+					while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){//for LINUX_MINT
 						currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 						if(strcmp(addressPeri,currentPeripheralData->PeriAddress)==0){
 							while(currentPeripheralDataNameOutput!=0 && varExit==0){
@@ -3551,7 +3594,8 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 
 					i=0; varExit=0;
 					currentPeripheralData=rootPeripheralData; 
-					while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ 
+					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ 
+					while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
 						if(strcmp(addressPeri,currentPeripheralData->PeriAddress)==0){ 
 							printf("  ID Peri Type: %d\n",currentPeripheralData->IDtype); fflush(stdout); 
 							if(currentPeripheralData->IDtype==9){
@@ -3682,7 +3726,8 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 
 				i=0; 
 				currentPeripheralData=rootPeripheralData;
-				while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
+				//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
+				while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
 					
 					if(strcmp(peripheralAddress,currentPeripheralData->PeriAddress)==0 || strcmp(peripheralAddress,"ALL")==0){
 						if(strcmp(peripheralAddress,"ALL")!=0){
@@ -4051,8 +4096,8 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 	#ifndef SERIAL_PORT_FTDI_USB
 	if(sem_serial_port_USB == 0){
 		
-		if(PLATFORM==PLATFORM_RPI){
-		//#if PLATFORM == PLATFORM_RPI
+		//if(PLATFORM==PLATFORM_RPI){
+		#if PLATFORM == PLATFORM_RPI
 			if (!bcm2835_init()){
 				printf(ERROR001);printf("\n");
 				strcpy(statusInit,ERROR001);
@@ -4060,9 +4105,9 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 				fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
 				fclose(file_pointer_error);
 			}
-		//#endif
-		}else if(PLATFORM==PLATFORM_BBB){
-		//#if PLATFORM == PLATFORM_BBB
+		#endif
+		//}else if(PLATFORM==PLATFORM_BBB){
+		#if PLATFORM == PLATFORM_BBB
 			#ifdef LED_YES
 			
 				///if(sem_ctrl_led == 1){
@@ -4073,10 +4118,10 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 				//}
 			
 			#endif
-		}
-		//#endif
-		else if(PLATFORM==PLATFORM_OPZ){
-		//#if PLATFORM == PLATFORM_OPZ
+		//}
+		#endif
+		//else if(PLATFORM==PLATFORM_OPZ){
+		#if PLATFORM == PLATFORM_OPZ
 			#ifdef LED_YES
 			
 				//if(sem_ctrl_led == 1){
@@ -4093,7 +4138,8 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 			
 			#endif
 			
-		}
+		//}
+		#endif
 	}
 	#endif
 	
@@ -4933,7 +4979,8 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 	
 	//char str_double_apex[] = { asc(34), '\0' };
 	char str_temp[20];
-	while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+	while( (currentPeripheralData)>0 && currentPeripheralData!=0 ){ //for LINUX_MINT
 		
 			
 			
@@ -5330,6 +5377,7 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 					if( (answerRFPI[0]=='I' && answerRFPI[1]=='O' && answerRFPI[2]=='T') 
 						||  (answerRFPI[0]=='G' && answerRFPI[1]=='3' && answerRFPI[2]=='P')
 						||  (answerRFPI[0]=='*' && answerRFPI[1]=='I' && answerRFPI[2]=='O' && answerRFPI[3]=='T')
+						||  (answerRFPI[0]=='I' && answerRFPI[1]=='O' && answerRFPI[2]=='T')
 						) //this work for command C54
 						varTmpExit=1;
 
@@ -5364,7 +5412,7 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 				}
 			
 			}else{
-				printf("\nI DID NOT FIND THE TRANSCEIVER!\n", baud);
+				printf("\nI DID NOT FIND THE TRANSCEIVER!\n");
 				fflush(stdout); // Prints immediately to screen 
 			}
 

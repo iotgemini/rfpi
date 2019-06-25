@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					02/06/2019
+Last Update: 					25/06/2019
 
 
 Description: application rfpi.c to run the RFPI network

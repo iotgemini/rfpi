@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					16/06/2017
+Last Update: 					25/06/2019
 
 
 Description: library for the peripheral
@@ -435,7 +435,7 @@ void save_data_peri9_into_a_file_and_send_email(unsigned char *dataRFPI, unsigne
 	char *data_to_write_into_file;
 	unsigned int i;
 	 //char *dynamicLine = NULL;
-	unsigned char buffer[500],buffer2[100];
+	char buffer[500],buffer2[100];
 	int status, diff;
 	unsigned char varSemFileExist, varSemCreateEmptyFile;
 	varSemFileExist = 0;
@@ -584,7 +584,8 @@ void save_data_peri9_into_a_file_and_send_email(unsigned char *dataRFPI, unsigne
 				strcat(buffer,"</tr>\n");
 				
 				
-				fprintf(file_pointer2, buffer);
+				//fprintf(file_pointer2, buffer);
+				fprintf(file_pointer2, "%s",buffer);//LINUX_MINT
 				
 				fclose(file_pointer2); 
 			}

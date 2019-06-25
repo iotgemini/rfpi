@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					02/06/2019
+Last Update: 					25/06/2019
 
 
 Description: library for the RFPI
@@ -49,8 +49,10 @@ Description: library for the RFPI
 #define PLATFORM_OPZ 							5				//if the platform is the OrangePi Zero
 																//also for the ARMBIAN_BIONIC_4.14.y 
 
+#define PLATFORM_PC_DEBIAN						7				//if the platform is the Beaglebone Black
 
-#define PLATFORM  							3	//choose the platform where this software will be used
+
+#define PLATFORM 7	//choose the platform where this software will be used
 
 
 
@@ -97,6 +99,9 @@ Description: library for the RFPI
 #elif PLATFORM == 6
 	#define SERIAL_PORT_PATH		"/dev/serial0"
 	#define PLATFORM_RPI			6
+#elif PLATFORM == 7
+	#define SERIAL_PORT_PATH		"/dev/ttyUSB0"
+	#define PLATFORM_RPI			0
 #endif
 
 

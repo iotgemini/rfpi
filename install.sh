@@ -32,6 +32,18 @@ SOURCE="./rfpi"
 DESTINATION=$DIRECTORY_RFPI
 sudo cp -r "$SOURCE/"* "$DESTINATION/"
 
+
+echo "Checking ID Operating System.........!"
+DISTRIBUTION_ID=$(lsb_release --id)
+echo $DISTRIBUTION_ID
+string=$DISTRIBUTION_ID
+if [[ $string == *"Raspbian"* ]]; then
+  echo "Found Raspbian OS!"
+  echo "Going to edit the file /etc/rfpi/lib/librfpi.h to make rfpi run on Raspberry Pi"
+  sed -i 's/#define\ PLATFORM\ 7/#define\ PLATFORM\ 3/g' /etc/rfpi/lib/librfpi.h
+fi
+
+
 echo "Installing GCC, G++ and LIBRARY:"
 sudo apt-get -y install gcc libi2c-dev
 sudo apt-get -y install g++
