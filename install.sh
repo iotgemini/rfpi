@@ -12,6 +12,9 @@ DIRECTORY_RFPI=/etc/rfpi
 DIRECTORY_WWW=/var/www
 DIRECTORY_SAMBA=/etc/samba
 
+disable_getty = 0
+
+
 if [ ! -d "$DIRECTORY_RFPI" ]; then
 	# Control will enter here if $DIRECTORY doesn't exist.
 	echo "Creating foolder RFPI....."
@@ -41,6 +44,7 @@ if [[ $string == *"Raspbian"* ]]; then
   echo "Found Raspbian OS!"
   echo "Going to edit the file /etc/rfpi/lib/librfpi.h to make rfpi run on Raspberry Pi"
   sed -i 's/#define\ PLATFORM\ 7/#define\ PLATFORM\ 3/g' /etc/rfpi/lib/librfpi.h
+  $disable_getty = 1
 fi
 
 
@@ -81,10 +85,10 @@ fi
 
 ########################## BEGIN INSTALL RFPI SERVICE ##########################
 echo "Installing the service rfpi...."
-sudo cp $DIRECTORY_RFPI/service/rfpi /etc/init.d/
-sudo chmod +x /etc/init.d/rfpi
-cd /etc/init.d
-sudo update-rc.d rfpi defaults
+#sudo cp $DIRECTORY_RFPI/service/rfpi /etc/init.d/
+#sudo chmod +x /etc/init.d/rfpi
+#cd /etc/init.d
+#sudo update-rc.d rfpi defaults
 
 echo "copying the service under /lib/systemd/"
 sudo cp $DIRECTORY_RFPI/service/rfpi.service /lib/systemd/
@@ -99,11 +103,14 @@ sudo systemctl daemon-reload
 sudo systemctl start rfpi.service
 sudo systemctl enable rfpi.service
 
-echo "Edit the file inittab - Disable the getty"
-#sed -i 's/TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/#TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/g' /etc/inittab
-sudo sysctl -p
-sudo systemctl stop serial-getty@ttyS0.service
-sudo systemctl disable serial-getty@ttyS0.service
+if [ $disable_getty == 1 ]; then
+	echo "Edit the file inittab - Disable the getty"
+	#sed -i 's/TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/#TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/g' /etc/inittab
+	sudo sysctl -p
+	sudo systemctl stop serial-getty@ttyS0.service
+	sudo systemctl disable serial-getty@ttyS0.service
+	exit 2
+fi
 ########################## END INSTALL RFPI SERVICE ##########################
 
 

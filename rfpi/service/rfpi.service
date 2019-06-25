@@ -1,8 +1,12 @@
 [Unit]
 Description=Starts the RFPI routine
-After=syslog.target network.target
+#After=syslog.target network.target
+After=rc-local.service
 [Service]
 Type=simple
+Restart=always
+RestartSec=1
+User=root
 ExecStart=/etc/rfpi/runrfpi.sh
 [Install]
 WantedBy=multi-user.target
