@@ -61,8 +61,11 @@ sudo chmod 777 -R $DIRECTORY_RFPI/bin/rfpi
 ########################## BEGIN INSTALL APACHE AND GUI WWW ##########################
 echo " "
 echo "########################## APACHE AND GUI WWW ##########################"
-echo " It is indispensable to have a GUI (Graphics User Interface) to control RFPI network......"
-read -p " Do you want install Apache webserver and the GUI WWW? (Y or N) " -n 1 -r
+echo " IT: E' indispensabile avere una GUI (Grafica Utente Interfaccia) per controllare la rete RFPI!"
+#echo "     se non vuoi la nostra GUI puoi sempre creartene una con Node-Red e controllare la rete attraverso i nodi dedicati!"
+echo "     Vuoi installare il webserver Apache e la GUI WWW? (Y=si or N=no) "
+echo " EN: It is indispensable to have a GUI (Graphics User Interface) to control RFPI network!"
+read -p "     Do you want install Apache webserver and the GUI WWW? (Y or N) " -n 1 -r
 echo "" #new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
@@ -125,14 +128,28 @@ fi
 if [ ! -d "$DIRECTORY_SAMBA" ]; then
 	echo " "
 	echo "########################## INSTALL SAMBA ##########################"
-	read -p " Do you want install samba and share rfpi and www folders? (Y or N) " -n 1 -r
+	echo " IT: Vuoi installare samba per poi condividere le cartelle rfpi e www? (Y=si or N=no) "
+	read -p " Do you want install samba to then share rfpi and www folders? (Y or N) " -n 1 -r
 	echo "" #new line
 	if [[ $REPLY =~ ^[Yy]$ ]]
 	then
 		echo "Install Samba:"
 		sudo apt-get -y install samba samba-common-bin
+	fi
+fi
 
-		if [ -d "$DIRECTORY_SAMBA" ]; then
+########################## END INSTALL SAMBA ##########################
+
+
+
+########################## BEGIN SHARE FOLDERS ##########################
+echo " "
+echo "########################## SHARE FOLDERS ##########################"
+echo " IT: Vuoi condividere le cartelle rfpi e www? (Y=si or N=no) "
+read -p " EN: Do you want share rfpi and www folders? (Y or N) " -n 1 -r
+echo "" #new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+	if [ -d "$DIRECTORY_SAMBA" ]; then
 			echo " " >> /etc/samba/smb.conf
 			echo "[www]" >> /etc/samba/smb.conf
 			echo "comments = www share" >> /etc/samba/smb.conf
@@ -147,10 +164,10 @@ if [ ! -d "$DIRECTORY_SAMBA" ]; then
 			echo "read only = no" >> /etc/samba/smb.conf
 			echo "guest ok = yes" >> /etc/samba/smb.conf
 			echo "force user = root" >> /etc/samba/smb.conf
-		fi
 	fi
 fi
-########################## END INSTALL SAMBA ##########################
+########################## END SHARE FOLDERS ##########################
+
 
 
 #echo "Change network name:"
