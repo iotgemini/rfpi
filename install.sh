@@ -59,6 +59,7 @@ sudo chmod 777 -R $DIRECTORY_RFPI/bin/rfpi
 
 
 ########################## BEGIN INSTALL APACHE AND GUI WWW ##########################
+echo " "
 echo "########################## APACHE AND GUI WWW ##########################"
 echo " It is indispensable to have a GUI (Graphics User Interface) to control RFPI network......"
 read -p " Do you want install Apache webserver and the GUI WWW? (Y or N) " -n 1 -r
@@ -122,6 +123,7 @@ fi
 
 ########################## BEGIN INSTALL SAMBA ##########################
 if [ ! -d "$DIRECTORY_SAMBA" ]; then
+	echo " "
 	echo "########################## INSTALL SAMBA ##########################"
 	read -p " Do you want install samba and share rfpi and www folders? (Y or N) " -n 1 -r
 	echo "" #new line
@@ -155,6 +157,7 @@ fi
 #sed -i 's/raspberry/rfpi/g' /etc/hostname
 #sed -i 's/raspberry/rfpi/g' /etc/hosts
 
+echo " "
 echo "########################## REBOOT ##########################"
 read -p " Can I reboot now? (Y or N) " -n 1 -r
 echo "" #new line
