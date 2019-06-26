@@ -165,6 +165,8 @@ then
 			echo "read only = no" >> /etc/samba/smb.conf
 			echo "guest ok = yes" >> /etc/samba/smb.conf
 			echo "force user = root" >> /etc/samba/smb.conf
+			
+			echo "At the end of the file /etc/samba/smb.conf have been added the lines to share RFPI and WWW!"
 	fi
 fi
 ########################## END SHARE FOLDERS ##########################
