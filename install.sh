@@ -128,7 +128,7 @@ if [ ! -d "$DIRECTORY_SAMBA" ]; then
 		echo "Install Samba:"
 		sudo apt-get -y install samba samba-common-bin
 
-		if [ ! -d "$DIRECTORY_SAMBA" ]; then
+		if [ -d "$DIRECTORY_SAMBA" ]; then
 			echo " " >> /etc/samba/smb.conf
 			echo "[www]" >> /etc/samba/smb.conf
 			echo "comments = www share" >> /etc/samba/smb.conf
