@@ -1,10 +1,10 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 01-06-2019"
+echo "Last update of this script was on 26-06-2019"
 echo "Installing rfpi ........."
 
-#echo "Updating apt-get..."
-#sudo apt-get update
+echo "Updating apt-get..."
+sudo apt-get update
 #sudo apt-get update && time sudo apt-get dist-upgrade
 
 
@@ -128,20 +128,22 @@ if [ ! -d "$DIRECTORY_SAMBA" ]; then
 		echo "Install Samba:"
 		sudo apt-get -y install samba samba-common-bin
 
-		echo " " >> /etc/samba/smb.conf
-		echo "[www]" >> /etc/samba/smb.conf
-		echo "comments = www share" >> /etc/samba/smb.conf
-		echo "path = /var/www" >> /etc/samba/smb.conf
-		echo "read only = no" >> /etc/samba/smb.conf
-		echo "guest ok = yes" >> /etc/samba/smb.conf
-		echo "force user = root" >> /etc/samba/smb.conf
-		echo " " >> /etc/samba/smb.conf
-		echo "[rfpi]" >> /etc/samba/smb.conf
-		echo "comments = rfpi share" >> /etc/samba/smb.conf
-		echo "path = /etc/rfpi" >> /etc/samba/smb.conf
-		echo "read only = no" >> /etc/samba/smb.conf
-		echo "guest ok = yes" >> /etc/samba/smb.conf
-		echo "force user = root" >> /etc/samba/smb.conf
+		if [ ! -d "$DIRECTORY_SAMBA" ]; then
+			echo " " >> /etc/samba/smb.conf
+			echo "[www]" >> /etc/samba/smb.conf
+			echo "comments = www share" >> /etc/samba/smb.conf
+			echo "path = /var/www" >> /etc/samba/smb.conf
+			echo "read only = no" >> /etc/samba/smb.conf
+			echo "guest ok = yes" >> /etc/samba/smb.conf
+			echo "force user = root" >> /etc/samba/smb.conf
+			echo " " >> /etc/samba/smb.conf
+			echo "[rfpi]" >> /etc/samba/smb.conf
+			echo "comments = rfpi share" >> /etc/samba/smb.conf
+			echo "path = /etc/rfpi" >> /etc/samba/smb.conf
+			echo "read only = no" >> /etc/samba/smb.conf
+			echo "guest ok = yes" >> /etc/samba/smb.conf
+			echo "force user = root" >> /etc/samba/smb.conf
+		fi
 	fi
 fi
 ########################## END INSTALL SAMBA ##########################

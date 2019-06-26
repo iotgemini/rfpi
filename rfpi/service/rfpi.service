@@ -1,16 +1,8 @@
 [Unit]
 Description=Starts the RFPI routine
 After=syslog.target network.target
-After=network.target
-After=systemd-user-sessions.service
-After=network-online.target
-After=rc-local.service
-
 [Service]
 Type=simple
-Restart=always
-RestartSec=2
 ExecStart=/etc/rfpi/runrfpi.sh
-
 [Install]
 WantedBy=multi-user.target
