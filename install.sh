@@ -59,8 +59,9 @@ sudo chmod 777 -R $DIRECTORY_RFPI/bin/rfpi
 
 
 ########################## BEGIN INSTALL APACHE AND GUI WWW ##########################
-echo "------------Ii is indispensable to have a GUI (Graphics User Interface) to control RFPI network......"
-read -p "Do you want install Apache webserver and the GUI WWW? (Y or N) " -n 1 -r
+echo "########################## APACHE AND GUI WWW ##########################"
+echo " It is indispensable to have a GUI (Graphics User Interface) to control RFPI network......"
+read -p " Do you want install Apache webserver and the GUI WWW? (Y or N) " -n 1 -r
 echo "" #new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
@@ -107,21 +108,22 @@ sudo systemctl start rfpi.service
 sudo systemctl enable rfpi.service
 
 
-#if [ "$disable_getty" -eq "1" ]; then
+if [ "$disable_getty" -eq "1" ]; then
 #	#echo "Edit the file inittab - Disable the getty"
 #	#sed -i 's/TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/#TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/g' /etc/inittab
-#	echo "Disabling the getty....."
-#	sudo sysctl -p
-#	sudo systemctl stop serial-getty@ttyS0.service
-#	sudo systemctl disable serial-getty@ttyS0.service
-#fi
+	echo "Disabling the getty....."
+	sudo sysctl -p
+	sudo systemctl stop serial-getty@ttyS0.service
+	sudo systemctl disable serial-getty@ttyS0.service
+fi
 ########################## END INSTALL RFPI SERVICE ##########################
 
 
 
 ########################## BEGIN INSTALL SAMBA ##########################
 if [ ! -d "$DIRECTORY_SAMBA" ]; then
-	read -p "------------Do you want install samba and share rfpi and www folders? (Y or N) " -n 1 -r
+	echo "########################## INSTALL SAMBA ##########################"
+	read -p " Do you want install samba and share rfpi and www folders? (Y or N) " -n 1 -r
 	echo "" #new line
 	if [[ $REPLY =~ ^[Yy]$ ]]
 	then
@@ -153,10 +155,8 @@ fi
 #sed -i 's/raspberry/rfpi/g' /etc/hostname
 #sed -i 's/raspberry/rfpi/g' /etc/hosts
 
-echo "disable_getty:"
-echo $disable_getty
-
-read -p "------------Can I reboot now? (Y or N) " -n 1 -r
+echo "########################## REBOOT ##########################"
+read -p " Can I reboot now? (Y or N) " -n 1 -r
 echo "" #new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then

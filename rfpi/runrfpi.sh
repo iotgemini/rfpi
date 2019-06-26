@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "Starting RFPI routine:"
-sudo pkill rfpi
 sudo systemctl stop serial-getty@ttyAMA0.service
 sudo systemctl stop serial-getty@ttyS0.service
 sudo systemctl stop serial-getty@serial0.service
