@@ -149,6 +149,7 @@ echo " IT: Vuoi condividere le cartelle rfpi e www? (Y=si or N=no) "
 read -p " EN: Do you want share rfpi and www folders? (Y or N) " -n 1 -r
 echo "" #new line
 if [[ $REPLY =~ ^[Yy]$ ]]
+then
 	if [ -d "$DIRECTORY_SAMBA" ]; then
 			echo " " >> /etc/samba/smb.conf
 			echo "[www]" >> /etc/samba/smb.conf
