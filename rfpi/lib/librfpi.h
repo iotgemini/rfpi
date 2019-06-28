@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/06/2019
+Last Update: 					28/06/2019
 
 
 Description: library for the RFPI
@@ -52,7 +52,7 @@ Description: library for the RFPI
 #define PLATFORM_PC_DEBIAN						7				//if the platform is the Beaglebone Black
 
 
-#define PLATFORM 7	//choose the platform where this software will be used
+#define PLATFORM 3	//choose the platform where this software will be used
 
 
 
@@ -167,7 +167,7 @@ int var_dummy1,var_dummy2;
 #define MAX_LEN_PATH 				255 	//it is the maximum length in number of characters for the path included the name of the file
 #define MAX_LEN_BUFFER_ANSWER_RF	47 		//into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
 
-#define CMD_WAIT1					420 	//it is a delay needed after each command sent through the uart to the Transceiver
+#define CMD_WAIT1					120//420 	//it is a delay needed after each command sent through the uart to the Transceiver
 #define CMD_WAIT2					1200 	//it is a longer delay used to wait answer after radio frequency transmission
 
 #define MAX_NUM_RETRY				3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times

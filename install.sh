@@ -179,7 +179,8 @@ fi
 
 echo " "
 echo "########################## REBOOT ##########################"
-read -p " Can I reboot now? (Y or N) " -n 1 -r
+echo " IT: Posso riavviare adesso? (Y=si or N=no) "
+read -p " EN: Can I reboot now? (Y or N) " -n 1 -r
 echo "" #new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then

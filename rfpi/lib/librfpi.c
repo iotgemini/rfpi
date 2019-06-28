@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/06/2019
+Last Update: 					28/06/2019
 
 
 Description: library for the RFPI
@@ -150,9 +150,13 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 		//#if PLATFORM == PLATFORM_RPI
 		if(strcmp(serial_port_path,"null")!=0){
 			*handleUART = serialOpen (serial_port_path, baud) ;
+			
 		}else{
 			*handleUART = serialOpen (SERIAL_PORT_PATH, baud) ;
+			
 		}
+		//printf("Serial baud at %d: ", baud);
+		
 		//#endif
 		//else if(PLATFORM == PLATFORM_BBB)
 		//#if PLATFORM == PLATFORM_BBB
@@ -195,7 +199,7 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 			numCharacters = 0;
 		}
 		//if(varTmpExit!=1){
-			serialClose (*handleUART) ; //closing the serial on the Raspberry Pi
+			serialClose (*handleUART) ; //closing the serial port
 		//}
 		
 		if(varTmpExit==0){
@@ -207,16 +211,42 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 			
 	}while(baud<=115200 && varTmpExit==0);	
 	
-	if(baud<=115200){
+	delay_ms(700);
+	
+	
+	
+	//if(baud<=115200){
 		if(strcmp(serial_port_path,"null")!=0){
 			*handleUART = serialOpen (serial_port_path, BAUD_RATE_SERIAL_PORT) ;
 		}else{
 			*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
 		}
 		//*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
-	}	
+	//}	
+	
+	delay_ms(700);
+	
+	serialPrintf(*handleUART, "C85" ) ; //sending the command to the Radio		
+	delay_ms(CMD_WAIT1);
+	numCharacters=serialDataAvail (*handleUART) ;
+	if(numCharacters>0){ 
+		if(numCharacters>=MAX_LEN_BUFFER_ANSWER_RF) printf("\n Too high quantity of data: %d \n", numCharacters);
+		for(i=0;i<numCharacters && i<MAX_LEN_BUFFER_ANSWER_RF;i++){ 
+			answerRFPI[i] =serialGetchar(*handleUART) ;
+		}
+		if(answerRFPI[0]=='*'){
+			varTmpExit=1;
+			printf(" Baud rate set: %d\n", baud);
+		}else{
+			varTmpExit=0;
+			serialClose (*handleUART) ; //closing the serial port
+			printf("### SOMETHING WENT WRONG WITH THE SERIAL COMMUNICATION! ###\n");
+		}
+			
+	}
+	
 		
-	printf(" Baud rate set: %d\n", baud);
+	
 	
 	fflush(stdout); // Prints immediately to screen 
 	
@@ -5319,7 +5349,7 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 	
 	#ifdef ENABLE_SEARCH_SERIAL_PORT_PATH
 	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned int i,j;
+	unsigned int i,j,cont1;
 	int numCharacters;
 	unsigned int baud=9600;
 	unsigned int varTmpExit=0;
@@ -5349,17 +5379,19 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 			serialClose (*handleUART) ; //closing the serial
 			printf(" Testing all baud rate of the serial port...\n");
 			
+			cont1=0;
 			do{
 				*handleUART = serialOpen (temp_path_serial_port, baud) ;
 
 				//serialPrintf(*handleUART, "C85" ) ; //sending the command to the Radio		
 				serialPrintf(*handleUART, "C54" ) ; //sending the command to the Radio	
-				delay_ms(CMD_WAIT1);
+				//delay_ms(CMD_WAIT1);
 				
 				
-				//delay_ms(500);
+				delay_ms(250);
 				
 				serialPrintf(*handleUART, "C54" ) ; //sending the command to the Radio	
+				//serialPrintf(*handleUART, "C85" ) ; //sending the command to the Radio	
 				
 				delay_ms(120);
 				//delay_ms(CMD_WAIT1);
@@ -5380,11 +5412,12 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 						||  (answerRFPI[0]=='I' && answerRFPI[1]=='O' && answerRFPI[2]=='T')
 						) //this work for command C54
 						varTmpExit=1;
+						
 
 					numCharacters = 0;
 				}
 				
-				serialClose (*handleUART) ; //closing the serial on the Raspberry Pi
+				serialClose (*handleUART) ; //closing the serial port
 				
 				if(varTmpExit==0){
 					if(baud==38400)
@@ -5392,13 +5425,23 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 					else
 						baud=baud*2;
 				}
-					
-			}while(baud<=115200 && varTmpExit==0);	
+					cont1++;
+			}while(baud<=115200 && varTmpExit==0);
+			//}while(cont1<2 && varTmpExit==0);
 			
 			if(baud<=115200){
+			//if(varTmpExit==1){
 				printf("\nTRANSCEIVER FOUND!! Baud rate used: %d\n", baud);
 				fflush(stdout); // Prints immediately to screen 
+				
+				//going to set the default baud rate!
+				//*handleUART = serialOpen (temp_path_serial_port, baud) ;
+				
+				//serialClose (*handleUART) ; //closing the serial port
+				
+				
 				strcpy(varTmpReturn, temp_path_serial_port); //to return the serial port path
+				
 				/*if(j>3 && j<8){ //4 to 7 are the index of the USB serial port path
 					sem_ctrl_led = 1;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
 				}else{

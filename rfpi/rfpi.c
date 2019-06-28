@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/06/2019
+Last Update: 					28/06/2019
 
 
 Description: application rfpi.c to run the RFPI network
@@ -61,6 +61,9 @@ int main(int argc, char **argv){
 	serial_port_path_str = return_serial_port_path(path_to_search_serial_port, serial_port_path_str, &handleUART); 
 	printf("Serial port path found: %s", serial_port_path_str);
 	
+	//if(strcmp(serial_port_path_str,"null")==0){
+	//	return 1;
+	//}
 	
 	//it init the RFPI
 	rootPeripheralData=InitRFPI(rootPeripheralData, serial_port_path_str);
