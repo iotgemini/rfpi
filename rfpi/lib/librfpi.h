@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					28/06/2019
+Last Update: 					29/06/2019
 
 
 Description: library for the RFPI
@@ -262,6 +262,10 @@ void delay_ms(unsigned int millis);
 //First it will find the baud rate set on the Transceiver and then keep open 
 //the Raspberry Pi serial with the same baud rate.
 extern unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path);
+
+//it will init the serial communication between Transceiver and Raspberry Pi. 
+//It chang the baudrate of the transceiver with the one defined by BAUD_RATE_SERIAL_PORT
+extern unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *serial_port_path);
 		
 //it reset the Transceiver and turn on the LED called DS2
 extern void ResetRFPI(void);

@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					28/06/2019
+Last Update: 					29/06/2019
 
 
 Description: library for the RFPI
@@ -133,6 +133,71 @@ void delay_ms(unsigned int millis){
 
 //it will init the serial communication between Transceiver and Raspberry Pi. 
 unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){ 	
+	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
+	char *cmd;
+	unsigned int i;
+	int numCharacters;
+	unsigned int baud=9600;
+	//unsigned int varTmpExit=0;
+	unsigned int varTmpExit=1;
+
+	varTmpExit=0;
+	do{
+		
+		//if(PLATFORM == PLATFORM_RPI)
+		//#if PLATFORM == PLATFORM_RPI
+		if(strcmp(serial_port_path,"null")!=0){
+			*handleUART = serialOpen (serial_port_path, baud) ;
+			
+		}else{
+			*handleUART = serialOpen (SERIAL_PORT_PATH, baud) ;
+			
+		}
+		
+		serialPrintf(*handleUART, "C85" ) ; //sending the command to the Radio		
+		delay_ms(CMD_WAIT1);
+		
+		numCharacters=serialDataAvail (*handleUART) ;
+		if(numCharacters>0){ 
+			if(numCharacters>=MAX_LEN_BUFFER_ANSWER_RF) printf("\n Too high quantity of data: %d \n", numCharacters);
+			for(i=0;i<numCharacters && i<MAX_LEN_BUFFER_ANSWER_RF;i++){ 
+				answerRFPI[i] =serialGetchar(*handleUART) ;
+			}
+			if(answerRFPI[0]=='*')
+				varTmpExit=1;
+			
+			
+
+			
+			numCharacters = 0;
+		}
+		if(varTmpExit!=1){
+			serialClose (*handleUART) ; //closing the serial port
+		}
+		
+		if(varTmpExit==0){
+			if(baud==38400)
+				baud=57600;
+			else
+				baud=baud*2;
+		}
+			
+	}while(baud<=115200 && varTmpExit==0);	
+	
+	if(varTmpExit==1){
+		printf(" Baud rate set: %d\n", baud);
+	}else{
+		printf("### SOMETHING WENT WRONG WITH THE SERIAL COMMUNICATION! ###\n");
+	}
+	fflush(stdout); // Prints immediately to screen 
+	
+	return varTmpExit;
+}
+
+
+//it will init the serial communication between Transceiver and Raspberry Pi. 
+//It chang the baudrate of the transceiver with the one defined by BAUD_RATE_SERIAL_PORT
+unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *serial_port_path){ 	
 	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
 	char *cmd;
 	unsigned int i;
