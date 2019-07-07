@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					29/06/2019
+Last Update: 					07/07/2019
 
 
 Description: library for the RFPI
@@ -3854,7 +3854,7 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 									numBytesToGetValueStatus = (unsigned int)(currentPeripheralDataNameInput->BitResolution / 8);
 									currentPeripheralDataNameInput->StatusInput = 0;
 									for(j=0; j<numBytesToGetValueStatus; j++){
-										currentPeripheralDataNameInput->StatusInput |= (signed long) (  array_status[2+j] << (8 * (numBytesToGetValueStatus - j))  );
+										currentPeripheralDataNameInput->StatusInput |= (signed long) (  array_status[2+j] << (8 * (numBytesToGetValueStatus - (j+1)))  );
 									}
 									if( (currentPeripheralDataNameInput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
 										//this means I have to add still one byte
@@ -3893,7 +3893,7 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 									numBytesToGetValueStatus = (unsigned int)(currentPeripheralDataNameOutput->BitResolution / 8);
 									currentPeripheralDataNameOutput->StatusOutput = 0;
 									for(j=0; j<numBytesToGetValueStatus; j++){
-										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (  array_status[2+j] << (8 * (numBytesToGetValueStatus - j))  );
+										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (  array_status[2+j] << (8 * (numBytesToGetValueStatus - (j+1)))  );
 									}
 									if( (currentPeripheralDataNameOutput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
 										//this means I have to add still one byte

@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		26/06/2019
+Last Update: 		07/07/2019
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -326,40 +326,42 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 			//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
 			$count_analogue_output_json++;
-		}else if($id_shield==5){ //ANALOGUE OUTPUT
-			//$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			//$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-			//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+			
+		}else if($id_shield==5){ //ANALOGUE INPUT DHT11
+			//$array_pin_analogue_outputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+			//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+			//$array_id_analogue_outputs_json [$count_analogue_input_json] = $count_analogue_input_json + $count_analogue_input_json;
 			
 			$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
 			$varExit = 0;
 			$j=0;
-			for($j=0; $j<$count_analogue_output_json && $varExit==0 ; $j++){
-				if($num_pin < $array_pin_analogue_outputs_json[$j]){ //then move all data forward and copy the num of the pin
+			for($j=0; $j<$count_analogue_input_json && $varExit==0 ; $j++){
+				if($num_pin < $array_pin_analogue_inputs_json[$j]){ //then move all data forward and copy the num of the pin
 					$varExit=1;
-					for($h=$j; $h<$count_analogue_output_json; $h++){
-						$array_pin_analogue_outputs_json[$h+1] = $array_pin_analogue_outputs_json[$h];
-						$array_shield_name_analogue_outputs_json [$h+1] = $array_shield_name_analogue_outputs_json [$h];
-						//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
+					for($h=$j; $h<$count_analogue_input_json; $h++){
+						$array_pin_analogue_inputs_json[$h+1] = $array_pin_analogue_inputs_json[$h];
+						$array_shield_name_analogue_inputs_json [$h+1] = $array_shield_name_analogue_inputs_json [$h];
 					}
-					$array_pin_analogue_outputs_json[$j] = $num_pin;
-					$array_shield_name_analogue_outputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					//$array_id_digital_outputs_json[$j] = $j;
+					$array_pin_analogue_inputs_json[$j] = $num_pin;
+					$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 				}
 			}
 			if($varExit==0){
-				$array_pin_analogue_outputs_json[$count_analogue_output_json] = $num_pin;
-				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-				//$array_id_digital_outputs_json[$count_analogue_output_json] = $count_analogue_output_json;
+				$array_pin_analogue_inputs_json[$count_analogue_input_json] = $num_pin;
+				$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 			}
 			
-			$count_analogue_output_json++;
+			$count_analogue_input_json++;
 		}
 	}
 	
 	}//END json exist
 
-	
+	//echo '$count_analogue_input_json='.$count_analogue_input_json;
+	//echo '<br>';
+	//echo 'numInput='.$numInput;
+	//echo '<br>';
+	//echo 'numOutput='.$numOutput;
 	
 /************************************* END: DECODE JSON FILE *************************************/
 	
@@ -399,7 +401,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 				
 				
 
-/**************************************** BEGIN: PRINTING INPUS	****************************************/
+/**************************************** BEGIN: PRINTING INPUTS	****************************************/
 	//print the name of the input and the status
 	echo '<td>';
 	
@@ -459,6 +461,10 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					echo '<h2>';
 					echo number_format((float)strval($temperature), 1, '.', '');
 					echo '&nbsp&#176C&nbsp'; //°C
+					echo '</h2>';
+				}else if($array_shield_name_analogue_inputs_json[$l]==="dht11"){
+					echo '<h2>';
+					echo umidity_DHT11_from_raw_value_peri_100($arrayStatusInput[$counter]);
 					echo '</h2>';
 				}else{
 					echo '<h2>';

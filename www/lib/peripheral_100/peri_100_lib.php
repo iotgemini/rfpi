@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		12/06/2019
+Last Update: 		07/07/2019
 
 Description: it is the library with all useful function to use RFPI
 
@@ -82,6 +82,13 @@ define("MAX_VOLTAGE_ADC_INPUT", 3.3);
 echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css" type="text/css" >';
 
 //-------------------------------END INCLUDE CSS----------------------------------//
+
+
+function umidity_DHT11_from_raw_value_peri_100($raw_value){
+	$umidity = $raw_value >> 16;
+
+	return $umidity;
+}
 
 
 function temperature_MCP9701_from_ADC_raw_value_peri_100($ADC_value){
