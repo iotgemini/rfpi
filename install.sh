@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 26-06-2019"
+echo "Last update of this script was on 09-07-2019"
 echo "Installing rfpi ........."
 
 echo "Updating apt-get..."
@@ -125,7 +125,7 @@ fi
 
 
 ########################## BEGIN INSTALL SAMBA ##########################
-if [ ! -d "$DIRECTORY_SAMBA" ]; then
+#if [ ! -d "$DIRECTORY_SAMBA" ]; then
 	echo " "
 	echo "########################## INSTALL SAMBA ##########################"
 	echo " IT: Vuoi installare samba per poi condividere le cartelle rfpi e www? (Y=si or N=no) "
@@ -136,7 +136,7 @@ if [ ! -d "$DIRECTORY_SAMBA" ]; then
 		echo "Install Samba:"
 		sudo apt-get -y install samba samba-common-bin
 	fi
-fi
+#fi
 
 ########################## END INSTALL SAMBA ##########################
 
