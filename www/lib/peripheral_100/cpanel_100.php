@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		07/07/2019
+Last Update: 		13/07/2019
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -465,6 +465,9 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 				}else if($array_shield_name_analogue_inputs_json[$l]==="dht11"){
 					echo '<h2>';
 					echo umidity_DHT11_from_raw_value_peri_100($arrayStatusInput[$counter]);
+					echo ' %<br>';
+					echo temperature_DHT11_from_raw_value_peri_100($arrayStatusInput[$counter]);
+					echo '&nbsp&#176C&nbsp'; //°C
 					echo '</h2>';
 				}else{
 					echo '<h2>';

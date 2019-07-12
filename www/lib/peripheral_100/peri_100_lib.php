@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		07/07/2019
+Last Update: 		13/07/2019
 
 Description: it is the library with all useful function to use RFPI
 
@@ -83,6 +83,12 @@ echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css"
 
 //-------------------------------END INCLUDE CSS----------------------------------//
 
+
+function temperature_DHT11_from_raw_value_peri_100($raw_value){
+	$temperature = $raw_value & 0x0000FFFF;
+
+	return $temperature;
+}
 
 function umidity_DHT11_from_raw_value_peri_100($raw_value){
 	$umidity = $raw_value >> 16;

@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					07/07/2019
+Last Update: 					13/07/2019
 
 
 Description: library for the RFPI
@@ -3852,15 +3852,18 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 									}
 									//now I determine on how many byte to get the value
 									numBytesToGetValueStatus = (unsigned int)(currentPeripheralDataNameInput->BitResolution / 8);
-									currentPeripheralDataNameInput->StatusInput = 0;
-									for(j=0; j<numBytesToGetValueStatus; j++){
-										currentPeripheralDataNameInput->StatusInput |= (signed long) (  array_status[2+j] << (8 * (numBytesToGetValueStatus - (j+1)))  );
+									if( (currentPeripheralDataNameInput->BitResolution - (numBytesToGetValueStatus*8))>0 ){ //calcolo se vi sono dei bit in piu' oltre a quelli divisibili per 8
+										numBytesToGetValueStatus++;
 									}
-									if( (currentPeripheralDataNameInput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
+									currentPeripheralDataNameInput->StatusInput = 0;
+									for(j=1; j<numBytesToGetValueStatus; j++){
+										currentPeripheralDataNameInput->StatusInput |= (signed long) (  array_status[1+j] << (8 * (numBytesToGetValueStatus - (j)))  );
+									}
+									//if( (currentPeripheralDataNameInput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
 										//this means I have to add still one byte
 										//this for the lowest byte:
-										currentPeripheralDataNameInput->StatusInput |= (signed long) (array_status[2+j]);
-									}
+										currentPeripheralDataNameInput->StatusInput |= (signed long) (array_status[1+j]);
+									//}
 									
 								}
 							}
@@ -3891,15 +3894,18 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 									}
 									//now I determine on how many byte to get the value
 									numBytesToGetValueStatus = (unsigned int)(currentPeripheralDataNameOutput->BitResolution / 8);
-									currentPeripheralDataNameOutput->StatusOutput = 0;
-									for(j=0; j<numBytesToGetValueStatus; j++){
-										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (  array_status[2+j] << (8 * (numBytesToGetValueStatus - (j+1)))  );
+									if( (currentPeripheralDataNameOutput->BitResolution - (numBytesToGetValueStatus*8))>0 ){ //calcolo se vi sono dei bit in piu' oltre a quelli divisibili per 8
+										numBytesToGetValueStatus++;
 									}
-									if( (currentPeripheralDataNameOutput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
+									currentPeripheralDataNameOutput->StatusOutput = 0;
+									for(j=1; j<numBytesToGetValueStatus; j++){
+										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (  array_status[1+j] << (8 * (numBytesToGetValueStatus - (j)))  );
+									}
+									//if( (currentPeripheralDataNameOutput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
 										//this means I have to add still one byte
 										//this for the lowest byte:
-										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (array_status[2+j]);
-									}
+										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (array_status[1+j]);
+									//}
 									
 								}
 							}
