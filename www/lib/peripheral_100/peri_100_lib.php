@@ -86,14 +86,30 @@ echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css"
 
 function temperature_DHT11_from_raw_value_peri_100($raw_value){
 	$temperature = $raw_value & 0x0000FFFF;
-
-	return $temperature;
+	
+	$temperature_int = $temperature >> 8;
+	$temperature_dec = $temperature & 0x00FF;
+	
+	if( ($temperature & 0x8000) == 0x8000 ){
+		$temperature_int &= 0x7F;
+		return "? " . $temperature_int . "." . $temperature_dec;
+	}else{
+		return $temperature_int . "." . $temperature_dec;
+	}
 }
 
 function umidity_DHT11_from_raw_value_peri_100($raw_value){
 	$umidity = $raw_value >> 16;
 
-	return $umidity;
+	$umidity_int = $umidity >> 8;
+	$umidity_dec = $umidity & 0x00FF;
+	
+	if( ($umidity & 0x8000) == 0x8000 ){
+		$umidity_int &= 0x7F;
+		return "? " . $umidity_int;// . "." . $umidity_dec;
+	}else{
+		return $umidity_int;// . "." . $umidity_dec;
+	}
 }
 
 
