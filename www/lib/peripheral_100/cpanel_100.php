@@ -249,6 +249,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					for($h=$j; $h<$count_digital_output_json; $h++){
 						$array_pin_digital_outputs_json[$h+1] = $array_pin_digital_outputs_json[$h];
 						$array_shield_name_digital_outputs_json [$h+1] = $array_shield_name_digital_outputs_json [$h];
+						$array_shield_mpn_digital_outputs_json[$h+1] = $array_shield_mpn_digital_outputs_json[$h];
 						//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
 					}
 					$array_pin_digital_outputs_json[$j] = $num_pin;
@@ -280,6 +281,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					for($h=$j; $h<$count_digital_input_json; $h++){
 						$array_pin_digital_inputs_json[$h+1] = $array_pin_digital_inputs_json[$h];
 						$array_shield_name_digital_inputs_json [$h+1] = $array_shield_name_digital_inputs_json [$h];
+						$array_shield_mpn_digital_inputs_json[$h+1] = $array_shield_mpn_digital_inputs_json[$h];
 						//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
 					}
 					$array_pin_digital_inputs_json[$j] = $num_pin;
@@ -310,6 +312,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					for($h=$j; $h<$count_analogue_input_json; $h++){
 						$array_pin_analogue_inputs_json[$h+1] = $array_pin_analogue_inputs_json[$h];
 						$array_shield_name_analogue_inputs_json [$h+1] = $array_shield_name_analogue_inputs_json [$h];
+						$array_shield_mpn_analogue_inputs_json[$h+1] = $array_shield_mpn_analogue_inputs_json[$h];
 						//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
 					}
 					$array_pin_analogue_inputs_json[$j] = $num_pin;
@@ -356,6 +359,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					for($h=$j; $h<$count_analogue_input_json; $h++){
 						$array_pin_analogue_inputs_json[$h+1] = $array_pin_analogue_inputs_json[$h];
 						$array_shield_name_analogue_inputs_json [$h+1] = $array_shield_name_analogue_inputs_json [$h];
+						$array_shield_mpn_analogue_inputs_json[$h+1] = $array_shield_mpn_analogue_inputs_json[$h];
 					}
 					$array_pin_analogue_inputs_json[$j] = $num_pin;
 					$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
@@ -473,6 +477,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 				echo '&#63;';
 			}else{	
 				//echo ' = ';
+				echo $array_shield_mpn_analogue_inputs_json[$l];
 				if($array_shield_mpn_analogue_inputs_json[$l]==="MCP9701A"){
 					$temperature = temperature_MCP9701_from_ADC_raw_value_peri_100($arrayStatusInput[$counter]);
 					echo '<h2>';
