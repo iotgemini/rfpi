@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					28/06/2019
+Last Update: 					28/07/2019
 
 
 Description: application rfpi.c to run the RFPI network
@@ -61,10 +61,7 @@ int main(int argc, char **argv){
 	serial_port_path_str = return_serial_port_path(path_to_search_serial_port, serial_port_path_str, &handleUART); 
 	printf("Serial port path found: %s", serial_port_path_str);
 	
-	//if(strcmp(serial_port_path_str,"null")==0){
-	//	return 1;
-	//}
-	
+
 	//it init the RFPI
 	rootPeripheralData=InitRFPI(rootPeripheralData, serial_port_path_str);
 	
@@ -77,19 +74,8 @@ int main(int argc, char **argv){
 	
 	//send the status to the support
 	//send_status_to_support(FILE_LIST_PERIPHERAL, networkName);
-	
 
-	/*rootJsonSettings=(struct_json_settings*)malloc(sizeof(struct_json_settings));
-	rootJsonSettings->next=0;
-	rootJsonSettings->cont=0;
-	//printf("********************************** JSON PARSED START ****************************************\n");
-	//parseJSON(JSON_FILE_PATH, fill_up_struct_json_settings);
-	//printf("********************************** JSON PARSED END ****************************************\n");
-	//this function build and send command to the transceiver, this the command:
-	//	R	B	s	EEPROM_POS	H_ID_shield	L_ID_shield	PIN_used	PIN_mask	PULL-UP_resistor	ID_function0	ID_function1	ID_function2	ID_function3	ID_function4	ID_function5	ID_function6
-	send_to_transceiver_json_settings(rootJsonSettings, "0001", JSON_FILE_PATH, &handleUART);
-	*/
-	
+
     do{// beginning of the infinite loop
 	   	  
 		//tell to the GUI the init status
@@ -107,41 +93,27 @@ int main(int argc, char **argv){
 		
 		if(tempVar_Semaphore==1){
 			delay_ms(ERROR_BLINK_LED_DELAY);
-			//if(PLATFORM == PLATFORM_RPI){
 			#ifdef LED_YES
-			//if(sem_ctrl_led == 1){
 			if(sem_serial_port_USB == 0){
 				#if PLATFORM == PLATFORM_RPI
-				
 					bcm2835_gpio_write(PIN_LED_DS1, LOW); //led which indicate if an error occurred
-				
-				//}else if(PLATFORM == PLATFORM_BBB){
 				#elif PLATFORM == PLATFORM_BBB
 					linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
-				
-				//}else if(PLATFORM == PLATFORM_OPZ){
 				#elif PLATFORM == PLATFORM_OPZ
 					linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
 				#endif
-				//}
 			}
 			#endif
 		}else{ 
 			#ifdef LED_YES
-			//if(sem_ctrl_led == 1){
 			if(sem_serial_port_USB == 0){
-				//if(PLATFORM == PLATFORM_RPI){
 				#if PLATFORM == PLATFORM_RPI
 					bcm2835_gpio_write(PIN_LED_DS1, HIGH); //led which indicate if an error occurred
-				//}else if(PLATFORM == PLATFORM_BBB){
 				#elif PLATFORM == PLATFORM_BBB
 					linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
-
-				//}else if(PLATFORM == PLATFORM_OPZ){
 				#elif PLATFORM == PLATFORM_OPZ
 					linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);
 				#endif
-				//}
 			}
 			#endif
 			

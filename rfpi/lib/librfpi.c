@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					13/07/2019
+Last Update: 					28/07/2019
 
 
 Description: library for the RFPI
@@ -154,8 +154,12 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 			
 		}
 		
+		delay_ms(500);
+		
 		serialPrintf(*handleUART, "C85" ) ; //sending the command to the Radio		
 		delay_ms(CMD_WAIT1);
+		
+		delay_ms(400);
 		
 		numCharacters=serialDataAvail (*handleUART) ;
 		if(numCharacters>0){ 
@@ -4196,8 +4200,6 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 	
 	#ifndef SERIAL_PORT_FTDI_USB
 	if(sem_serial_port_USB == 0){
-		
-		//if(PLATFORM==PLATFORM_RPI){
 		#if PLATFORM == PLATFORM_RPI
 			if (!bcm2835_init()){
 				printf(ERROR001);printf("\n");
@@ -4206,40 +4208,19 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 				fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
 				fclose(file_pointer_error);
 			}
-		#endif
-		//}else if(PLATFORM==PLATFORM_BBB){
-		#if PLATFORM == PLATFORM_BBB
+		#elif PLATFORM == PLATFORM_BBB
 			#ifdef LED_YES
-			
-				///if(sem_ctrl_led == 1){
-					//#ifndef SERIAL_PORT_FTDI_USB
-					linux_gpio_export(BBB_PIN_LED_DS2);    // The LED DS2
-					linux_gpio_set_dir(BBB_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
-					//#endif
-				//}
-			
+				linux_gpio_export(BBB_PIN_LED_DS2);    // The LED DS2
+				linux_gpio_set_dir(BBB_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
 			#endif
-		//}
-		#endif
-		//else if(PLATFORM==PLATFORM_OPZ){
-		#if PLATFORM == PLATFORM_OPZ
+		#elif PLATFORM == PLATFORM_OPZ
 			#ifdef LED_YES
+				linux_gpio_export(OPZ_PIN_LED_DS2);    // The LED DS2
+				linux_gpio_set_dir(OPZ_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
 			
-				//if(sem_ctrl_led == 1){
-					linux_gpio_export(OPZ_PIN_LED_DS2);    // The LED DS2
-					linux_gpio_set_dir(OPZ_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
-				
-					//#ifndef SERIAL_PORT_FTDI_USB
-			
-					linux_gpio_export(OPZ_PIN_BUSY);    // The Busy signal from the radio
-					linux_gpio_set_dir(OPZ_PIN_BUSY, INPUT_PIN);   //  The Busy signal from the radio is an input for the OPZ
-					
-					//#endif
-				//}
-			
+				linux_gpio_export(OPZ_PIN_BUSY);    // The Busy signal from the radio
+				linux_gpio_set_dir(OPZ_PIN_BUSY, INPUT_PIN);   //  The Busy signal from the radio is an input for the OPZ
 			#endif
-			
-		//}
 		#endif
 	}
 	#endif
@@ -5459,12 +5440,12 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 				//delay_ms(CMD_WAIT1);
 				
 				
-				delay_ms(250);
+				delay_ms(550);
 				
 				serialPrintf(*handleUART, "C54" ) ; //sending the command to the Radio	
 				//serialPrintf(*handleUART, "C85" ) ; //sending the command to the Radio	
 				
-				delay_ms(120);
+				delay_ms(220);
 				//delay_ms(CMD_WAIT1);
 				
 				numCharacters=serialDataAvail (*handleUART) ;
