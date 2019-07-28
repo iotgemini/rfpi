@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		23/07/2019
+Last Update: 		28/07/2019
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -39,7 +39,35 @@ Description: it is the library to build the control panel for the 100th peripher
 //----------------------------------END INCLUDE--------------------------------------------//
 
 
-
+// Define recursive function to extract nested values
+function printValues($array_conf_json) {
+	global $count;
+	global $values;
+			
+	// Check input is an array
+	if(!is_array($array_conf_json)){
+		die("ERROR: Input is not an array");
+	}
+			
+			
+	//Loop through array, if value is itself an array recursively call the
+	//function else add the value found to the output items array,
+	//and increment counter by 1 for each value found
+			
+	foreach($array_conf_json as $key=>$value){
+		if(is_array($value)){
+			printValues($value);
+		} else{
+			$values[] = $value;
+			$count++;
+		}
+	}
+			
+	// Return total count and values found in array
+	return array('total' => $count, 'values' => $values);
+}
+		
+		
 
 
 function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $numOutput, $arrayNameInput, $arrayStatusInput, $arrayNameOutput, $arrayStatusOutput, $num_special_functions_peri, $fw_version_peri){
@@ -116,265 +144,239 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	}
 	
 	if ( $sem_json_exist==1 ) {	
-	// Define recursive function to extract nested values
-	function printValues($array_conf_json) {
-		global $count;
-		global $values;
 		
-		// Check input is an array
-		if(!is_array($array_conf_json)){
-			die("ERROR: Input is not an array");
-		}
+		 
 		
-		/*
-		Loop through array, if value is itself an array recursively call the
-		function else add the value found to the output items array,
-		and increment counter by 1 for each value found
-		*/
-		foreach($array_conf_json as $key=>$value){
-			if(is_array($value)){
-				printValues($value);
-			} else{
-				$values[] = $value;
-				$count++;
+		$json = "";
+		//$path_conf_json = CONF_PATH . $address_peri . ".json";
+		if(file_exists($path_conf_json)){
+			$myfile = fopen($path_conf_json, 'r');
+			while(feof($myfile)!==TRUE){
+				$json .= fgets($myfile);
 			}
-		}
+			fclose($myfile);
 		
-		// Return total count and values found in array
-		return array('total' => $count, 'values' => $values);
-	}
-	 
-	
-	$json = "";
-	//$path_conf_json = CONF_PATH . $address_peri . ".json";
-	if(file_exists($path_conf_json)){
-		$myfile = fopen($path_conf_json, 'r');
-		while(feof($myfile)!==TRUE){
-			$json .= fgets($myfile);
-		}
-		fclose($myfile);
-	
-	}else{
-		//$_SESSION["language"]="EN";
-	}
-	
-	
-	
-	// Decode JSON data into PHP associative array format
-	$array_conf_json = json_decode($json, true);
-	 
-	//var_dump($array_conf_json);
-	
-	
-	 
-	// Call the function and print all the values
-	//$result = printValues($array_conf_json);
-	//echo "<h3>" . $result["total"] . " value(s) found: </h3>";
-	//echo implode("<br>", $result["values"]); 
-	//echo "<hr>";
-	 
-	// Print a single value
-	//echo $array_conf_json["book"]["author"] . "<br>";  // Output: J. K. Rowling
-	//echo $array_conf_json["book"]["characters"][0] . "<br>";  // Output: Harry Potter
-	//echo $array_conf_json["book"]["price"]["hardcover"] . "<br>";  // Output: $20.32
-	
-	
-	/*echo $array_conf_json["MODULE"]["SHIELD_0"]["PINOUT"]["MASK_0"];
-	
-	if($array_conf_json["MODULE"]["SHIELD_5"]["PINOUT"]["MASK_0"]) 
-		echo " ESISTE!"; 
-	else 
-		echo " NON ESISTE!";
-	*/
-	
-	//$array_pin_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	//$array_pin_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	//$array_pin_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	//$array_pin_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	
-	$array_pin_digital_inputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_pin_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_pin_analogue_inputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_pin_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
-	
-	
-	$array_shield_name_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_name_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_name_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_name_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	
-	
-	$array_shield_mpn_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_mpn_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_mpn_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_mpn_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	
-		
-	$array_id_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_id_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
-	
-	
-	$varExit=0;
-	$var_shields_count=0;
-	//echo $array_conf_json["MODULE"].length;
-	for($i=0; $i<100 && $varExit==0; $i++){
-		if($array_conf_json["MODULE"]["SHIELD_" . $i]){
-			$var_shields_count++;
 		}else{
-			$varExit=1;
-			//echo " NON ESISTE!";
+			//$_SESSION["language"]="EN";
 		}
 		
-	}
-	 
-	//echo " NUM SHIELDS=".$var_shields_count;
+		
+		
+		// Decode JSON data into PHP associative array format
+		$array_conf_json = json_decode($json, true);
+		 
+		//var_dump($array_conf_json);
+		
+		
+		 
+		// Call the function and print all the values
+		//$result = printValues($array_conf_json);
+		//echo "<h3>" . $result["total"] . " value(s) found: </h3>";
+		//echo implode("<br>", $result["values"]); 
+		//echo "<hr>";
+		 
+		// Print a single value
+		//echo $array_conf_json["book"]["author"] . "<br>";  // Output: J. K. Rowling
+		//echo $array_conf_json["book"]["characters"][0] . "<br>";  // Output: Harry Potter
+		//echo $array_conf_json["book"]["price"]["hardcover"] . "<br>";  // Output: $20.32
+		
+		
+		//echo $array_conf_json["MODULE"]["SHIELD_0"]["PINOUT"]["MASK_0"];
+		
+		//if($array_conf_json["MODULE"]["SHIELD_5"]["PINOUT"]["MASK_0"]) 
+		//	echo " ESISTE!"; 
+		//else 
+		//	echo " NON ESISTE!";
 
-
-	//going to get the values for each shield
-	for($i=0; $i<$var_shields_count; $i++){
-		$id_shield = $array_conf_json["MODULE"]["SHIELD_" . $i][ID];
+		
+		//$array_pin_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		//$array_pin_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		//$array_pin_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		//$array_pin_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		
+		$array_pin_digital_inputs_json = [0,0,0,0,0,0,0,0,0];
+		$array_pin_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
+		$array_pin_analogue_inputs_json = [0,0,0,0,0,0,0,0,0];
+		$array_pin_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
 		
 		
+		$array_shield_name_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		$array_shield_name_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		$array_shield_name_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		$array_shield_name_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
 		
-		//parsing data by ID
-		if($id_shield==1){ //DIGITAL OUTPUT
-			//$array_pin_digital_outputs_json [$count_digital_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+		
+		$array_shield_mpn_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		$array_shield_mpn_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		$array_shield_mpn_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		$array_shield_mpn_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		
 			
-			$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			$varExit = 0;
-			$j=0;
-			for($j=0; $j<$count_digital_output_json && $varExit==0 ; $j++){
-				if($num_pin < $array_pin_digital_outputs_json[$j]){ //then move all data forward and copy the num of the pin
-					$varExit=1;
-					for($h=$j; $h<$count_digital_output_json; $h++){
-						$array_pin_digital_outputs_json[$h+1] = $array_pin_digital_outputs_json[$h];
-						$array_shield_name_digital_outputs_json [$h+1] = $array_shield_name_digital_outputs_json [$h];
-						$array_shield_mpn_digital_outputs_json[$h+1] = $array_shield_mpn_digital_outputs_json[$h];
-						//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
-					}
-					$array_pin_digital_outputs_json[$j] = $num_pin;
-					$array_shield_name_digital_outputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_digital_outputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-					//$array_id_digital_outputs_json[$j] = $j;
-				}
-			}
-			if($varExit==0){
-				$array_pin_digital_outputs_json[$count_digital_output_json] = $num_pin;
-				$array_shield_name_digital_outputs_json [$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-				$array_shield_mpn_digital_outputs_json[$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-				//$array_id_digital_outputs_json[$count_digital_output_json] = $count_digital_output_json;
+		$array_id_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
+		$array_id_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
+		
+		
+		$varExit=0;
+		$var_shields_count=0;
+		//echo $array_conf_json["MODULE"].length;
+		for($i=0; $i<100 && $varExit==0; $i++){
+			if($array_conf_json["MODULE"]["SHIELD_" . $i]){
+				$var_shields_count++;
+			}else{
+				$varExit=1;
+				//echo " NON ESISTE!";
 			}
 			
-			
-			$count_digital_output_json++;
-			
-		}else if($id_shield==2){ //DIGITAL INPUT
-			//$array_pin_digital_inputs_json [$count_digital_input_json]  = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			//$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-			
-			$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			$varExit = 0;
-			$j=0;
-			for($j=0; $j<$count_digital_input_json && $varExit==0 ; $j++){
-				if($num_pin < $array_pin_digital_inputs_json[$j]){ //then move all data forward and copy the num of the pin
-					$varExit=1;
-					for($h=$j; $h<$count_digital_input_json; $h++){
-						$array_pin_digital_inputs_json[$h+1] = $array_pin_digital_inputs_json[$h];
-						$array_shield_name_digital_inputs_json [$h+1] = $array_shield_name_digital_inputs_json [$h];
-						$array_shield_mpn_digital_inputs_json[$h+1] = $array_shield_mpn_digital_inputs_json[$h];
-						//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
-					}
-					$array_pin_digital_inputs_json[$j] = $num_pin;
-					$array_shield_name_digital_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_digital_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-					//$array_id_digital_outputs_json[$j] = $j;
-				}
-			}
-			if($varExit==0){
-				$array_pin_digital_inputs_json[$count_digital_input_json] = $num_pin;
-				$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-				$array_shield_mpn_digital_inputs_json[$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-				//$array_id_digital_outputs_json[$count_digital_input_json] = $count_digital_input_json;
-			}
-			
-			$count_digital_input_json++;
-			
-		}else if($id_shield==3){ //ANALOGUE INPUT
-			//$array_pin_analogue_inputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-			
-			$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			$varExit = 0;
-			$j=0;
-			for($j=0; $j<$count_analogue_input_json && $varExit==0 ; $j++){
-				if($num_pin < $array_pin_analogue_inputs_json[$j]){ //then move all data forward and copy the num of the pin
-					$varExit=1;
-					for($h=$j; $h<$count_analogue_input_json; $h++){
-						$array_pin_analogue_inputs_json[$h+1] = $array_pin_analogue_inputs_json[$h];
-						$array_shield_name_analogue_inputs_json [$h+1] = $array_shield_name_analogue_inputs_json [$h];
-						$array_shield_mpn_analogue_inputs_json[$h+1] = $array_shield_mpn_analogue_inputs_json[$h];
-						//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
-					}
-					$array_pin_analogue_inputs_json[$j] = $num_pin;
-					$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-					//$array_id_digital_outputs_json[$j] = $j;
-				}
-			}
-			if($varExit==0){
-				$array_pin_analogue_inputs_json[$count_analogue_input_json] = $num_pin;
-				$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-				$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-				//$array_id_digital_outputs_json[$count_analogue_input_json] = $count_analogue_input_json;
-			}
-			
-			$count_analogue_input_json++;
-			
-		}else if($id_shield==4){ //RGB SHIELD
-			$sem_RGB_Shield_connected = 1;
-			$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-			//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
-			$count_analogue_output_json++;
-			$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_1];
-			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-			//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
-			$count_analogue_output_json++;
-			$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_2];
-			$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-			//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
-			$count_analogue_output_json++;
-			
-		}else if($id_shield==5){ //ANALOGUE INPUT DHT11
-			//$array_pin_analogue_outputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-			//$array_id_analogue_outputs_json [$count_analogue_input_json] = $count_analogue_input_json + $count_analogue_input_json;
-			
-			$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-			$varExit = 0;
-			$j=0;
-			for($j=0; $j<$count_analogue_input_json && $varExit==0 ; $j++){
-				if($num_pin < $array_pin_analogue_inputs_json[$j]){ //then move all data forward and copy the num of the pin
-					$varExit=1;
-					for($h=$j; $h<$count_analogue_input_json; $h++){
-						$array_pin_analogue_inputs_json[$h+1] = $array_pin_analogue_inputs_json[$h];
-						$array_shield_name_analogue_inputs_json [$h+1] = $array_shield_name_analogue_inputs_json [$h];
-						$array_shield_mpn_analogue_inputs_json[$h+1] = $array_shield_mpn_analogue_inputs_json[$h];
-					}
-					$array_pin_analogue_inputs_json[$j] = $num_pin;
-					$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-				}
-			}
-			if($varExit==0){
-				$array_pin_analogue_inputs_json[$count_analogue_input_json] = $num_pin;
-				$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-				$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
-			}
-			
-			$count_analogue_input_json++;
 		}
-	}
+		 
+		//echo " NUM SHIELDS=".$var_shields_count;
+
+
+		//going to get the values for each shield
+		for($i=0; $i<$var_shields_count; $i++){
+			$id_shield = $array_conf_json["MODULE"]["SHIELD_" . $i][ID];
+			
+			
+			
+			//parsing data by ID
+			if($id_shield==1){ //DIGITAL OUTPUT
+				//$array_pin_digital_outputs_json [$count_digital_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$varExit = 0;
+				$j=0;
+				for($j=0; $j<$count_digital_output_json && $varExit==0 ; $j++){
+					if($num_pin < $array_pin_digital_outputs_json[$j]){ //then move all data forward and copy the num of the pin
+						$varExit=1;
+						for($h=$j; $h<$count_digital_output_json; $h++){
+							$array_pin_digital_outputs_json[$h+1] = $array_pin_digital_outputs_json[$h];
+							$array_shield_name_digital_outputs_json [$h+1] = $array_shield_name_digital_outputs_json [$h];
+							$array_shield_mpn_digital_outputs_json[$h+1] = $array_shield_mpn_digital_outputs_json[$h];
+							//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
+						}
+						$array_pin_digital_outputs_json[$j] = $num_pin;
+						$array_shield_name_digital_outputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+						$array_shield_mpn_digital_outputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+						//$array_id_digital_outputs_json[$j] = $j;
+					}
+				}
+				if($varExit==0){
+					$array_pin_digital_outputs_json[$count_digital_output_json] = $num_pin;
+					$array_shield_name_digital_outputs_json [$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+					$array_shield_mpn_digital_outputs_json[$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					//$array_id_digital_outputs_json[$count_digital_output_json] = $count_digital_output_json;
+				}
+				
+				
+				$count_digital_output_json++;
+				
+			}else if($id_shield==2){ //DIGITAL INPUT
+				//$array_pin_digital_inputs_json [$count_digital_input_json]  = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				//$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$varExit = 0;
+				$j=0;
+				for($j=0; $j<$count_digital_input_json && $varExit==0 ; $j++){
+					if($num_pin < $array_pin_digital_inputs_json[$j]){ //then move all data forward and copy the num of the pin
+						$varExit=1;
+						for($h=$j; $h<$count_digital_input_json; $h++){
+							$array_pin_digital_inputs_json[$h+1] = $array_pin_digital_inputs_json[$h];
+							$array_shield_name_digital_inputs_json [$h+1] = $array_shield_name_digital_inputs_json [$h];
+							$array_shield_mpn_digital_inputs_json[$h+1] = $array_shield_mpn_digital_inputs_json[$h];
+							//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
+						}
+						$array_pin_digital_inputs_json[$j] = $num_pin;
+						$array_shield_name_digital_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+						$array_shield_mpn_digital_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+						//$array_id_digital_outputs_json[$j] = $j;
+					}
+				}
+				if($varExit==0){
+					$array_pin_digital_inputs_json[$count_digital_input_json] = $num_pin;
+					$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+					$array_shield_mpn_digital_inputs_json[$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					//$array_id_digital_outputs_json[$count_digital_input_json] = $count_digital_input_json;
+				}
+				
+				$count_digital_input_json++;
+				
+			}else if($id_shield==3){ //ANALOGUE INPUT
+				//$array_pin_analogue_inputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$varExit = 0;
+				$j=0;
+				for($j=0; $j<$count_analogue_input_json && $varExit==0 ; $j++){
+					if($num_pin < $array_pin_analogue_inputs_json[$j]){ //then move all data forward and copy the num of the pin
+						$varExit=1;
+						for($h=$j; $h<$count_analogue_input_json; $h++){
+							$array_pin_analogue_inputs_json[$h+1] = $array_pin_analogue_inputs_json[$h];
+							$array_shield_name_analogue_inputs_json [$h+1] = $array_shield_name_analogue_inputs_json [$h];
+							$array_shield_mpn_analogue_inputs_json[$h+1] = $array_shield_mpn_analogue_inputs_json[$h];
+							//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
+						}
+						$array_pin_analogue_inputs_json[$j] = $num_pin;
+						$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+						$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+						//$array_id_digital_outputs_json[$j] = $j;
+					}
+				}
+				if($varExit==0){
+					$array_pin_analogue_inputs_json[$count_analogue_input_json] = $num_pin;
+					$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+					$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					//$array_id_digital_outputs_json[$count_analogue_input_json] = $count_analogue_input_json;
+				}
+				
+				$count_analogue_input_json++;
+				
+			}else if($id_shield==4){ //RGB SHIELD
+				$sem_RGB_Shield_connected = 1;
+				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+				$count_analogue_output_json++;
+				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_1];
+				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+				$count_analogue_output_json++;
+				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_2];
+				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
+				$count_analogue_output_json++;
+				
+			}else if($id_shield==5){ //ANALOGUE INPUT DHT11
+				//$array_pin_analogue_outputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				//$array_id_analogue_outputs_json [$count_analogue_input_json] = $count_analogue_input_json + $count_analogue_input_json;
+				
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$varExit = 0;
+				$j=0;
+				for($j=0; $j<$count_analogue_input_json && $varExit==0 ; $j++){
+					if($num_pin < $array_pin_analogue_inputs_json[$j]){ //then move all data forward and copy the num of the pin
+						$varExit=1;
+						for($h=$j; $h<$count_analogue_input_json; $h++){
+							$array_pin_analogue_inputs_json[$h+1] = $array_pin_analogue_inputs_json[$h];
+							$array_shield_name_analogue_inputs_json [$h+1] = $array_shield_name_analogue_inputs_json [$h];
+							$array_shield_mpn_analogue_inputs_json[$h+1] = $array_shield_mpn_analogue_inputs_json[$h];
+						}
+						$array_pin_analogue_inputs_json[$j] = $num_pin;
+						$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+						$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					}
+				}
+				if($varExit==0){
+					$array_pin_analogue_inputs_json[$count_analogue_input_json] = $num_pin;
+					$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+					$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+				}
+				
+				$count_analogue_input_json++;
+			}
+		}
 	
 	}//END json exist
 
@@ -437,12 +439,12 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 			echo "PIN" . $array_pin_digital_inputs_json[$l].' ';
 			echo 'ID' . $counter;
 			echo '<br>';
-			/*if($arrayStatusInput[$counter]==-1){
-				echo ' = &#63;';
-			}else{	
-				echo ' = ';
-				echo $arrayStatusInput[$counter];
-			}*/
+			//if($arrayStatusInput[$counter]==-1){
+			//	echo ' = &#63;';
+			//}else{	
+			//	echo ' = ';
+			//	echo $arrayStatusInput[$counter];
+			//}
 			echo '<h2>';
 			if($arrayStatusInput[$counter]==1){
 				echo '<img src="' . DIRECTORY_IMG_PERI_100 . 'led_green.png" class="img_led" alt="'.$lang_msg_on.'"> ';
@@ -477,7 +479,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 				echo '&#63;';
 			}else{	
 				//echo ' = ';
-				echo $array_shield_mpn_analogue_inputs_json[$l];
+				//echo $array_shield_mpn_analogue_inputs_json[$l];
 				if($array_shield_mpn_analogue_inputs_json[$l]==="MCP9701A"){
 					$temperature = temperature_MCP9701_from_ADC_raw_value_peri_100($arrayStatusInput[$counter]);
 					echo '<h2>';
