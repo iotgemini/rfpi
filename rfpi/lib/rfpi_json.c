@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					24/05/2019
+Last Update: 					30/08/2019
 
 
 Description: library for the RFPI
@@ -319,6 +319,7 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 
 //this function allocate the memory and record all data from json file
 void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *json_key, char* json_value){
+	int l;
 	
 	struct_shields_connected *tempStructShieldConn;
 
@@ -460,7 +461,7 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 				rootJsonSettings->tempLastPin = 0; //this means the input value is wrong! thus it not assigs any PIN!
 			}else{
 				rootJsonSettings->tempLastPin = 1;
-				for(int l=3;l<numPin;l++){
+				for(l=3;l<numPin;l++){
 					rootJsonSettings->tempLastPin = rootJsonSettings->tempLastPin * 2;
 				}
 			}

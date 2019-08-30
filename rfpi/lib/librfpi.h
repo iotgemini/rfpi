@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					28/07/2019
+Last Update: 					30/08/2019
 
 
 Description: library for the RFPI
@@ -254,7 +254,9 @@ unsigned char sem_serial_port_USB;
 char path_to_search_serial_port[]=PATH_TO_SEARCH_SERIAL_PORT;
 unsigned char sem_serial_communication_via_usb;  //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
 //unsigned char sem_ctrl_led; //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
-	
+
+unsigned char sem_init_gpio_rpi_ok;	//if the gpio are initialised then cna control the gpio
+
 //delay milliseconds
 void delay_ms(unsigned int millis);
 

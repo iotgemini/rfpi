@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					28/07/2019
+Last Update: 					30/08/2019
 
 
 Description: application rfpi.c to run the RFPI network
@@ -96,7 +96,8 @@ int main(int argc, char **argv){
 			#ifdef LED_YES
 			if(sem_serial_port_USB == 0){
 				#if PLATFORM == PLATFORM_RPI
-					bcm2835_gpio_write(PIN_LED_DS1, LOW); //led which indicate if an error occurred
+					if(sem_init_gpio_rpi_ok==1)
+						bcm2835_gpio_write(PIN_LED_DS1, LOW); //led which indicate if an error occurred
 				#elif PLATFORM == PLATFORM_BBB
 					linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
 				#elif PLATFORM == PLATFORM_OPZ
@@ -108,7 +109,8 @@ int main(int argc, char **argv){
 			#ifdef LED_YES
 			if(sem_serial_port_USB == 0){
 				#if PLATFORM == PLATFORM_RPI
-					bcm2835_gpio_write(PIN_LED_DS1, HIGH); //led which indicate if an error occurred
+					if(sem_init_gpio_rpi_ok==1)
+						bcm2835_gpio_write(PIN_LED_DS1, HIGH); //led which indicate if an error occurred
 				#elif PLATFORM == PLATFORM_BBB
 					linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
 				#elif PLATFORM == PLATFORM_OPZ

@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					28/07/2019
+Last Update: 					30/08/2019
 
 
 Description: library for the RFPI
@@ -327,9 +327,10 @@ unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *s
 void ResetRFPI(void){ 
 	
 	#ifndef SERIAL_PORT_FTDI_USB
-	if(sem_serial_port_USB == 0){
+	if(sem_serial_port_USB == 0){ 
 		//if(PLATFORM == PLATFORM_RPI){
 		#if PLATFORM == PLATFORM_RPI
+		printf("\n           OK2      \n");fflush(stdout); 
 			// Set the pin to be an output
 			bcm2835_gpio_fsel(PIN_RESET, BCM2835_GPIO_FSEL_OUTP);
 			#ifdef LED_YES
@@ -358,6 +359,8 @@ void ResetRFPI(void){
 			// wait 
 			delay_ms(1000);
 		#endif
+		
+		
 		//}else if(PLATFORM == PLATFORM_BBB){
 		#if PLATFORM == PLATFORM_BBB
 			#ifdef LED_YES
@@ -375,6 +378,7 @@ void ResetRFPI(void){
 			#endif
 			linux_gpio_set_value(BBB_PIN_RESET, HIGH_GPIO);
 		#endif
+		
 		//}else if(PLATFORM == PLATFORM_OPZ){
 		#if PLATFORM == PLATFORM_OPZ
 			#ifdef LED_YES
@@ -4197,21 +4201,25 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 	//if an error happen then it will be rewritten
 	strcpy(statusInit,"TRUE");
 	
+	sem_init_gpio_rpi_ok=0;
 	
 	#ifndef SERIAL_PORT_FTDI_USB
-	if(sem_serial_port_USB == 0){
+	if(sem_serial_port_USB == 0){ 
 		#if PLATFORM == PLATFORM_RPI
 			if (!bcm2835_init()){
+				sem_init_gpio_rpi_ok=1;
 				printf(ERROR001);printf("\n");
 				strcpy(statusInit,ERROR001);
 				file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
 				fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
 				fclose(file_pointer_error);
+				ResetRFPI(); //it reset the Transceiver and turn on the LED called DS2
 			}
 		#elif PLATFORM == PLATFORM_BBB
 			#ifdef LED_YES
 				linux_gpio_export(BBB_PIN_LED_DS2);    // The LED DS2
 				linux_gpio_set_dir(BBB_PIN_LED_DS2, OUTPUT_PIN);   // The LED DS2 is an output
+				ResetRFPI(); //it reset the Transceiver and turn on the LED called DS2
 			#endif
 		#elif PLATFORM == PLATFORM_OPZ
 			#ifdef LED_YES
@@ -4220,15 +4228,12 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 			
 				linux_gpio_export(OPZ_PIN_BUSY);    // The Busy signal from the radio
 				linux_gpio_set_dir(OPZ_PIN_BUSY, INPUT_PIN);   //  The Busy signal from the radio is an input for the OPZ
+				ResetRFPI(); //it reset the Transceiver and turn on the LED called DS2
 			#endif
 		#endif
-	}
+	} 
 	#endif
-	
 
-	ResetRFPI(); //it reset the Transceiver and turn on the LED called DS2
-	
-	
 	//Initialisation of the serial communication with the Transceiver
 	if(!InitSerialCommunication(&handleUART, serial_port_path)){
 		printf("\n"); printf(ERROR002); printf("\n");
@@ -4303,10 +4308,15 @@ void blinkLed(){
 	
 		if(sem_serial_port_USB == 0){
 			#if PLATFORM == PLATFORM_RPI
-				bcm2835_gpio_write(PIN_LED_DS2, HIGH);
-				delay_ms(BLINK_LED_DELAY);
-				bcm2835_gpio_write(PIN_LED_DS2, LOW);
-				delay_ms(BLINK_LED_DELAY);
+				if(sem_init_gpio_rpi_ok==1){
+					bcm2835_gpio_write(PIN_LED_DS2, HIGH);
+					delay_ms(BLINK_LED_DELAY);
+					bcm2835_gpio_write(PIN_LED_DS2, LOW);
+					delay_ms(BLINK_LED_DELAY);
+				}else{
+					delay_ms(BLINK_LED_DELAY);
+					delay_ms(BLINK_LED_DELAY);
+				}
 			#endif
 			
 			#if PLATFORM == PLATFORM_BBB
@@ -4331,6 +4341,7 @@ void blinkLed(){
 		delay_ms(BLINK_LED_DELAY);
 		delay_ms(BLINK_LED_DELAY);
 	#endif
+
 	
 }
 
