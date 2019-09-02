@@ -1,5 +1,5 @@
-1.6
-24/05/2019
+1.6.0.7
+02/09/2019
 
 v1.6
 	- Updated the functions where RFPI get the bit resolution for each IO status of the peripheral

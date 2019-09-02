@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		01/05/2016
+Last Update: 		02/09/2019
 
 Description: it send the command to get the settings of the TIMER
 
@@ -41,11 +41,13 @@ $counter = $_GET['counter'];
 
 $cont_retry = $_GET['cont_retry'];
 
+$fw_version_peri = $_GET['fw_version_peri'];
+
 $strCmd = "DATA RF ".$address_peri." 524275022E2E2E2E2E2E2E2E2E2E2E2E "; //the space at the end is important
 
 writeFIFO(FIFO_GUI_CMD, $strCmd);
 
-header('Location: ./read_fifo_trigger_setting.php?address_peri='.$address_peri.'&position_id='.$position_id.'&counter='.$counter.'&cont_retry='.$cont_retry.'&redirect_page='.$redirect_page);
+header('Location: ./read_fifo_trigger_setting.php?address_peri='.$address_peri.'&position_id='.$position_id.'&counter='.$counter.'&cont_retry='.$cont_retry.'&fw_version_peri='.$fw_version_peri.'&redirect_page='.$redirect_page);
 	
 ?>
 

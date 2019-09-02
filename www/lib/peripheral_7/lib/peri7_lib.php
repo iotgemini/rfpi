@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		10/05/2019
+Last Update: 		02/09/2019
 
 Description: it is the library with all useful function to use RFPI
 
@@ -58,13 +58,16 @@ Description: it is the library with all useful function to use RFPI
 define("DIRECTORY_IMG_PERI_7", "/img/peripheral/"); 		//where all default pictures for any peripheral are kept
 define("DIRECTORY_CSS_PERI_7", "/css/"); 					//where all default style for any peripheral are kept
 
-//define("MAX_TEMPERATURE_MCP9701", 128);
-//define("MIN_TEMPERATURE_MCP9701", 0);
+define("MAX_TEMPERATURE_MCP9701", 128); //ok for old FW1
+define("MIN_TEMPERATURE_MCP9701", 0); //ok for old FW1
 
-define("MAX_TEMPERATURE_MCP9701", 125);
-define("MIN_TEMPERATURE_MCP9701", -10);
+//define("MAX_TEMPERATURE_MCP9701", 125); //FW2
+//define("MIN_TEMPERATURE_MCP9701", -10); //FW2
 
 define("MAX_VOLTAGE_ADC_INPUT", 5);
+
+//this selct the formula to use. 1=FW_v1, 2=FW_v2
+//define("FORMULA_TO_USE_BASED_ON_FW_VERSION", 1);
 
 //-------------------------------END DEFINE----------------------------------//
 
@@ -78,10 +81,11 @@ define("MAX_VOLTAGE_ADC_INPUT", 5);
 
 
 function temperature_MCP9701_from_8bit_value_peri7($ADC_8bit_value){
-	//$tempearure = (($ADC_8bit_value * MAX_TEMPERATURE_MCP9701) / 256)-MIN_TEMPERATURE_MCP9701; //ok for old FW
+	$tempearure = (($ADC_8bit_value * MAX_TEMPERATURE_MCP9701) / 256)-MIN_TEMPERATURE_MCP9701; //ok for old FW1
+//$tempearure =$ADC_8bit_value;
 	//$tempearure = ((($ADC_8bit_value-20) * (MAX_TEMPERATURE_MCP9701+10)) / (144-20))-MIN_TEMPERATURE_MCP9701; //ok for old FW
 	//$tempearure = (((($ADC_8bit_value)*0.01953125) - 0.4) / 0.0195);
-	$tempearure = $ADC_8bit_value-20;
+		//$tempearure = $ADC_8bit_value-20; //new for FW2 but bo!
 	//$tempearure = ceil($tempearure);
 	//$tempearure = round($tempearure);
 	return $tempearure;
@@ -98,6 +102,13 @@ function temperature_MCP9701_from_8bit_value_peri7_FW2($ADC_8bit_value){
 
 function the_8bit_value_from_temperature_MCP9701_peri7($tempearure){
 	$value_8bit = (($tempearure * 256) / MAX_TEMPERATURE_MCP9701)+MIN_TEMPERATURE_MCP9701; 
+//$value_8bit =$tempearure;
+	//$value_8bit = ceil($value_8bit);
+	return $value_8bit;
+}
+
+function the_8bit_value_from_temperature_MCP9701_peri7_FW2($tempearure){
+	$value_8bit =  (($tempearure * 0.0195) + 0.4) / 0.0048828125; 
 	//$value_8bit = ceil($value_8bit);
 	return $value_8bit;
 }

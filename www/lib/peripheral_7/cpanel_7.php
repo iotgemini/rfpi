@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		28/04/2019
+Last Update: 		02/09/2019
 
 Description: it is the library to build the control panel for the 4th peripheral
 
@@ -238,6 +238,7 @@ function peripheral_7($id, $idperipheral, $name, $address_peri, $numInput, $numO
 	echo '<form name="eri7_btn_timer_functions_'.$id.'" action="./lib/peripheral_7/cmd_get_timer_setting.php" method=GET>';
 	echo '<input type=hidden name="position_id" value="'.$id.'">';
 	echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+	echo '<input type=hidden name="fw_version_peri" value="'.$fw_version_peri.'">';
 	echo '<input type=submit value="'.$lang_btn_timer.'" class="btn_functions">';
 	echo '</form>';
 	}
@@ -249,6 +250,7 @@ function peripheral_7($id, $idperipheral, $name, $address_peri, $numInput, $numO
 	echo '<form name="eri7_btn_trigger_functions_'.$id.'" action="./lib/peripheral_7/cmd_get_trigger_setting.php" method=GET>';
 	echo '<input type=hidden name="position_id" value="'.$id.'">';
 	echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+	echo '<input type=hidden name="fw_version_peri" value="'.$fw_version_peri.'">';
 	echo '<input type=submit value="'.$lang_btn_trigger.'" class="btn_functions">';
 	echo '</form>';
 	}
@@ -258,6 +260,7 @@ function peripheral_7($id, $idperipheral, $name, $address_peri, $numInput, $numO
 	echo '<form name="eri7_btn_input_functions_'.$id.'" action="./lib/peripheral_7/cmd_get_input_setting.php" method=GET>';
 	echo '<input type=hidden name="position_id" value="'.$id.'">';
 	echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+	echo '<input type=hidden name="fw_version_peri" value="'.$fw_version_peri.'">';
 	echo '<input type=submit value="'.$lang_btn_input.'" class="btn_functions">';
 	echo '</form>';
 	}

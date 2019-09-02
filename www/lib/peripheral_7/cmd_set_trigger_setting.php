@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		11/05/2016
+Last Update: 		02/09/2019
 
 Description: it send the command to set the settings of the TRIGGER
 
@@ -54,6 +54,8 @@ $position_id=$_GET['position_id'];
 
 $address_peri=$_GET['address_peri'];
 
+$fw_version_peri = $_GET['fw_version_peri'];
+
 $redirect_page = $_GET['redirect_page'];
 
 $counter = $_GET['counter'];
@@ -79,7 +81,12 @@ $trigger_temperature_low_INT=$_GET['trigger_temperature_low_INT'];
 
 //$int_trigger_temperature_low_INT = intval($trigger_temperature_low_INT, 10);
 $int_trigger_temperature_low_INT = floatval($trigger_temperature_low_INT);
-$int_trigger_temperature_low_INT = (int)the_8bit_value_from_temperature_MCP9701_peri7($int_trigger_temperature_low_INT);
+//if(FORMULA_TO_USE_BASED_ON_FW_VERSION == 1){
+if($fw_version_peri == 1){
+	$int_trigger_temperature_low_INT = (int)the_8bit_value_from_temperature_MCP9701_peri7($int_trigger_temperature_low_INT);
+}else{
+	$int_trigger_temperature_low_INT = (int)the_8bit_value_from_temperature_MCP9701_peri7_FW2($int_trigger_temperature_low_INT);
+}
 $trigger_temperature_low_BYTE = dechex( $int_trigger_temperature_low_INT );
 if(strlen($trigger_temperature_low_BYTE)<2) $trigger_temperature_low_BYTE = "0" . $trigger_temperature_low_BYTE;
 
@@ -88,7 +95,12 @@ if(strlen($trigger_temperature_low_BYTE)<2) $trigger_temperature_low_BYTE = "0" 
 
 $trigger_temperature_high_INT=$_GET['trigger_temperature_high_INT'];
 $int_trigger_temperature_high_INT = floatval($trigger_temperature_high_INT);
-$int_trigger_temperature_high_INT = (int)the_8bit_value_from_temperature_MCP9701_peri7($int_trigger_temperature_high_INT);
+//if(FORMULA_TO_USE_BASED_ON_FW_VERSION == 1){
+if($fw_version_peri == 1){
+	$int_trigger_temperature_high_INT = (int)the_8bit_value_from_temperature_MCP9701_peri7($int_trigger_temperature_high_INT);
+}else{
+	$int_trigger_temperature_high_INT = (int)the_8bit_value_from_temperature_MCP9701_peri7_FW2($int_trigger_temperature_high_INT);
+}
 $trigger_temperature_high_BYTE = dechex( $int_trigger_temperature_high_INT );
 if(strlen($trigger_temperature_high_BYTE)<2) $trigger_temperature_high_BYTE = "0" . $trigger_temperature_high_BYTE;
 
@@ -107,9 +119,12 @@ if($send_temperature_enabled==="1"){
 	if($int_temperature_offset_to_send_data_temperature < 0){
 		$int_temperature_offset_to_send_data_temperature = 0;
 	}
-	
-	$int_temperature_offset_to_send_data_temperature = (int)the_8bit_value_from_temperature_MCP9701_peri7($int_temperature_offset_to_send_data_temperature);
-	
+	//if(FORMULA_TO_USE_BASED_ON_FW_VERSION == 1){
+	if($fw_version_peri == 1){
+		$int_temperature_offset_to_send_data_temperature = (int)the_8bit_value_from_temperature_MCP9701_peri7($int_temperature_offset_to_send_data_temperature);
+	}else{
+		$int_temperature_offset_to_send_data_temperature = (int)the_8bit_value_from_temperature_MCP9701_peri7_FW2($int_temperature_offset_to_send_data_temperature);
+	}
 	$byte_temperature_offset_to_send_data_temperature = dechex( $int_temperature_offset_to_send_data_temperature );
 	if(strlen($byte_temperature_offset_to_send_data_temperature)<2) $byte_temperature_offset_to_send_data_temperature = "0" . $byte_temperature_offset_to_send_data_temperature;
 

@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		18/05/2016
+Last Update: 		02/09/2019
 
 Description: this is a panel where to setup the TIMER
 
@@ -81,6 +81,8 @@ $position_id=$_GET['position_id'];
 
 $address_peri=$_GET['address_peri'];
 
+$fw_version_peri = $_GET['fw_version_peri'];
+
 $trigger_enabled=$_GET['trigger_enabled'];
 
 $trigger_temperature_low_INT=$_GET['trigger_temperature_low_INT'];
@@ -119,6 +121,7 @@ echo '<table class="table_temperature">';
 echo '<form name="peri3_btn_gpio_functions" action="./cmd_set_trigger_setting.php" method=GET>';
 echo '<input type=hidden name="position_id" value="'. $position_id . '">';
 echo '<input type=hidden name="address_peri" value="'. $address_peri . '">';
+echo '<input type=hidden name="fw_version_peri" value="'.$fw_version_peri.'">';
 
 echo '<table class="table_peripheral" border=1>';
 
@@ -131,13 +134,23 @@ echo '</tr>';
 echo '<tr class="table_line_even" >';
 echo '<td class="td_peripheral" align=center >';
 echo '<input type="text" name="trigger_temperature_low_INT" value="'; 
-	echo number_format((float)strval(temperature_MCP9701_from_8bit_value_peri7($trigger_temperature_low_INT)), 0, '.', ''); 
+	//if(FORMULA_TO_USE_BASED_ON_FW_VERSION == 1){
+	if($fw_version_peri == 1){
+		echo number_format((float)strval(temperature_MCP9701_from_8bit_value_peri7($trigger_temperature_low_INT)), 0, '.', ''); 
+	}else{
+		echo number_format((float)strval(temperature_MCP9701_from_8bit_value_peri7_FW2($trigger_temperature_low_INT)), 0, '.', ''); 
+	}
 echo '" size="2" maxlength="2">';
 echo '<br>(0&#176C - +70&#176C)';
 echo '</td>';    
 echo '<td class="td_peripheral" align=center>';
 echo '<input type="text" name="trigger_temperature_high_INT" value="'; 
-	echo number_format((float)strval(temperature_MCP9701_from_8bit_value_peri7($trigger_temperature_high_INT)), 0, '.', ''); 
+	//if(FORMULA_TO_USE_BASED_ON_FW_VERSION == 1){
+	if($fw_version_peri == 1){
+		echo number_format((float)strval(temperature_MCP9701_from_8bit_value_peri7($trigger_temperature_high_INT)), 0, '.', ''); 
+	}else{
+		echo number_format((float)strval(temperature_MCP9701_from_8bit_value_peri7_FW2($trigger_temperature_high_INT)), 0, '.', ''); 
+	}
 echo '" size="2" maxlength="2">';
 echo '<br>(0&#176C - +70.0&#176C)';
 echo '</td>';  
@@ -172,8 +185,13 @@ echo '</tr>';
 echo '<tr class="table_line_even">';
 echo '<td class="td_peripheral" colspan=2>';
 echo '<input type="text" name="temperature_offset_to_send_data_temperature" value="'; 
-
-	echo number_format((float)temperature_MCP9701_from_8bit_value_peri7($temperature_offset_to_send_data_temperature), 0, '.', ''); 
+	//if(FORMULA_TO_USE_BASED_ON_FW_VERSION == 1){
+	if($fw_version_peri == 1){
+		echo number_format((float)temperature_MCP9701_from_8bit_value_peri7($temperature_offset_to_send_data_temperature), 0, '.', ''); 
+	}else{	
+		echo number_format((float)temperature_MCP9701_from_8bit_value_peri7_FW2($temperature_offset_to_send_data_temperature), 0, '.', '');
+	}
+	
 echo '" size="3" maxlength="3">';
 echo '&#176C';
 

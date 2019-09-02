@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		18/05/2016
+Last Update: 		02/09/2019
 
 Description: it check if the peri answer with the settings of the TIMER
 
@@ -63,6 +63,8 @@ $position_id=$_GET['position_id'];
 $address_peri=$_GET['address_peri'];
 
 $redirect_page = $_GET['redirect_page'];
+
+$fw_version_peri = $_GET['fw_version_peri'];
 
 $counter = $_GET['counter'];
 if($counter==='')
@@ -151,7 +153,7 @@ if( ($counter < $max_counter)){ //if it is not in time out
 					$current_temperature_INT = intval ($data_radio[20] . $data_radio[21], 16);	
 					$current_temperature_DEC = intval ($data_radio[22] . $data_radio[23], 16);
 					
-					header('Location: ./trigger_functions.php?address_peri='.$address_peri.'&position_id='.$position_id.'&trigger_enabled='.$trigger_enabled.'&trigger_temperature_low_INT='.$trigger_temperature_low_INT.'&trigger_temperature_low_DEC='.$trigger_temperature_low_DEC.'&trigger_temperature_high_INT='.$trigger_temperature_high_INT.'&trigger_temperature_high_DEC='.$trigger_temperature_high_DEC.'&temperature_offset_to_send_data_temperature='.$temperature_offset_to_send_data_temperature.'&current_temperature_INT='.$current_temperature_INT.'&current_temperature_DEC='.$current_temperature_DEC);
+					header('Location: ./trigger_functions.php?address_peri='.$address_peri.'&fw_version_peri='.$fw_version_peri.'&position_id='.$position_id.'&trigger_enabled='.$trigger_enabled.'&trigger_temperature_low_INT='.$trigger_temperature_low_INT.'&trigger_temperature_low_DEC='.$trigger_temperature_low_DEC.'&trigger_temperature_high_INT='.$trigger_temperature_high_INT.'&trigger_temperature_high_DEC='.$trigger_temperature_high_DEC.'&temperature_offset_to_send_data_temperature='.$temperature_offset_to_send_data_temperature.'&current_temperature_INT='.$current_temperature_INT.'&current_temperature_DEC='.$current_temperature_DEC);
 					$reload_this_page = 0;
 					
 				}else{ //it retry 
@@ -167,7 +169,7 @@ if( ($counter < $max_counter)){ //if it is not in time out
 						
 						echo '<script type="text/javascript">';
 						echo 'setTimeout("';
-						echo "location.href = './cmd_get_trigger_setting.php?address_peri=".$address_peri."&position_id=".$position_id."&counter=" . $counter . "&cont_retry=".$cont_retry."&$redirect_page=".$redirect_page."';";
+						echo "location.href = './cmd_get_trigger_setting.php?address_peri=".$address_peri.'&fw_version_peri='.$fw_version_peri."&position_id=".$position_id."&counter=" . $counter . "&cont_retry=".$cont_retry."&$redirect_page=".$redirect_page."';";
 						echo '", 10); ';
 						echo '</script>';
 					}else{
@@ -175,7 +177,7 @@ if( ($counter < $max_counter)){ //if it is not in time out
 
 						echo '<script type="text/javascript">';
 						echo "setTimeout('";
-						echo 'location.href = "./trigger_functions.php?address_peri='.$address_peri.'&position_id='.$position_id.'";';
+						echo 'location.href = "./trigger_functions.php?address_peri='.$address_peri.'&fw_version_peri='.$fw_version_peri.'&position_id='.$position_id.'";';
 						echo "', 3000);";
 						echo '</script>';
 					}
@@ -193,7 +195,7 @@ if( ($counter < $max_counter)){ //if it is not in time out
 	if($reload_this_page == 1){
 		echo '<script type="text/javascript">';
 		echo 'setTimeout("';
-		echo "location.href = './read_fifo_trigger_setting.php?address_peri=".$address_peri."&position_id=".$position_id."&counter=" . $counter ."&cont_retry=" . $cont_retry . "&redirect_page=".$redirect_page."';";
+		echo "location.href = './read_fifo_trigger_setting.php?address_peri=".$address_peri.'&fw_version_peri='.$fw_version_peri."&position_id=".$position_id."&counter=" . $counter ."&cont_retry=" . $cont_retry . "&redirect_page=".$redirect_page."';";
 		echo '", 25); ';
 		echo '</script>';
 	}
@@ -209,7 +211,7 @@ if( ($counter < $max_counter)){ //if it is not in time out
 						
 		echo '<script type="text/javascript">';
 		echo 'setTimeout("';
-		echo "location.href = './cmd_get_trigger_setting.php?address_peri=".$address_peri."&position_id=".$position_id."&counter=" . $counter . "&cont_retry=".$cont_retry."&$redirect_page=".$redirect_page."';";
+		echo "location.href = './cmd_get_trigger_setting.php?address_peri=".$address_peri.'&fw_version_peri='.$fw_version_peri."&position_id=".$position_id."&counter=" . $counter . "&cont_retry=".$cont_retry."&$redirect_page=".$redirect_page."';";
 		echo '", 3000); ';
 		echo '</script>';
 
@@ -219,7 +221,7 @@ if( ($counter < $max_counter)){ //if it is not in time out
 
 		echo '<script type="text/javascript">';
 		echo "setTimeout('";
-		echo 'location.href = "./trigger_functions.php?address_peri='.$address_peri.'&position_id='.$position_id.'";';
+		echo 'location.href = "./trigger_functions.php?address_peri='.$address_peri.'&fw_version_peri='.$fw_version_peri.'&position_id='.$position_id.'";';
 		echo "', 3000);";
 		echo '</script>';
 
