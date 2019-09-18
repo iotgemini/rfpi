@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					30/08/2019
+Last Update: 					18/09/2019
 
 
 Description: library for the RFPI
@@ -541,14 +541,14 @@ void printPeripheralStructData(peripheraldata *rootPeripheralData){
 		printf("   ---------INPUT(%d)---------\n", currentPeripheralData->NumInput);
 		currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 		currentPeripheralDataNameInput->StatusInput;
-		while(currentPeripheralDataNameInput!=0){
+		while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
 			printf("   %s  %d \n", currentPeripheralDataNameInput->NameInput, (int)(currentPeripheralDataNameInput->StatusInput));
 			
 			currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
 		}
 		printf("   ---------OUTPUT(%d)---------\n", currentPeripheralData->NumOutput);
 		currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
-		while(currentPeripheralDataNameOutput!=0){
+		while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
 			printf("   %s  %d \n", currentPeripheralDataNameOutput->NameOutput, (int)(currentPeripheralDataNameOutput->StatusOutput));
 			
 			currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
@@ -1356,7 +1356,7 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			intToStr(currentPeripheralData->NumInput, strNum); strcat(data,strNum); strcat(data," ");
 			currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 			//write all name of the input
-			while(currentPeripheralDataNameInput!=0){
+			while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
 				if(currentPeripheralDataNameInput->NameInput!=0){
 					strcat(data,currentPeripheralDataNameInput->NameInput); strcat(data," ");
 					/*int varExitTemp=0;
@@ -1403,7 +1403,7 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			intToStr(currentPeripheralData->NumOutput, strNum); strcat(data,strNum); strcat(data," ");
 			currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 			//write all name of the input
-			while(currentPeripheralDataNameOutput!=0){
+			while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
 				if(currentPeripheralDataNameOutput->NameOutput!=0){
 					strcat(data,currentPeripheralDataNameOutput->NameOutput); strcat(data," ");
 				}else{
@@ -3842,7 +3842,7 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 						l=0;
 						contInOutOFFline=0;
 						contTotalNumInOut=0;
-						while(currentPeripheralDataNameInput!=0){
+						while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
 							//currentPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
 							//get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
 							currentPeripheralDataNameInput->StatusInput = (signed long)getIOStatusPeri(handleUART, currentPeripheralData->PeriAddress, l, (char)'i', array_status);
@@ -3883,7 +3883,7 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 						//gets the outputs status
 						currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 						l=0;
-						while(currentPeripheralDataNameOutput!=0){
+						while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
 							//currentPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
 							//get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
 							currentPeripheralDataNameOutput->StatusOutput = (signed long)getIOStatusPeri(handleUART, currentPeripheralData->PeriAddress, l, (char)'p', array_status);
@@ -5121,44 +5121,46 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 			cont_input=0;
 			cont_status_link_input = 0;
 			write(handleFIFO, "   {\n", 5);
-			write(handleFIFO, "   ", 3); strcpy(tag,"in_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
-			write(handleFIFO, "\n     {\n", 8);
-			while(currentPeripheralDataNameInput!=0){
+			if(currentPeripheralData->NumInput>0){
+				write(handleFIFO, "   ", 3); strcpy(tag,"in_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
+				write(handleFIFO, "\n     {\n", 8);
+				while(currentPeripheralDataNameInput!=0){
+					
+					if(cont_input==0){
+						//write(handleFIFO, "{\n   ", 5);
+					}else{
+						write(handleFIFO, "     },\n", 8);
+						write(handleFIFO, "   ", 3); strcpy(tag,"in_"); intToStr(cont_input, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
+						write(handleFIFO, "\n     {\n", 8);
+					}
 				
-				if(cont_input==0){
-					//write(handleFIFO, "{\n   ", 5);
-				}else{
-					write(handleFIFO, "     },\n", 8);
-					write(handleFIFO, "   ", 3); strcpy(tag,"in_"); intToStr(cont_input, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
-					write(handleFIFO, "\n     {\n", 8);
+					write(handleFIFO, "     ", 5); strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->NameInput, handleFIFO); write(handleFIFO, ",\n", 2);
+					
+					write(handleFIFO, "     ", 5); strcpy(tag,"id"); intToStr(cont_input, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+				
+					write(handleFIFO, "     ", 5); strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->Type, handleFIFO); write(handleFIFO, ",\n", 2);
+					
+					write(handleFIFO, "     ", 5); strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameInput->StatusInput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+				
+				
+					write(handleFIFO, "     ", 5); strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameInput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+					
+					char value[]="KO";
+					if(currentPeripheralDataNameInput->StatusCommunication != -1) strcpy(value ,"OK");
+					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); //write(handleFIFO, ",\n   ", 5);
+									
+					write(handleFIFO, "\n", 1);
+					
+									
+					if(currentPeripheralDataNameInput->StatusInput == -1)
+						cont_status_link_input++;
+					
+					
+					currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
+					cont_input++;
 				}
-			
-				write(handleFIFO, "     ", 5); strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->NameInput, handleFIFO); write(handleFIFO, ",\n", 2);
-				
-				write(handleFIFO, "     ", 5); strcpy(tag,"id"); intToStr(cont_input, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-			
-				write(handleFIFO, "     ", 5); strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->Type, handleFIFO); write(handleFIFO, ",\n", 2);
-				
-				write(handleFIFO, "     ", 5); strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameInput->StatusInput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-			
-			
-				write(handleFIFO, "     ", 5); strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameInput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-				
-				char value[]="KO";
-				if(currentPeripheralDataNameInput->StatusCommunication != -1) strcpy(value ,"OK");
-				write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); //write(handleFIFO, ",\n   ", 5);
-								
-				write(handleFIFO, "\n", 1);
-				
-								
-				if(currentPeripheralDataNameInput->StatusInput == -1)
-					cont_status_link_input++;
-				
-				
-				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
-				cont_input++;
+				write(handleFIFO, "     }\n", 7);
 			}
-			write(handleFIFO, "     }\n", 7);
 			write(handleFIFO, "   },\n", 6);
 			//write(handleFIFO, " ,\n", 4);
 			
@@ -5172,43 +5174,45 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 			cont_output=0;
 			cont_status_link_output = 0;
 			write(handleFIFO, "   {\n", 5);
-			write(handleFIFO, "   ", 3); strcpy(tag,"out_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
-			write(handleFIFO, "\n     {\n", 8);
-			while(currentPeripheralDataNameOutput!=0){
+			if(currentPeripheralData->NumOutput>0){
+				write(handleFIFO, "   ", 3); strcpy(tag,"out_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
+				write(handleFIFO, "\n     {\n", 8);
+				while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
+					
+					if(cont_output==0){
+						//write(handleFIFO, "{\n   ", 5);
+					}else{
+						write(handleFIFO, "     },\n", 8);
+						write(handleFIFO, "   ", 3); strcpy(tag,"out_"); intToStr(cont_output, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
+						write(handleFIFO, "\n     {\n", 8);
+					}
 				
-				if(cont_output==0){
-					//write(handleFIFO, "{\n   ", 5);
-				}else{
-					write(handleFIFO, "     },\n", 8);
-					write(handleFIFO, "   ", 3); strcpy(tag,"out_"); intToStr(cont_output, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
-					write(handleFIFO, "\n     {\n", 8);
+					write(handleFIFO, "     ", 5); strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->NameOutput, handleFIFO); write(handleFIFO, ",\n", 2);
+					
+					write(handleFIFO, "     ", 5); strcpy(tag,"id"); intToStr(cont_output, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+				
+					write(handleFIFO, "     ", 5); strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->Type, handleFIFO); write(handleFIFO, ",\n", 2);
+					
+					write(handleFIFO, "     ", 5); strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameOutput->StatusOutput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+				
+					write(handleFIFO, "     ", 5); strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameOutput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+					
+					char value[]="KO";
+					if(currentPeripheralDataNameOutput->StatusCommunication != -1) strcpy(value ,"OK");
+					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); //write(handleFIFO, ",\n   ", 5);
+					
+					write(handleFIFO, "\n", 1);
+					
+									
+					if(currentPeripheralDataNameOutput->StatusOutput == -1)
+						cont_status_link_output++;
+					
+					
+					currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
+					cont_output++;
 				}
-			
-				write(handleFIFO, "     ", 5); strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->NameOutput, handleFIFO); write(handleFIFO, ",\n", 2);
-				
-				write(handleFIFO, "     ", 5); strcpy(tag,"id"); intToStr(cont_output, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-			
-				write(handleFIFO, "     ", 5); strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->Type, handleFIFO); write(handleFIFO, ",\n", 2);
-				
-				write(handleFIFO, "     ", 5); strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameOutput->StatusOutput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-			
-				write(handleFIFO, "     ", 5); strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameOutput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-				
-				char value[]="KO";
-				if(currentPeripheralDataNameOutput->StatusCommunication != -1) strcpy(value ,"OK");
-				write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); //write(handleFIFO, ",\n   ", 5);
-				
-				write(handleFIFO, "\n", 1);
-				
-								
-				if(currentPeripheralDataNameOutput->StatusOutput == -1)
-					cont_status_link_output++;
-				
-				
-				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-				cont_output++;
+				write(handleFIFO, "     }\n", 7);
 			}
-			write(handleFIFO, "     }\n", 7);
 			write(handleFIFO, "   },\n", 6);
 			//write(handleFIFO, " ],\n", 4);
 			
@@ -5314,7 +5318,7 @@ void writeFifoJsonOneLinePeripheralLinked(peripheraldata *rootPeripheralData){
 			currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 			int j=0;
 			
-			while(currentPeripheralDataNameInput!=0){
+			while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
 				
 				if(j==0){
 					write(handleFIFO, "{", 1);
@@ -5354,7 +5358,7 @@ void writeFifoJsonOneLinePeripheralLinked(peripheraldata *rootPeripheralData){
 			//intToStr(currentPeripheralData->NumOutput, strNum); strcat(tag,strNum); strcat(tag," ");
 			currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 			j=0;
-			while(currentPeripheralDataNameOutput!=0){
+			while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
 				
 				if(j==0){
 					write(handleFIFO, "{", 1);
