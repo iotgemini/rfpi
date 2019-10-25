@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 09-07-2019"
+echo "Last update of this script was on 25-10-2019"
 echo "Installing rfpi ........."
 
 echo "Updating apt-get..."
@@ -21,6 +21,7 @@ if [ ! -d "$DIRECTORY_RFPI" ]; then
 	sudo mkdir $DIRECTORY_RFPI
 else
 	echo "RFPI Exist! Thus going to stop the service and update the RFPI Software....."
+	sudo service rfpi stop
 	sudo pkill rfpi
 fi
 
