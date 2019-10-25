@@ -1,7 +1,8 @@
-1.6.0.8
-18/09/2019
+1.6.1.0
+25/10/2019
 
 v1.6
+	- Added function Timer to turn ON/OFF (after a delay) a digital output when there is a change
 	- Updated the functions where RFPI get the bit resolution for each IO status of the peripheral
 	- Bug fix about peri with 0 input or 0 output, now does not show a empty record
 
