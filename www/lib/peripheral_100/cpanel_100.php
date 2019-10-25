@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		28/07/2019
+Last Update: 		25/10/2019
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -36,11 +36,14 @@ Description: it is the library to build the control panel for the 100th peripher
 //		Specific library for the Peri_100
 		include './lib/peripheral_100/peri_100_lib.php';  
 		
+//		Specific library for the json file
+		include './lib/peripheral_100/lib/json_lib.php';  
+		
 //----------------------------------END INCLUDE--------------------------------------------//
 
 
 // Define recursive function to extract nested values
-function printValues($array_conf_json) {
+/*function printValues($array_conf_json) {
 	global $count;
 	global $values;
 			
@@ -65,7 +68,7 @@ function printValues($array_conf_json) {
 			
 	// Return total count and values found in array
 	return array('total' => $count, 'values' => $values);
-}
+}*/
 		
 		
 
@@ -85,7 +88,9 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	$lang_btn_rgb="Set RGB";
 	$lang_msg_turn_on="Turn ON";
 	$lang_msg_turn_off="Turn OFF";
+	$lang_btn_timer = "Timer";
 	if($_SESSION["language"]=="IT"){
+		$lang_btn_timer = "Temporizzatore";
 		$lang_btn_load_json = "Carica Json";
 		$lang_btn_build_json = "Costruisci Json";
 		$lang_btn_trigger = "Temperatura";
@@ -93,6 +98,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_temperature="Temperatura: ";
 		$lang_btn_thermostat="Termostato";
 	}else if($_SESSION["language"]=="FR"){
+		$lang_btn_timer = "Minuteur";
 		$lang_btn_load_json = "Charge Json";
 		$lang_btn_build_json = "Costruire Json";
 		$lang_btn_trigger = "Temp&eacute;rature";
@@ -100,6 +106,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_temperature="Temp&eacute;rature: ";
 		$lang_btn_thermostat="Thermostat";
 	}else if($_SESSION["language"]=="SP"){
+		$lang_btn_timer = "Temporizador";
 		$lang_btn_load_json = "Carga Json";
 		$lang_btn_build_json = "Costruir Json";
 		$lang_btn_trigger = "Temperatura";
@@ -134,11 +141,76 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	
 	$sem_RGB_Shield_connected = 0;
 	
+	//$array_pin_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	//$array_pin_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	//$array_pin_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	//$array_pin_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		
+	$array_pin_digital_inputs_json = [0,0,0,0,0,0,0,0,0];
+	$array_pin_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
+	$array_pin_analogue_inputs_json = [0,0,0,0,0,0,0,0,0];
+	$array_pin_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
+		
+		
+	$array_shield_name_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_name_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_name_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_name_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		
+		
+	$array_shield_mpn_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_mpn_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_mpn_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+	$array_shield_mpn_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
+		
+			
+	$array_id_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
+	$array_id_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
+	
 	
 	
 	$path_conf_json = CONF_PATH . $address_peri . ".json";
 	$sem_json_exist=0;
-
+	
+	
+	//here the array are filled up with the data taken from the json
+	decode_iotgemini_json(
+									//variables that are filled up
+									$sem_json_exist, 
+									$sem_RGB_Shield_connected,
+									
+									$count_digital_input_json, 
+									$count_digital_output_json, 
+									$count_analogue_input_json, 
+									$count_analogue_output_json, 
+									
+									$array_pin_digital_inputs_json,
+									$array_pin_digital_outputs_json,
+									$array_pin_analogue_inputs_json,
+									$array_pin_analogue_outputs_json,
+									
+									$array_shield_name_digital_inputs_json,
+									$array_shield_name_digital_outputs_json,
+									$array_shield_name_analogue_inputs_json,
+									$array_shield_name_analogue_outputs_json,
+									
+									$array_shield_mpn_digital_inputs_json,
+									$array_shield_mpn_digital_outputs_json,
+									$array_shield_mpn_analogue_inputs_json,
+									$array_shield_mpn_analogue_outputs_json,
+									
+									$array_id_digital_outputs_json,
+									$array_id_analogue_outputs_json,
+									
+									//variables to run the function
+									$address_peri,
+									$path_conf_json,
+									$numInput,
+									$numOutput
+									
+								);
+								
+/*
 	if (file_exists($path_conf_json) && ($numInput!=0 || $numOutput!=0) ) {
 		$sem_json_exist=1;
 	}
@@ -189,31 +261,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		//	echo " NON ESISTE!";
 
 		
-		//$array_pin_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		//$array_pin_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		//$array_pin_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		//$array_pin_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
 		
-		$array_pin_digital_inputs_json = [0,0,0,0,0,0,0,0,0];
-		$array_pin_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
-		$array_pin_analogue_inputs_json = [0,0,0,0,0,0,0,0,0];
-		$array_pin_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
-		
-		
-		$array_shield_name_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		$array_shield_name_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		$array_shield_name_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		$array_shield_name_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		
-		
-		$array_shield_mpn_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		$array_shield_mpn_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		$array_shield_mpn_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		$array_shield_mpn_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		
-			
-		$array_id_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
-		$array_id_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
 		
 		
 		$varExit=0;
@@ -379,7 +427,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		}
 	
 	}//END json exist
-
+*/
 	//echo '$count_analogue_input_json='.$count_analogue_input_json;
 	//echo '<br>';
 	//echo 'numInput='.$numInput;
@@ -673,29 +721,48 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	//here the special functions
 	
 	if($sem_json_exist==0){ //if($numInput==0 && $numOutput==0) { 
-	if($array_function_to_show[0]==1){
+		if($array_function_to_show[0]==1){
+		
+		//Button to load json configurations
+		echo '<form name="peri_100_btn_load_json_'.$id.'" action="./lib/peripheral_100/select_file_to_upload.php" method=GET>';
+		echo '<input type=hidden name="position_id" value="'.$id.'">';
+		echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+		$id_hex_special_function = "00"; //hexadecimal format. example 0x02 as to be written as "02"
+		echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
+		echo '<input type=hidden name="TAG0" value="SENDJSONSETTINGS">'; 				//Command
+		echo '<input type=hidden name="TAG1" value="'.$address_peri.'">'; 					//second parameter
+		echo '<input type=hidden name="TAG2" value="'.FIFO_PATH.'">';	//third parameter
+		$str_TAG3 = "NULL"; 
+		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
+		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_timer.php">';
+		echo '<input type=submit value="'.$lang_btn_load_json.'" class="btn_functions">';
+		echo '</form>';
+		
+		//Button to build json configurations
+		echo '<a href="http://www.iotgemini.com/conf" target="_blank" class="btn_functions">'.$lang_btn_build_json.'</a>';
+		echo '<br><br>';
+		
+		
+		}
+	}else{ //if the json exist than check if to show te function timer
 	
-	//Button to load json configurations
-	echo '<form name="peri_100_btn_load_json_'.$id.'" action="./lib/peripheral_100/select_file_to_upload.php" method=GET>';
-	echo '<input type=hidden name="position_id" value="'.$id.'">';
-	echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
-	$id_hex_special_function = "00"; //hexadecimal format. example 0x02 as to be written as "02"
-	echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
-	echo '<input type=hidden name="TAG0" value="SENDJSONSETTINGS">'; 				//Command
-	echo '<input type=hidden name="TAG1" value="'.$address_peri.'">'; 					//second parameter
-	echo '<input type=hidden name="TAG2" value="'.FIFO_PATH.'">';	//third parameter
-	$str_TAG3 = "NULL"; 
-	echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
-	echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_timer.php">';
-	echo '<input type=submit value="'.$lang_btn_load_json.'" class="btn_functions">';
-	echo '</form>';
-	
-	//Button to build json configurations
-	echo '<a href="http://www.iotgemini.com/conf" target="_blank" class="btn_functions">'.$lang_btn_build_json.'</a>';
-	echo '<br><br>';
-	
-	
-	}
+		//Button to page TIMER Relay Functions
+		if($array_function_to_show[0]==1 && $count_digital_output_json>0){
+		echo '<form name="peri_100_btn_timer2_functions_'.$id.'" action="./lib/peripheral_100/lib/cmd_get_settings.php" method=GET>';
+		echo '<input type=hidden name="position_id" value="'.$id.'">';
+		echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+		$id_hex_special_function = "01"; //hexadecimal format. example 0x02 as to be written as "02"
+		echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
+		echo '<input type=hidden name="TAG0" value="DATA">'; 				//Command
+		echo '<input type=hidden name="TAG1" value="RF">'; 					//second parameter
+		echo '<input type=hidden name="TAG2" value="'.$address_peri.'">';	//third parameter
+		$str_TAG3 = "524275" . $id_hex_special_function . "2E2E2E2E2E2E2E2E2E2E2E2E"; 
+		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
+		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_timer.php">';
+		echo '<input type=submit value="'.$lang_btn_timer.'" class="btn_functions">';
+		echo '</form>';
+		}
+		
 	}
 	
 	
