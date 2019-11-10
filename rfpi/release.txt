@@ -1,5 +1,5 @@
-1.6.1.0
-25/10/2019
+1.6.1.1
+10/11/2019
 
 v1.6
 	- Added function Timer to turn ON/OFF (after a delay) a digital output when there is a change
