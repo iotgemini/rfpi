@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		12/06/2019
+Last Update: 		10/11/2019
 
 Description: it is the library with all useful function to use RFPI
 
@@ -79,18 +79,22 @@ Description: it is the library with all useful function to use RFPI
 
 //-------------------------------BEGIN DEFINE----------------------------------//
 
-//DEFINES of FIFO
-define("FIFO_PATH", "/etc/rfpi/fifo/"); 							//whwere all FIFO files are written
-define("FIFO_RFPI_RUN", "/etc/rfpi/fifo/fiforfpirun"); 				//used to check if the rfpi is operating
-define("FIFO_GUI_CMD", "/etc/rfpi/fifo/fifoguicmd"); 				//used to send command and notifications to the RFPI 
-define("FIFO_RFPI_STATUS", "/etc/rfpi/fifo/fiforfpistatus"); 		//used to send command and notifications to the RFPI 
-define("FIFO_RFPI_PERIPHERAL", "/etc/rfpi/fifo/fifoperipheral"); 	//used to get the status of the peripherals (it can goes from 0 to 254)
-define("FIFO_RFPI_NET_NAME", "/etc/rfpi/fifo/fifonetname"); 		//used to get the network name set
-define("FIFO_RTC", "/etc/rfpi/fifo/fifortc"); 						//used to get the time from the RTC
-define("FIFO_GET_BYTES_U", "/etc/rfpi/fifo/fifogetbytesu"); 		//used to get GET_BYTES_U
-define("FIFO_SEND_BYTES_U", "/etc/rfpi/fifo/fifosendbytesf"); 		//used to get SEND_BYTES_F
-define("CONF_PATH", "/etc/rfpi/config/"); 							//whwere all JSON file are kept
 
+//absolute path where is the RFPI software
+define("PATH_RFPI", "/etc/rfpi"); 				//default path
+//define("PATH_RFPI", "/etc/rfpi_usb"); 		//alternative path
+
+//DEFINES of FIFO
+define("FIFO_PATH", PATH_RFPI . "/fifo/"); 								//whwere all FIFO files are written
+define("FIFO_RFPI_RUN", PATH_RFPI . "/fifo/fiforfpirun"); 				//used to check if the rfpi is operating
+define("FIFO_GUI_CMD", PATH_RFPI . "/fifo/fifoguicmd"); 				//used to send command and notifications to the RFPI 
+define("FIFO_RFPI_STATUS", PATH_RFPI . "/fifo/fiforfpistatus"); 		//used to send command and notifications to the RFPI 
+define("FIFO_RFPI_PERIPHERAL", PATH_RFPI . "/fifo/fifoperipheral"); 	//used to get the status of the peripherals (it can goes from 0 to 254)
+define("FIFO_RFPI_NET_NAME", PATH_RFPI . "/fifo/fifonetname"); 			//used to get the network name set
+define("FIFO_RTC", PATH_RFPI . "/fifo/fifortc"); 						//used to get the time from the RTC
+define("FIFO_GET_BYTES_U", PATH_RFPI . "/fifo/fifogetbytesu"); 			//used to get GET_BYTES_U
+define("FIFO_SEND_BYTES_U", PATH_RFPI . "/fifo/fifosendbytesf"); 		//used to get SEND_BYTES_F
+define("CONF_PATH", PATH_RFPI . "/config/"); 							//whwere all JSON file are kept
 
 //DEFINES of message to write into the FIFO RFPI DATA
 define("STATUS_ERROR_GOT",  "STATUS ERROR GOT NULL "); 	//used to get the status of the peripherals (it can goes from 0 to 254)
@@ -104,7 +108,7 @@ define("PATH_WWW", "/var/www"); 	//used to set the language to show
 define("PATH_FILE_LANGUAGE_TO_SET", PATH_WWW . "/config/lang.txt"); 	//used to set the language to show
 
 
-define("DIRECTORY_CONFIG_ALL_SETTINGS", "/etc/rfpi/config/"); 			//where all aettings are kept
+define("DIRECTORY_CONFIG_ALL_SETTINGS", PATH_RFPI . "/config/"); 			//where all aettings are kept
 //path where are kept the configuration file for all peripherals
 define("DIRECTORY_CONFIG_PERI", DIRECTORY_CONFIG_ALL_SETTINGS ."peri/");	//where the configuration files for this peripheral are kept
 //address_peri . FILE_NAME_CONFIG_PERI . id . FILE_EXTENSION_CONFIG_PERI
@@ -347,7 +351,7 @@ define("DEFINE_lang_title_functions", $lang_title_functions);
 
 //it return the release version written into /etc/rfpi/release.txt
 function release_version(){
-	$path_file_release="/etc/rfpi/release.txt";
+	$path_file_release=PATH_RFPI . "/release.txt";
 	$handle_release = fopen($path_file_release, 'r');
 	
 	$str_release_version = $lang_release_version;
@@ -360,7 +364,7 @@ function release_version(){
 
 //it print the whole history release written into /etc/rfpi/release.txt
 function print_release_version(){
-	$handle_release = fopen("/etc/rfpi/release.txt", 'r');
+	$handle_release = fopen(PATH_RFPI . "/release.txt", 'r');
 	$i=0;
 	while(feof($handle_release)!==TRUE){ 
 		if($i==0){
