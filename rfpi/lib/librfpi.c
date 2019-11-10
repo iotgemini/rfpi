@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					18/09/2019
+Last Update: 					10/11/2019
 
 
 Description: library for the RFPI
@@ -3832,7 +3832,10 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 				//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
 				while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
 					
+					
 					if(strcmp(peripheralAddress,currentPeripheralData->PeriAddress)==0 || strcmp(peripheralAddress,"ALL")==0){
+						//printf("Address struct: %s, Address to refresh: %s\n",currentPeripheralData->PeriAddress,peripheralAddress);
+						
 						if(strcmp(peripheralAddress,"ALL")!=0){
 							varExit=1;
 						}
@@ -3846,13 +3849,25 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 							//currentPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
 							//get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
 							currentPeripheralDataNameInput->StatusInput = (signed long)getIOStatusPeri(handleUART, currentPeripheralData->PeriAddress, l, (char)'i', array_status);
+							
 							if(currentPeripheralDataNameInput->StatusInput == -1){
 								contInOutOFFline++;
 								currentPeripheralDataNameInput->StatusCommunication = -1;
+
 								//currentPeripheralDataNameInput->BitResolution = 0;
 							}else{
-								currentPeripheralDataNameInput->StatusInput = array_status[0];
-								currentPeripheralDataNameInput->BitResolution = array_status[1];
+								printf(" RESOLUTION: %d\n",array_status[1]);
+								currentPeripheralDataNameInput->StatusInput = (signed long)array_status[0];
+								if(array_status[1]>64){
+									if(array_status[1]==68) //this mean it is 'D' that in old FW means 'Digital' thus resolution is 1
+										currentPeripheralDataNameInput->BitResolution = 1;
+									else if(array_status[1]==65) //this mean it is 'A' that in old FW means 'Analogue' thus resolution is 8
+										currentPeripheralDataNameInput->BitResolution = 8;
+									else
+										currentPeripheralDataNameInput->BitResolution = 1;
+								}else{
+									currentPeripheralDataNameInput->BitResolution = (int)array_status[1];
+								}
 								currentPeripheralDataNameInput->StatusCommunication=1;
 								if(currentPeripheralDataNameInput->BitResolution > 8 && currentPeripheralData->fwVersion > 1){ //this means I have to get the value from the following bytes
 									if(currentPeripheralDataNameInput->BitResolution > 64){
@@ -3893,8 +3908,17 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 								//currentPeripheralDataNameOutput->BitResolution = 0;
 							}else{
 								//currentPeripheralDataNameOutput->StatusCommunication=1;
-								currentPeripheralDataNameOutput->StatusOutput = array_status[0];
-								currentPeripheralDataNameOutput->BitResolution = array_status[1];
+								currentPeripheralDataNameOutput->StatusOutput = (signed long)array_status[0];
+								if(array_status[1]>64){
+									if(array_status[1]==68) //this mean it is 'D' that in old FW means 'Digital' thus resolution is 1
+										currentPeripheralDataNameOutput->BitResolution = 1;
+									else if(array_status[1]==65) //this mean it is 'A' that in old FW means 'Analogue' thus resolution is 8
+										currentPeripheralDataNameOutput->BitResolution = 8;
+									else
+										currentPeripheralDataNameOutput->BitResolution = 1;
+								}else{
+									currentPeripheralDataNameOutput->BitResolution = (int)array_status[1];
+								}
 								currentPeripheralDataNameOutput->StatusCommunication=1;
 								if(currentPeripheralDataNameOutput->BitResolution > 8 && currentPeripheralData->fwVersion > 1){ //this means I have to get the value from the following bytes
 									if(currentPeripheralDataNameOutput->BitResolution > 64){
