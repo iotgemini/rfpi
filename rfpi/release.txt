@@ -1,7 +1,8 @@
-1.6.1.2
-21/01/2020
+1.6.2.0
+25/01/2020
 
 v1.6
+	- Added function Input Duty that allow to set a trigger for a digital input and when the trigger occur it set the status for a selected output 
 	- Added function Timer to turn ON/OFF (after a delay) a digital output when there is a change
 	- Updated the functions where RFPI get the bit resolution for each IO status of the peripheral
 	- Bug fix about peri with 0 input or 0 output, now does not show a empty record
