@@ -155,7 +155,7 @@ echo '<br><p>'.$lang_reading_settings.'</p>'; //Reading settings ....
 //ob_flush();
 //flush();
 
-
+sleep(0.1);
 
 if( ($counter < $max_counter)){ //if it is not in time out
 
