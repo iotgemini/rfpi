@@ -763,6 +763,23 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		echo '</form>';
 		}
 		
+		//Button to page Input Duty Functions
+		if($array_function_to_show[0]==1 && $count_digital_input_json>0 && ($count_digital_output_json>0 || $count_analogue_output_json>0)){
+		echo '<form name="peri_100_btn_timer2_functions_'.$id.'" action="./lib/peripheral_100/lib/cmd_get_settings.php" method=GET>';
+		echo '<input type=hidden name="position_id" value="'.$id.'">';
+		echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+		$id_hex_special_function = "02"; //hexadecimal format. example 0x02 as to be written as "02"
+		echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
+		echo '<input type=hidden name="TAG0" value="DATA">'; 				//Command
+		echo '<input type=hidden name="TAG1" value="RF">'; 					//second parameter
+		echo '<input type=hidden name="TAG2" value="'.$address_peri.'">';	//third parameter
+		$str_TAG3 = "524275" . $id_hex_special_function . "2E2E2E2E2E2E2E2E2E2E2E2E"; 
+		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
+		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_input.php">';
+		echo '<input type=submit value="'.$lang_btn_input.'" class="btn_functions">';
+		echo '</form>';
+		}
+		
 	}
 	
 	
