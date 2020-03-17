@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 25-10-2019"
+echo "Last update of this script was on 18-03-2020"
 echo "Installing rfpi ........."
 
 echo "Updating apt-get..."
@@ -11,6 +11,7 @@ sudo apt-get update
 DIRECTORY_RFPI=/etc/rfpi
 DIRECTORY_WWW=/var/www
 DIRECTORY_SAMBA=/etc/samba
+FILE_FSTAB=/etc/fstab
 
 disable_getty="0"
 
@@ -35,6 +36,25 @@ echo "Copying rfpi files....."
 SOURCE="./rfpi"
 DESTINATION=$DIRECTORY_RFPI
 sudo cp -r "$SOURCE/"* "$DESTINATION/"
+
+
+echo "Creating a folder into ram adding a line into /etc/fstab ....."
+if test -f "$FILE_FSTAB"; then
+	if grep -Fxq "#RFPI FIFO:" /etc/fstab; then
+		# code if found
+		echo "Already there!"
+	else
+		# code if not found
+		echo "#RFPI FIFO:" >> /etc/fstab
+		echo "tmpfs /etc/rfpi/fifo tmpfs defaults, noatime, nosuid, mode=0755, size=2m 0 0" >> /etc/fstab
+		echo "Added succesfully!"
+	fi
+else
+	echo "Impossible to find /etc/fstab"
+	echo "WARNING! All fifo file will be written on SD memory. These file fifo are written many times per days, thus will erode the SD cards! Find out where is the file fstab and add the following line:"
+	echo "tmpfs /etc/rfpi/fifo tmpfs defaults, noatime, nosuid, mode=0755, size=2m 0 0"
+	sleep 5
+fi
 
 
 echo "Checking ID Operating System.........!"
