@@ -166,28 +166,34 @@ fi
 ########################## BEGIN SHARE FOLDERS ##########################
 echo " "
 echo "########################## SHARE FOLDERS ##########################"
-echo " IT: Vuoi condividere le cartelle rfpi e www? (Y=si or N=no) "
-read -p " EN: Do you want share rfpi and www folders? (Y or N) " -n 1 -r
-echo "" #new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-	if [ -d "$DIRECTORY_SAMBA" ]; then
-			echo " " >> /etc/samba/smb.conf
-			echo "[www]" >> /etc/samba/smb.conf
-			echo "comments = www share" >> /etc/samba/smb.conf
-			echo "path = /var/www" >> /etc/samba/smb.conf
-			echo "read only = no" >> /etc/samba/smb.conf
-			echo "guest ok = yes" >> /etc/samba/smb.conf
-			echo "force user = root" >> /etc/samba/smb.conf
-			echo " " >> /etc/samba/smb.conf
-			echo "[rfpi]" >> /etc/samba/smb.conf
-			echo "comments = rfpi share" >> /etc/samba/smb.conf
-			echo "path = /etc/rfpi" >> /etc/samba/smb.conf
-			echo "read only = no" >> /etc/samba/smb.conf
-			echo "guest ok = yes" >> /etc/samba/smb.conf
-			echo "force user = root" >> /etc/samba/smb.conf
-			
-			echo "At the end of the file /etc/samba/smb.conf have been added the lines to share RFPI and WWW!"
+if grep -Fxq "[rfpi]" /etc/samba/smb.conf; then
+	# code if found
+	echo "Already shared!"
+else
+	# code if not found	
+	echo " IT: Vuoi condividere le cartelle rfpi e www? (Y=si or N=no) "
+	read -p " EN: Do you want share rfpi and www folders? (Y or N) " -n 1 -r
+	echo "" #new line
+	if [[ $REPLY =~ ^[Yy]$ ]]
+	then
+		if [ -d "$DIRECTORY_SAMBA" ]; then
+				echo " " >> /etc/samba/smb.conf
+				echo "[www]" >> /etc/samba/smb.conf
+				echo "comments = www share" >> /etc/samba/smb.conf
+				echo "path = /var/www" >> /etc/samba/smb.conf
+				echo "read only = no" >> /etc/samba/smb.conf
+				echo "guest ok = yes" >> /etc/samba/smb.conf
+				echo "force user = root" >> /etc/samba/smb.conf
+				echo " " >> /etc/samba/smb.conf
+				echo "[rfpi]" >> /etc/samba/smb.conf
+				echo "comments = rfpi share" >> /etc/samba/smb.conf
+				echo "path = /etc/rfpi" >> /etc/samba/smb.conf
+				echo "read only = no" >> /etc/samba/smb.conf
+				echo "guest ok = yes" >> /etc/samba/smb.conf
+				echo "force user = root" >> /etc/samba/smb.conf
+				
+				echo "At the end of the file /etc/samba/smb.conf have been added the lines to share RFPI and WWW!"
+		fi
 	fi
 fi
 ########################## END SHARE FOLDERS ##########################
