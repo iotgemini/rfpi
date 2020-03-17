@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					18/09/2019
+Last Update: 					17/03/2020
 
 
 Description: library for the RFPI
@@ -172,8 +172,11 @@ int var_dummy1,var_dummy2;
 
 #define MAX_NUM_RETRY				8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 
-#define BLINK_LED_DELAY				25 //50		//it is the time in ms between the ON and OFF of the LED
+#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
 #define ERROR_BLINK_LED_DELAY		100	//500	//it is the time in ms between the ON and OFF of the LED
+
+#define EXECUTION_DELAY				50		//it is the delay before to update the fifo with the status
+
 
 //LIST OF ERROR
 

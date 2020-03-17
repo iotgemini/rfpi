@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					10/11/2019
+Last Update: 					17/03/2020
 
 
 Description: library for the RFPI
@@ -4335,35 +4335,35 @@ void blinkLed(){
 				if(sem_init_gpio_rpi_ok==1){
 					bcm2835_gpio_write(PIN_LED_DS2, HIGH);
 					delay_ms(BLINK_LED_DELAY);
-					bcm2835_gpio_write(PIN_LED_DS2, LOW);
-					delay_ms(BLINK_LED_DELAY);
+					//bcm2835_gpio_write(PIN_LED_DS2, LOW);
+					//delay_ms(BLINK_LED_DELAY);
 				}else{
 					delay_ms(BLINK_LED_DELAY);
-					delay_ms(BLINK_LED_DELAY);
+					//delay_ms(BLINK_LED_DELAY);
 				}
 			#endif
 			
 			#if PLATFORM == PLATFORM_BBB
 				linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
 				delay_ms(BLINK_LED_DELAY);
-				linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
-				delay_ms(BLINK_LED_DELAY);
+				//linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
+				//delay_ms(BLINK_LED_DELAY);
 			#endif
 			
 			#if PLATFORM == PLATFORM_OPZ
 				linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);
 				delay_ms(BLINK_LED_DELAY);
-				linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
-				delay_ms(BLINK_LED_DELAY);
+				//linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
+				//delay_ms(BLINK_LED_DELAY);
 			#endif
 		}else{
 			delay_ms(BLINK_LED_DELAY);
-			delay_ms(BLINK_LED_DELAY);
+			//delay_ms(BLINK_LED_DELAY);
 		}	
 	
 	#else 
 		delay_ms(BLINK_LED_DELAY);
-		delay_ms(BLINK_LED_DELAY);
+		//delay_ms(BLINK_LED_DELAY);
 	#endif
 
 	
