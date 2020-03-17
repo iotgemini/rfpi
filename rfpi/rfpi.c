@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					30/08/2019
+Last Update: 					17/03/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -54,6 +54,7 @@ int main(int argc, char **argv){
 	unsigned char dataRFPI[MAX_BUF_DATA_RFPI];
 	int numBytesDataRFPI = 0;
 	char str_net_name_and_address[50];
+	int count1;
 
 	sem_serial_communication_via_usb=0; //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
 	//sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
@@ -144,8 +145,10 @@ int main(int argc, char **argv){
 		writeFifoJsonPeripheralLinked(rootPeripheralData);
 		//writeFifoJsonOneLinePeripheralLinked(rootPeripheralData);
 
-		//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
-		rootPeripheralData=ParseFIFOdataGUI(&handleUART, rootPeripheralData);
+		for(count1=0;count1<EXECUTION_DELAY;count1++){
+			//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
+			rootPeripheralData=ParseFIFOdataGUI(&handleUART, rootPeripheralData);
+		}
 		
 		// Turn a led ON and OFF to shows the application is running 
 		blinkLed();
