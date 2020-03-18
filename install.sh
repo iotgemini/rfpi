@@ -133,14 +133,14 @@ sudo systemctl start rfpi.service
 sudo systemctl enable rfpi.service
 
 
-if [ "$disable_getty" -eq "1" ]; then
+#if [ "$disable_getty" -eq "1" ]; then
 #	#echo "Edit the file inittab - Disable the getty"
 #	#sed -i 's/TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/#TO:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100/g' /etc/inittab
-	echo "Disabling the getty....."
-	sudo sysctl -p
-	sudo systemctl stop serial-getty@ttyS0.service
-	sudo systemctl disable serial-getty@ttyS0.service
-fi
+#	echo "Disabling the getty....."
+#	sudo sysctl -p
+#	sudo systemctl stop serial-getty@ttyS0.service
+#	sudo systemctl disable serial-getty@ttyS0.service
+#fi
 ########################## END INSTALL RFPI SERVICE ##########################
 
 
@@ -217,7 +217,7 @@ fi
 	if [[ $REPLY =~ ^[Yy]$ ]]
 	then
 		echo "Install Node-Red:"
-		bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
+		sudo bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
 		sudo systemctl enable nodered.service
 		npm install node-red-contrib-iotgemini
 		npm i node-red-dashboard
