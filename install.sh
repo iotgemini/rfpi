@@ -217,7 +217,7 @@ fi
 	if [[ $REPLY =~ ^[Yy]$ ]]
 	then
 		echo "Install Node-Red:"
-		sudo bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
+		bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
 		sudo systemctl enable nodered.service
 		npm install node-red-contrib-iotgemini
 		npm i node-red-dashboard
