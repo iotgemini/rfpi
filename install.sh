@@ -150,7 +150,7 @@ fi
 	echo " "
 	echo "########################## INSTALL SAMBA ##########################"
 	echo " IT: Vuoi installare samba per poi condividere le cartelle rfpi e www? (Y=si or N=no) "
-	read -p " Do you want install samba to then share rfpi and www folders? (Y or N) " -n 1 -r
+	read -p " EN: Do you want install samba to then share rfpi and www folders? (Y or N) " -n 1 -r
 	echo "" #new line
 	if [[ $REPLY =~ ^[Yy]$ ]]
 	then
@@ -203,6 +203,29 @@ fi
 #echo "Change network name:"
 #sed -i 's/raspberry/rfpi/g' /etc/hostname
 #sed -i 's/raspberry/rfpi/g' /etc/hosts
+
+
+########################## BEGIN INSTALL NODE-RED ##########################
+#if [ ! -d "$DIRECTORY_SAMBA" ]; then
+	echo " "
+	echo "########################## INSTALL NODE-RED ##########################"
+	echo " IT: Vuoi installare Node-Red per creare le tue automazioni personalizzate e pannelli di controllo personalizzati? (Y=si or N=no) "
+	echo "     se decidi di installare Node-Red dovrai essere paziente perche' ci vorra' un po' di tempo........."
+	echo " EN: Do you want to install Node-Red to create your custom automations and custom control panels? (Y or N) "
+	read -p "     if you decide to install Node-Red you will have to be patient because it will take some time ......... " -n 1 -r
+	echo "" #new line
+	if [[ $REPLY =~ ^[Yy]$ ]]
+	then
+		echo "Install Node-Red:"
+		bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
+		sudo systemctl enable nodered.service
+		npm install node-red-contrib-iotgemini
+		npm i node-red-dashboard
+	fi
+#fi
+
+########################## END INSTALL NODE-RED ##########################
+
 
 echo " "
 echo "########################## REBOOT ##########################"
