@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		14/04/2015
+Last Update: 		19/03/2020
 
 Description: wait for the end of the signal acquisition
 
@@ -36,9 +36,11 @@ $max_counter = 200;
 $address_peri=$_GET['address_peri'];
 $counter=$_GET['counter'];
 
+
 if($counter==='')
 	$counter=0;
 $counter++;
+
 
 
 if( !($counter > $max_counter)){ //if it is not in time out
@@ -52,7 +54,7 @@ if( !($counter > $max_counter)){ //if it is not in time out
 		//open the fifo to check the message into
 		$data=readFIFO(FIFO_RFPI_STATUS);
 		//echo $data; echo '<br>';
-				
+			
 		if($data==="OK"){ //if there is no answer will send a command again
 			$strCmd = "DATA RF ".strval($address_peri)." 524275012E2E2E2E2E2E2E2E2E2E2E2E "; //the space at the end is important
 			writeFIFO(FIFO_GUI_CMD, $strCmd);
@@ -113,7 +115,7 @@ if( !($counter > $max_counter)){ //if it is not in time out
 				
 				echo '<br>';
 			}
-			
+		
 			/*if($data[13]=='2' || $data[13]=='0'){ //the RF-SDS reply and into the data says it went in time out
 				$counter=$max_counter; //to show the error message
 			}else{
@@ -136,7 +138,7 @@ if( !($counter > $max_counter)){ //if it is not in time out
 				echo '<br>';
 			}*/
 			
-		}
+	}
 
 	}
 	
@@ -153,9 +155,9 @@ if( !($counter > $max_counter)){ //if it is not in time out
 	echo '</p>';
 
 	echo '<script type="text/javascript">';
-	?> setTimeout("<?
+	echo ' setTimeout("';
 	echo "location.href = './wait_end_record_signal.php?address_peri=".$address_peri."&counter=" . $counter . "';";
-	?>", 250); <?
+	echo '", 250); ';
 	echo '</script>';
 
 	echo '</div>';
@@ -172,9 +174,9 @@ if( !($counter > $max_counter)){ //if it is not in time out
 	echo '<br><p>THE PERIPHERAL DID NOT REPLY! <br>APPLICATION IN TIME OUT!</p>';
 
 	echo '<script type="text/javascript">';
-	?> setTimeout("<?
+	echo ' setTimeout("';
 	echo "location.href = './infrared_functions.php?address_peri=".$address_peri."&counter=" . $counter . "';";
-	?>", 4000); <?
+	echo '", 4000); ';
 	echo '</script>';
 
 	echo '</div>';
