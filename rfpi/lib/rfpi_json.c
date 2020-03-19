@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					30/08/2019
+Last Update: 					19/03/2020
 
 
 Description: library for the RFPI
@@ -272,7 +272,7 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 		
 		
 		//moving the json under the config path
-		strcpy(strPathFile,PATH_FIFO);
+		strcpy(strPathFile,PATH_CONFIG_FILE);
 		strcat(strPathFile,"/config.json");
 		strcpy(strPathFile2,PATH_CONFIG_FILE);
 		strcat(strPathFile2,address_peri);
@@ -531,11 +531,13 @@ void readfile(char* filepath, char* fileContent)
     FILE *f;
     char c='\0';
     int index=0;
-    f = fopen(JSON_FILE_PATH, "r");
+	
+    //f = fopen(JSON_FILE_PATH, "r");
+	f = fopen(filepath, "r");
    // while(EOF != (c = fgetc(f)) && index<BUFFER_SIZE ){
 	//while(EOF != (c = getc(f)) && index<BUFFER_SIZE ){
 		//printf("ORIGINAL JSON\n"); fflush(stdout);
-	while(!feof(f) && (c = fgetc(f)) != EOF){
+	while(!feof(f) && (c = fgetc(f)) != EOF){ 
 		//c = getc(f);
 		if(c != EOF ){
 			fileContent[index] = c;

@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					28/04/2019
+Last Update: 					19/03/2020
 
 
 Description: library for the RFPI
@@ -36,7 +36,7 @@ Description: library for the RFPI
 ******************************************************************************************/
 
 
-#define JSON_FILE_PATH 		PATH_RFPI_SW "/fifo/config.json"
+//#define JSON_FILE_PATH 		PATH_RFPI_SW "/config/new.json"
 #define BUFFER_SIZE 5000
 #define MAX_TOKEN_COUNT 128
 
