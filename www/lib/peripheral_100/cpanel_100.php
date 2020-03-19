@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		21/01/2020
+Last Update: 		19/03/2020
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -731,7 +731,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
 		echo '<input type=hidden name="TAG0" value="SENDJSONSETTINGS">'; 				//Command
 		echo '<input type=hidden name="TAG1" value="'.$address_peri.'">'; 					//second parameter
-		echo '<input type=hidden name="TAG2" value="'.FIFO_PATH.'">';	//third parameter
+		echo '<input type=hidden name="TAG2" value="'.CONF_PATH.'new.json">';	//third parameter
 		$str_TAG3 = "NULL"; 
 		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
 		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_timer.php">';

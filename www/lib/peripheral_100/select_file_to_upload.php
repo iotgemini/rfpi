@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		11/04/2019
+Last Update: 		19/03/2020
 
 Description: form where to select the file to upload
 
@@ -57,7 +57,7 @@ echo '<br>';
       unset($_SESSION['message']);
     }
 	
-	$link_page = 'upload.php?position_id='.$position_id.'&address_peri='.$address_peri.'&redirect_page='.$redirect_page.'&TAG0='.$TAG0.'&TAG1='.$TAG1.'&TAG2='.$TAG2.'&TAG3='.$TAG2;
+	$link_page = 'upload.php?position_id='.$position_id.'&address_peri='.$address_peri.'&redirect_page='.$redirect_page.'&TAG0='.$TAG0.'&TAG1='.$TAG1.'&TAG2='.$TAG2.'&TAG3='.$TAG3;
 	echo '<form name="upload_file" method="POST" action="'.$link_page.'" enctype="multipart/form-data">';
 	echo '<div align=center>';
 	echo '<span>Upload the Json: </span>';

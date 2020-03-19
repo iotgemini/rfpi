@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		11/04/2019
+Last Update: 		19/03/2020
 
 Description: upload a file
 
@@ -78,7 +78,8 @@ if(move_uploaded_file($fileTmpPath, $dest_path))
 {
 	//echo "path=".$uploadFileDir . "<br>";
 	$message ='File is successfully uploaded!';
-	rename($dest_path, $uploadFileDir . "config.json");
+	//rename($dest_path, $uploadFileDir . "newconfig.json");
+	rename($dest_path, $uploadFileDir);
 	$statusUpload = "OK";
   
 	$page_to_show_data=$_GET['page_to_show_data'];
