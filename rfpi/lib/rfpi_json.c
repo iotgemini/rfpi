@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					19/03/2020
+Last Update: 					20/03/2020
 
 
 Description: library for the RFPI
@@ -272,8 +272,10 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 		
 		
 		//moving the json under the config path
-		strcpy(strPathFile,PATH_CONFIG_FILE);
-		strcat(strPathFile,"/config.json");
+		//strcpy(strPathFile,PATH_CONFIG_FILE);
+		//strcat(strPathFile,"/new.json");
+		strcpy(strPathFile,json_path);
+		
 		strcpy(strPathFile2,PATH_CONFIG_FILE);
 		strcat(strPathFile2,address_peri);
 		strcat(strPathFile2,".json");
