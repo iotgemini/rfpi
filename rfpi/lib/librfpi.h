@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					17/03/2020
+Last Update: 					21/03/2020
 
 
 Description: library for the RFPI
@@ -197,6 +197,8 @@ typedef struct peripheralnameinput{
 	signed long StatusInput;
 	int BitResolution;
 	int StatusCommunication;
+	int id_shield_input;
+	int num_pin_used_on_the_peri;
 	struct peripheralnameinput	*next;
 }peripheraldatanameinput;
 
@@ -207,6 +209,8 @@ typedef struct peripheralnameoutput{
 	signed long StatusOutput;
 	int BitResolution;
 	int StatusCommunication;
+	int id_shield_output;
+	int num_pin_used_on_the_peri;
 	struct peripheralnameoutput	*next;
 }peripheraldatanameoutput;
 
@@ -318,7 +322,7 @@ extern void setCurrentNetwork(int *handleUART);
 extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peripheraldata *rootPeripheralData);
 
 //it update the status into the struct data of the peripheral linked
-extern void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput);
+extern void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
 
 //it calculate and return the address for the network. Example name="SDS" return="00EA"
 extern void addressFromName(char *name, char *address);
@@ -361,10 +365,10 @@ extern void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralA
 int getIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int ID_IO, char type_IO, unsigned char *array_status);
 	
 //asks to the peripheral the status of the input
-extern int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput);
+extern int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput, int *id_shield_connected, int *num_pin_used_on_the_peri);
 
 //asks to the peripheral the status of the output
-extern int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput);
+extern int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
 
 // Implementation of itoa(). Convert a number into a string
 extern char* itoaRFPI(int num, char* str, int base);
@@ -407,4 +411,7 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData);
 
 //this function test all serial port under the path given by path_search
 char* return_serial_port_path(char *path_search, char *serial_port_path, int *handleUART);
+
+//this function return the MPN from the id, this is used for peripheral 100
+char* return_mpn(char *mpn, int *id_shield);
 	

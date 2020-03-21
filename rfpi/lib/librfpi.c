@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					17/03/2020
+Last Update: 					21/03/2020
 
 
 Description: library for the RFPI
@@ -772,6 +772,12 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 						rootPeripheralDataNameInput->StatusCommunication=-1;
 						rootPeripheralDataNameOutput->StatusCommunication=-1;
 						
+						rootPeripheralDataNameInput->id_shield_input=-1;
+						rootPeripheralDataNameOutput->id_shield_output=-1;
+						
+						rootPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
+						rootPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
+						
 						//assigning the roots of the struct names to the main struct
 						currentPeripheralData->rootNameInput=rootPeripheralDataNameInput;
 						currentPeripheralData->rootNameOutput=rootPeripheralDataNameOutput;
@@ -898,6 +904,8 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 							rootPeripheralDataNameInput->Type=0;
 							rootPeripheralDataNameInput->StatusInput=-1;
 							rootPeripheralDataNameInput->StatusCommunication=-1;
+							rootPeripheralDataNameInput->id_shield_input=-1;
+							rootPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
 						
 						
 							//init the struct of the output names
@@ -907,6 +915,8 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 							rootPeripheralDataNameOutput->Type=0;
 							rootPeripheralDataNameOutput->StatusOutput=-1;
 							rootPeripheralDataNameOutput->StatusCommunication=-1;
+							rootPeripheralDataNameOutput->id_shield_output=-1;
+							rootPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
 						
 							//assigning the roots of the struct names to the main struct
 							currentPeripheralData->rootNameInput=rootPeripheralDataNameInput;
@@ -957,6 +967,8 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 											
 											currentPeripheralDataNameInput->StatusInput=-1;
 											currentPeripheralDataNameInput->StatusCommunication=-1;
+											currentPeripheralDataNameInput->id_shield_input=-1;
+											currentPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
 											
 											//reserve area of memory for the next struct of name
 											nextPeripheralDataNameInput = (peripheraldatanameinput*)malloc(sizeof(peripheraldatanameinput));
@@ -1052,6 +1064,8 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 											
 											currentPeripheralDataNameOutput->StatusOutput=-1;
 											currentPeripheralDataNameOutput->StatusCommunication=-1;
+											currentPeripheralDataNameOutput->id_shield_output=-1;
+											currentPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
 											
 											//reserve area of memory for the next struct of name
 											nextPeripheralDataNameOutput = (peripheraldatanameoutput*)malloc(sizeof(peripheraldatanameoutput));
@@ -1916,10 +1930,12 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 					rootPeripheralDataNameInput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
 					strcpy(rootPeripheralDataNameInput->Type, strTemp);
 					
-					rootPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i); //ask to the peripheral for the status of the input
+					rootPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameInput->id_shield_input, &rootPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
 					
 					if(rootPeripheralDataNameInput->StatusInput == -1){
 						rootPeripheralDataNameInput->StatusCommunication=-1;
+						rootPeripheralDataNameInput->id_shield_input=-1;
+						rootPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
 					}else{
 						rootPeripheralDataNameInput->StatusCommunication=1;
 					}
@@ -1935,10 +1951,12 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 					strcpy(nextPeripheralDataNameInput->NameInput, strTemp);
 					nextPeripheralDataNameInput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
 					strcpy(nextPeripheralDataNameInput->Type, strTemp);
-					nextPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i); //ask to the peripheral for the status of the input
+					nextPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameInput->id_shield_input, &nextPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
 					
 					if(nextPeripheralDataNameInput->StatusInput == -1){
 						nextPeripheralDataNameInput->StatusCommunication=-1;
+						nextPeripheralDataNameInput->id_shield_input=-1;
+						nextPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
 					}else{
 						nextPeripheralDataNameInput->StatusCommunication=1;
 					}
@@ -1966,10 +1984,12 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 					strcpy(rootPeripheralDataNameOutput->NameOutput, strTemp);
 					rootPeripheralDataNameOutput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
 					strcpy(rootPeripheralDataNameOutput->Type, strTemp);
-					rootPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i); //ask to the peripheral for the status of the output
+					rootPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameOutput->id_shield_output, &rootPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
 					
 					if(rootPeripheralDataNameOutput->StatusOutput == -1){
 						rootPeripheralDataNameOutput->StatusCommunication=-1;
+						rootPeripheralDataNameOutput->id_shield_output=-1;
+						rootPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
 					}else{
 						rootPeripheralDataNameOutput->StatusCommunication=1;
 					}
@@ -1982,10 +2002,12 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 					strcpy(nextPeripheralDataNameOutput->NameOutput, strTemp);
 					nextPeripheralDataNameOutput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
 					strcpy(nextPeripheralDataNameOutput->Type, strTemp);
-					nextPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i); //ask to the peripheral for the status of the output
+					nextPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameOutput->id_shield_output, &nextPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
 
 					if(nextPeripheralDataNameOutput->StatusOutput == -1){
 						nextPeripheralDataNameOutput->StatusCommunication=-1;
+						nextPeripheralDataNameOutput->id_shield_output=-1;
+						nextPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
 					}else{
 						nextPeripheralDataNameOutput->StatusCommunication=1;
 					}
@@ -2123,7 +2145,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 
 
 //it update the status into the struct data of the peripheral linked
-void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput){
+void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput, int *id_shield_connected, int *num_pin_used_on_the_peri){
 	peripheraldata *currentPeripheralData;
 	peripheraldatanameoutput *currentPeripheralDataNameOutput;
 	
@@ -2141,8 +2163,12 @@ void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, in
 					currentPeripheralDataNameOutput->StatusOutput=*valueOutput;
 					if(currentPeripheralDataNameOutput->StatusOutput==-1){
 						currentPeripheralDataNameOutput->StatusCommunication=-1;
+						currentPeripheralDataNameOutput->id_shield_output=-1;
+						currentPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
 					}else{
 						currentPeripheralDataNameOutput->StatusCommunication=1;
+						currentPeripheralDataNameOutput->id_shield_output=*id_shield_connected;
+						currentPeripheralDataNameOutput->num_pin_used_on_the_peri=*num_pin_used_on_the_peri;
 					}
 					varExit=1;
 				}
@@ -2693,7 +2719,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	FILE *file_pointer; //generic pointer to file, used in multiple places
 	FILE *file_pointer_error; //used for the file of the error history
 
-	
+	int id_shield_connected; //used to know which shield is connectted to the io
+	int num_pin_used_on_the_peri; //used to know which is the number of the pin used on the peripheral
+ 	
 	if(contStatusMsg>5 || contStatusMsg<0) //contStatusMsg global variable
 		contStatusMsg=0;
 			
@@ -2780,9 +2808,10 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					
 					if(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 						
-						output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id); //ask to the peripheral for the status of the output
+						output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id, &id_shield_connected, &num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
 						
-						updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value);
+						
+						updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value, &id_shield_connected, &num_pin_used_on_the_peri);
 					}
 					
 				}
@@ -2848,9 +2877,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						
 						if(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 							
-							output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id); //ask to the peripheral for the status of the output
+							output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id, &id_shield_connected, &num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
 							
-							updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value);
+							updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value, &id_shield_connected, &num_pin_used_on_the_peri);
 						}
 					}else{
 						varError = 1;
@@ -3090,9 +3119,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 							
 						//if(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 								
-							//output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id); //ask to the peripheral for the status of the output
+							//output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id, &id_shield_connected); //ask to the peripheral for the status of the output
 								
-							//updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value);
+							//updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value, &id_shield_connected);
 						//}
 					}else{
 						printf("ERROR there is not address like this %s into the list!\n", value1);
@@ -3570,6 +3599,7 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 	peripheraldatanameoutput *currentPeripheralDataNameOutput;
 	
 	unsigned int IDinput, statusInput, IDoutput, statusOutput,IDfunction,statusFunction;
+	int id_shield_connected,num_pin_used_on_the_peri;
 	
 	unsigned char addressPeri[5], str_buffer1[6], str_buffer2[6];
 	
@@ -3604,6 +3634,12 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					//get the status of the input
 					statusInput=dataRFPI[cont_pos+8];
 					
+					//this is the number of the pin used on the peripheral
+					num_pin_used_on_the_peri = dataRFPI[cont_pos+4+14]; 
+					
+					//this is used mostly for peripheral 100, it get the ID of the shield connected to this input
+					id_shield_connected = dataRFPI[cont_pos+4+15]; 
+					
 					itoaRFPI(IDinput,str_buffer1,10); itoaRFPI(statusInput,str_buffer2,10);
 					printf("  ADDRESS: %s,  CMD: i,  ID=%s,  IN=%s\n",addressPeri,str_buffer1,str_buffer2); fflush(stdout);
 
@@ -3619,9 +3655,14 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 									
 									if(currentPeripheralDataNameInput->StatusInput == -1){
 										currentPeripheralDataNameInput->StatusCommunication=-1;
+										currentPeripheralDataNameInput->id_shield_input = -1;
+										currentPeripheralDataNameInput->num_pin_used_on_the_peri = -1;
 									}else{
 										currentPeripheralDataNameInput->StatusCommunication=1;
+										currentPeripheralDataNameInput->id_shield_input = id_shield_connected;
+										currentPeripheralDataNameInput->num_pin_used_on_the_peri = num_pin_used_on_the_peri;
 									}
+
 									
 									varExit=1;
 								}
@@ -3648,6 +3689,9 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					//get the status of the output
 					statusOutput = dataRFPI[cont_pos+8];
 					
+					//this is used mostly for peripheral 100, it get the ID of the shield connected to this input
+					id_shield_connected = dataRFPI[cont_pos+4+15];
+					
 					itoaRFPI(IDoutput,str_buffer1,10); itoaRFPI(statusOutput,str_buffer2,10);
 					printf("  ADDRESS: %s,  CMD: p,  ID=%s,  OUT=%s\n",addressPeri,str_buffer1,str_buffer2); fflush(stdout);
 					
@@ -3665,6 +3709,7 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 										currentPeripheralDataNameOutput->StatusCommunication=-1;
 									}else{
 										currentPeripheralDataNameOutput->StatusCommunication=1;
+										currentPeripheralDataNameOutput->id_shield_output = id_shield_connected;
 									}
 									
 									varExit=1;
@@ -3824,7 +3869,7 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 	unsigned int i,l,j;
 	unsigned int varExit=0;
 	unsigned int contInOutOFFline, contTotalNumInOut;
-	unsigned char array_status[10];
+	unsigned char array_status[12];
 	unsigned int numBytesToGetValueStatus=0;
 
 				i=0; 
@@ -3853,7 +3898,9 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 							if(currentPeripheralDataNameInput->StatusInput == -1){
 								contInOutOFFline++;
 								currentPeripheralDataNameInput->StatusCommunication = -1;
-
+								currentPeripheralDataNameInput->id_shield_input = -1;
+								currentPeripheralDataNameInput->num_pin_used_on_the_peri = -1;
+								
 								//currentPeripheralDataNameInput->BitResolution = 0;
 							}else{
 								printf(" RESOLUTION: %d\n",array_status[1]);
@@ -3889,6 +3936,8 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 									//}
 									
 								}
+								currentPeripheralDataNameInput->num_pin_used_on_the_peri = array_status[10];
+								currentPeripheralDataNameInput->id_shield_input = array_status[11];
 							}
 							contTotalNumInOut++;
 							l++;
@@ -3905,6 +3954,8 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 							if(currentPeripheralDataNameOutput->StatusOutput == -1){
 								contInOutOFFline++;
 								currentPeripheralDataNameOutput->StatusCommunication=-1;
+								currentPeripheralDataNameOutput->id_shield_output = -1;
+								currentPeripheralDataNameOutput->num_pin_used_on_the_peri = -1;
 								//currentPeripheralDataNameOutput->BitResolution = 0;
 							}else{
 								//currentPeripheralDataNameOutput->StatusCommunication=1;
@@ -3940,6 +3991,8 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 									//}
 									
 								}
+								currentPeripheralDataNameOutput->num_pin_used_on_the_peri = array_status[10];
+								currentPeripheralDataNameOutput->id_shield_output = array_status[11];
 							}
 							contTotalNumInOut++;
 							l++;
@@ -3996,7 +4049,9 @@ int getIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned 
 			array_status[6]=answerRFPI[17]; //
 			array_status[7]=answerRFPI[18]; //
 			array_status[8]=answerRFPI[19]; //
-			array_status[9]=answerRFPI[20]; //byte L
+			array_status[9]=answerRFPI[20]; //
+			array_status[10]=answerRFPI[21]; //
+			array_status[11]=answerRFPI[22]; // byte L
 			var_return=0;
 		}else{
 			var_return=-1;
@@ -4014,7 +4069,7 @@ int getIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned 
 
 
 //asks to the peripheral the status of the input
-int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput){
+int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput, int *id_shield_connected, int *num_pin_used_on_the_peri){
 	
 	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
 	unsigned char strCmd[30];
@@ -4023,6 +4078,7 @@ int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsign
 	
 	unsigned int i;
 	
+
 	if(IDinput<256){ //max number of inputs is 255
 	
 		strcpy(strCmd,"C03"); //cmd to set address of peripheral
@@ -4049,12 +4105,18 @@ int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsign
 		//checking the address, the tags and if the id input is equal to the one wanted
 		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] && answerRFPI[7]=='R' && answerRFPI[8]=='B' && answerRFPI[9]=='i' && answerRFPI[10]==IDinput){
 			statusInput=answerRFPI[11];
+			*num_pin_used_on_the_peri = answerRFPI[18];
+			*id_shield_connected = answerRFPI[19];
 		}else{
 			statusInput=-1;
+			*num_pin_used_on_the_peri = -1;
+			*id_shield_connected = -1;
 		}
 		
 	}else{
 		statusInput=-1;
+		*num_pin_used_on_the_peri = -1;
+		*id_shield_connected = -1;
 	}
 	
 	return statusInput;
@@ -4063,7 +4125,7 @@ int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsign
 
 
 //asks to the peripheral the status of the output
-int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput){
+int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput, int *id_shield_connected, int *num_pin_used_on_the_peri){
 	
 	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
 	unsigned char strCmd[30];
@@ -4099,12 +4161,18 @@ int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsig
 		//checking the address, the tags and if the id input is equal to the one wanted
 		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] && answerRFPI[7]=='R' && answerRFPI[8]=='B' && answerRFPI[9]=='p' && answerRFPI[10]==IDoutput){
 			statusOutput=answerRFPI[11];
+			*num_pin_used_on_the_peri = answerRFPI[18];
+			*id_shield_connected = answerRFPI[19];
 		}else{
 			statusOutput=-1;
+			*num_pin_used_on_the_peri = -1;
+			*id_shield_connected = -1;
 		}
 		
 	}else{
 		statusOutput=-1;
+		*num_pin_used_on_the_peri = -1;
+		*id_shield_connected = -1;
 	}
 	
 	return statusOutput;
@@ -5080,6 +5148,8 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 	int cont_status_link_output;
 	int cont_input;
 	int cont_output;
+	char value[]="KO";
+	char mpn[30];
 	
 	//create the fifo to give the status of the peripheral to the GUI
 	mkfifo(FIFO_RFPI_PERIPHERAL_JSON, 0666); 
@@ -5149,6 +5219,7 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 				write(handleFIFO, "   ", 3); strcpy(tag,"in_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
 				write(handleFIFO, "\n     {\n", 8);
 				while(currentPeripheralDataNameInput!=0){
+					//printf("ID=%d\n",currentPeripheralDataNameInput->id_shield_input);
 					
 					if(cont_input==0){
 						//write(handleFIFO, "{\n   ", 5);
@@ -5169,13 +5240,19 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 				
 					write(handleFIFO, "     ", 5); strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameInput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
 					
-					char value[]="KO";
+					//char value[]="KO";
 					if(currentPeripheralDataNameInput->StatusCommunication != -1) strcpy(value ,"OK");
-					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); //write(handleFIFO, ",\n   ", 5);
-									
-					write(handleFIFO, "\n", 1);
+					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); write(handleFIFO, ",\n", 2);
 					
-									
+					//char mpn[30];//="MCP9701A";
+					return_mpn(mpn, &currentPeripheralDataNameInput->id_shield_input);
+					write(handleFIFO, "     ", 5); strcpy(tag,"mpn_shield_connected"); writeTagAndValueIntoFIFOJson(tag, mpn, handleFIFO); write(handleFIFO, ",\n", 2);
+					write(handleFIFO, "     ", 5); strcpy(tag,"id_shield_connected"); intToStr(currentPeripheralDataNameInput->id_shield_input, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);  write(handleFIFO, ",\n", 2);
+					write(handleFIFO, "     ", 5); strcpy(tag,"num_pin"); intToStr(currentPeripheralDataNameInput->num_pin_used_on_the_peri, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); //write(handleFIFO, ",\n   ", 5);
+					
+					write(handleFIFO, "\n", 1);
+				
+				
 					if(currentPeripheralDataNameInput->StatusInput == -1)
 						cont_status_link_input++;
 					
@@ -5223,7 +5300,14 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 					
 					char value[]="KO";
 					if(currentPeripheralDataNameOutput->StatusCommunication != -1) strcpy(value ,"OK");
-					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); //write(handleFIFO, ",\n   ", 5);
+					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); write(handleFIFO, ",\n", 2);
+					
+					//char mpn[30];//="LED";
+					return_mpn(mpn, &currentPeripheralDataNameOutput->id_shield_output);
+					write(handleFIFO, "     ", 5); strcpy(tag,"mpn_shield_connected"); writeTagAndValueIntoFIFOJson(tag, mpn, handleFIFO); write(handleFIFO, ",\n", 2);
+					write(handleFIFO, "     ", 5); strcpy(tag,"id_shield_connected"); intToStr(currentPeripheralDataNameOutput->id_shield_output, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);  write(handleFIFO, ",\n", 2);
+					write(handleFIFO, "     ", 5); strcpy(tag,"num_pin"); intToStr(currentPeripheralDataNameOutput->num_pin_used_on_the_peri, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); //write(handleFIFO, ",\n   ", 5);
+					
 					
 					write(handleFIFO, "\n", 1);
 					
@@ -5559,4 +5643,29 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 	serial_port_path = (char*) malloc( strlen(varTmpReturn) );
 	strcpy(serial_port_path,varTmpReturn);
 	return serial_port_path;
+}
+
+
+//this function return the MPN from the id, this is used for peripheral 100
+char* return_mpn(char *mpn, int *id_shield){
+	int id;
+	if(*id_shield>5 || *id_shield<0){
+		*id_shield = 0;
+	}
+	id = *id_shield;
+	if(id==1){
+		strcpy(mpn,"LED");
+	}else if(id==2){
+		strcpy(mpn,"SWITCH");
+	}else if(id==3){
+		strcpy(mpn,"MCP9701A");
+	}else if(id==4){
+		strcpy(mpn,"00172");
+	}else if(id==5){
+		strcpy(mpn,"DHT11");
+	}else{
+		strcpy(mpn,"NULL");
+	}
+	
+	return mpn;
 }
