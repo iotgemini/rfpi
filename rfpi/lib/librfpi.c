@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					21/03/2020
+Last Update: 					22/03/2020
 
 
 Description: library for the RFPI
@@ -487,7 +487,7 @@ int fifoWriter(char *fifoname, char *data) {
 
 
 //it read the fifo and then it will delete
-int fifoReader(char *data, char *fifoname){ 
+/*int fifoReader(char *data, char *fifoname){ 
 	
 	int fifo_handle;
 	
@@ -508,6 +508,72 @@ int fifoReader(char *data, char *fifoname){
 		data[0]='\0';
 		return 0;
 	}
+
+}*/
+
+
+int fifoReader(char *data, char *fifoname){ 
+	int varReturn=0;
+	int fifo_handle;
+	int fifo_handle_sync;
+	char dataFifoSync[10];
+	
+	//char str0[]="0\n";
+	FILE* file_pointer;
+
+	
+	if(access(FIFO_GUI_CMD_SYNC, F_OK) == 0){
+		//fifo_handle_sync = open(FIFO_GUI_CMD_SYNC, O_RDWR);  
+		//read(fifo_handle_sync, dataFifoSync, 10);
+		
+		file_pointer  = fopen(FIFO_GUI_CMD_SYNC,  "r");
+		fscanf(file_pointer, "%s ", dataFifoSync);
+		//printf("fifocmdsync EXIST! %s\n",dataFifoSync); fflush(stdout);
+		//delay_ms(5000);
+		
+		if(dataFifoSync[0] == '1'){	
+			//printf("fifocmdsync 1!\n"); fflush(stdout);
+			//delay_ms(5000);
+			if(access(fifoname, F_OK) == 0){
+				//printf("FIFO Exist!\n"); fflush(stdout); 
+				fifo_handle = open(fifoname, O_RDWR);  
+				//printf("FIFO Opened!\n"); fflush(stdout);
+				///delay_ms(1);
+				read(fifo_handle, data, MAX_BUF_FIFO_GUI_CMD);
+				//printf("FIFO Data!\n"); fflush(stdout);
+				close(fifo_handle);
+				//printf("FIFO Closed!\n"); fflush(stdout);
+				// remove the FIFO 
+				//unlink(fifoname);
+				//printf("FIFO Unlinked!\n"); fflush(stdout);
+				varReturn = 1;
+			}else{
+				//printf("FIFO NOT Exist!\n"); fflush(stdout); 
+				data[0]='\0';
+				varReturn = 0;
+			}
+			
+			rewind(file_pointer);
+			freopen(NULL,"w+",file_pointer);
+			fprintf(file_pointer, "%d", 0);
+			fflush(file_pointer);
+			
+		}
+		
+		
+		fclose(file_pointer);
+
+		//write(fifo_handle_sync, str0, (strlen(str0))); 
+		//close(fifo_handle_sync);
+		
+	
+	}else{
+		//printf("FIFO NOT Exist!\n"); fflush(stdout); 
+		data[0]='\0';
+		varReturn = 0;
+	}
+	
+	return varReturn;
 
 }
 
@@ -2487,7 +2553,7 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 				
 				fflush(stdout); // Prints immediately to screen
 				
-				delay_ms(100);
+				//delay_ms(100);
 				
 				contMs = 0;
 				i = 0;
@@ -3041,7 +3107,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 				//unlink all FIFO, thus the GUI will wait for the data updated
 				unlink(FIFO_RFPI_RUN);
-				unlink(FIFO_GUI_CMD);
+				//unlink(FIFO_GUI_CMD);
 				unlink(FIFO_RFPI_STATUS);
 		
 				//ask to All peripherals the status of all inputs and outputs and update the status into the struct data
@@ -3056,7 +3122,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 				//unlink all FIFO, thus the GUI will wait for the data updated
 				unlink(FIFO_RFPI_RUN);
-				unlink(FIFO_GUI_CMD);
+				//unlink(FIFO_GUI_CMD);
 				unlink(FIFO_RFPI_STATUS);
 								
 				//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
@@ -4287,7 +4353,7 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 		
 	//unlink all FIFO, thus there will be no conflicts
 	unlink(FIFO_RFPI_RUN);
-	unlink(FIFO_GUI_CMD);
+	//unlink(FIFO_GUI_CMD);
 	unlink(FIFO_RFPI_STATUS);
 	
 	//if an error happen then it will be rewritten

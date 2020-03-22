@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					21/03/2020
+Last Update: 					22/03/2020
 
 
 Description: library for the RFPI
@@ -150,6 +150,7 @@ int var_dummy1,var_dummy2;
 #define PATH_FIFO	 				PATH_RFPI_SW "/fifo"
 #define FIFO_RFPI_RUN 				PATH_RFPI_SW "/fifo/fiforfpirun" 		//used to communicate to the GUI the rfpi is operating
 #define FIFO_GUI_CMD 				PATH_RFPI_SW "/fifo/fifoguicmd" 		//the web (GUI) will write into the data to se and send
+#define FIFO_GUI_CMD_SYNC			PATH_RFPI_SW "/fifo/fifocmdsync" 		//when the command is ready into fifoguicmd then the GUI write '1' into fifocmdsync, that make the rfpi to execute the command. After the reading from rfpi then rfpi write '0' inside fifocmdsync.
 #define FIFO_RFPI_STATUS 			PATH_RFPI_SW "/fifo/fiforfpistatus" 	//used to communicate to the GUI the status and answer of the RFberry Pi
 #define FIFO_RFPI_PERIPHERAL 		PATH_RFPI_SW "/fifo/fifoperipheral" 	//used to communicate to the GUI the all data of the all peripherals installed
 #define FIFO_RFPI_PERIPHERAL_JSON	PATH_RFPI_SW "/fifo/fifoperipheraljson" 	//
@@ -168,7 +169,7 @@ int var_dummy1,var_dummy2;
 #define MAX_LEN_BUFFER_ANSWER_RF	47 		//into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
 
 #define CMD_WAIT1					30//120//420 	//it is a delay needed after each command sent through the uart to the Transceiver
-#define CMD_WAIT2					50 //1200 	//it is a longer delay used to wait answer after radio frequency transmission
+#define CMD_WAIT2					100//50 //1200 	//it is a longer delay used to wait answer after radio frequency transmission
 
 #define MAX_NUM_RETRY				8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 
