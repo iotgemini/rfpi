@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		10/11/2019
+Last Update: 		22/03/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -88,6 +88,7 @@ define("PATH_RFPI", "/etc/rfpi"); 				//default path
 define("FIFO_PATH", PATH_RFPI . "/fifo/"); 								//whwere all FIFO files are written
 define("FIFO_RFPI_RUN", PATH_RFPI . "/fifo/fiforfpirun"); 				//used to check if the rfpi is operating
 define("FIFO_GUI_CMD", PATH_RFPI . "/fifo/fifoguicmd"); 				//used to send command and notifications to the RFPI 
+define("FIFO_GUI_CMD_SYNC", PATH_RFPI . "/fifo/fifocmdsync"); 			//when the command is ready into fifoguicmd then the GUI write '1' into fifocmdsync, that make the rfpi to execute the command. After the reading from rfpi then rfpi write '0' inside fifocmdsync.
 define("FIFO_RFPI_STATUS", PATH_RFPI . "/fifo/fiforfpistatus"); 		//used to send command and notifications to the RFPI 
 define("FIFO_RFPI_PERIPHERAL", PATH_RFPI . "/fifo/fifoperipheral"); 	//used to get the status of the peripherals (it can goes from 0 to 254)
 define("FIFO_RFPI_NET_NAME", PATH_RFPI . "/fifo/fifonetname"); 			//used to get the network name set
@@ -386,10 +387,36 @@ function print_release_version(){
 
 //it write the $data into the FIFO with name $nameFIFO
 function writeFIFO($nameFIFO, $data){
-	posix_mkfifo($nameFIFO, 0666); 
-	$fifo_handle = fopen($nameFIFO, 'w'); 
+	//echo "writing cmd....<br>";
+	//ob_flush(); //it will send to the client what has been executed and then proceed with next instruction
+	
+	/*posix_mkfifo($nameFIFO, 0666); 
+	$fifo_handle = fopen($nameFIFO, 'w');// or die("Unable to open fifoguicmd!"); 
 	fwrite($fifo_handle, $data); 
-	fclose($fifo_handle);
+	fclose($fifo_handle);*/
+	
+	file_put_contents($nameFIFO, $data);
+	//chmod($nameFIFO,0777);
+	
+	//echo "cmd written!<br>";
+	//ob_flush(); //it will send to the client what has been executed and then proceed with next instruction
+	if($nameFIFO == FIFO_GUI_CMD){
+		//echo "ok sync!<br>";
+
+		//writing fifo sync
+		file_put_contents(FIFO_GUI_CMD_SYNC, '1 ');
+		//chmod(FIFO_GUI_CMD_SYNC,0777);
+		
+		//echo "FIFO_GUI_CMD_SYNC=";
+		//echo FIFO_GUI_CMD_SYNC;
+		//echo "<br>";
+
+		/*posix_mkfifo(FIFO_GUI_CMD_SYNC, 0666); 
+		$fifo_handle2 = fopen(FIFO_GUI_CMD_SYNC, 'w');// or die("Unable to open file!");
+		fwrite($fifo_handle2, "1 "); //enable the rfpi to execute the command written into fifoguicmd 
+		fclose($fifo_handle2);
+		*/
+	}
 }
 
 //it read and return the data readed into the FIFO with name $nameFIFO
@@ -397,8 +424,8 @@ function readFIFO($nameFIFO){
 	$handle = fopen($nameFIFO, 'r');
 	if(feof($handle)!==TRUE){ 
 		$data=fgets($handle, 200);
-		fclose($handle);
 	}
+	fclose($handle);
 	//@unlink($nameFIFO); 
 	return $data;
 }
