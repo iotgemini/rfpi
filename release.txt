@@ -1,0 +1,63 @@
+1.6.2.2
+22/03/2020
+
+v1.6
+	- Added function Input Duty that allow to set a trigger for a digital input and when the trigger occur it set the status for a selected output 
+	- Added function Timer to turn ON/OFF (after a delay) a digital output when there is a change
+	- Updated the functions where RFPI get the bit resolution for each IO status of the peripheral
+	- Bug fix about peri with 0 input or 0 output, now does not show a empty record
+	- Added fifocmdsync to sync the commands from the GUI
+
+v1.5
+	- New structure for the config file! Old configuration files are not anymore compatible!
+	- Added command "REFRESH PERI STATUS address_peri"
+	- Added command "SETOUT address_peri id_output value_output"
+	- Created the file fifoperipheraljson that contain all data about the network of linked peripherals
+	- Command to peripherals via radio (o, p, i) modified. Added resolution in bit of the input
+	- Added command "DELETE ADDRESS address_peri NULL"
+
+
+v1.4
+	- Made compatible for the OrangePi Zero
+	- Added Control Panel for the Peri 12: 2 Relay and 4 Inputs
+	- Added Control Panel for the Peri 11: 8 Relay and 8 Inputs
+	- Added RTC DS1307 for BBB
+	- Into the library librfpi.c added the function int get_bytes_u_Peri(int *handleUART, unsigned char *peripheralAddress, unsigned int num_function, unsigned int num_packet_to_get, unsigned char *answerRFberryPi);
+
+	- Into the achitecture for the FIFO GUI CMD added the comand "GET_BYTES_U id_position num_function num_bytes"
+	- Into the achitecture for the FIFO GUI CMD added the comand "STOP"
+	- Into the achitecture for the FIFO RFPI STATUS added the message "STOPPED"
+	- Into the achitecture for the FIFO RFPI STATUS added the message "RUNNING"
+	- Into the achitecture for the radio protocol added the procedure to get more bytes using the "u" function
+
+
+v1.3
+	- Added cpanel for Peripheral 8 (Remote Blinds)
+	- Added cpanel for Peripheral 9 (Inputs Recorder)
+
+v1.2
+	- Added cpanel for Peripheral 5 (Radio Control)
+	- Added cpanel for Peripheral 6 (Thermostat 24hours)
+	- Added functions to print the network address into rfberrypi.php
+	- Added cpanel for Peripheral 7 (Input 0-10V)
+	- Added the login page
+	- Added languages: Italian, France and Spanish
+
+v1.1
+	- After have given the network name it is not necessary to restart the Raspberry
+	- Added cpanel for Peripheral 4
+	- Bug fixed when deleting and finding new peripherals, now it does not assign same address at two peripherals
+	- Added function of validating strings into rfberrypi.php. Names can have spaces because are substitute by an underscore
+	- Updated the control panel system
+	- Added the Cpanel for the Peri2
+	- Added the Cpanel for the Peri3 the Sensore-Attuatore
+	- Added command to send data directly to the radio: DATA RF id_position 16byte_hexadecimal_ascii
+	- Added function to show the answer of the command "DATA RF .." into the FIFO RFPISTATUS
+	- Into librfpi.c and .h added function: unsigned char convert_2ChrHex_to_byte(unsigned char *chr)
+	- Into librfpi.c and .h added function:char* convert_byte_to_2ChrHex(unsigned char byte, char *str2chr)
+	- Into librfpi.c and .h added function: SendRadioDataAndGetReplyFromPeri(..)
+	- Into librfpi.c and .h added function: loadRadioData(...)
+	- Into librfpi.c and .h added function: read_RTC(); //only BBB
+
+v1.0
+	- Initial version
