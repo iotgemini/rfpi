@@ -1,6 +1,30 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 18-03-2020"
+echo "Last update of this script was on 24-03-2020"
+
+
+echo "########################## AGREEMENT ##########################"
+echo " "
+echo "	ATTENTION:				This software is provided in a way"
+echo "							free and without any warranty"
+echo "							The author does not assume any"
+echo "							liability for damage brought or"
+echo "							caused by this software."
+echo " "							
+echo "	ATTENZIONE:				Questo software viene fornito in modo "
+echo "							gratuito e senza alcuna garanzia"
+echo "							L'autore non si assume nessuna "
+echo "							responsabilità per danni portati o"
+echo "							causati da questo software."
+echo " "
+echo "########################## AGREEMENT ##########################"
+echo " IT: Se premi Y dichiari di aver preso visione dell'accordo riportato sopra. Vuoi continuare? (Y=si or N=no) "
+read -p " EN: If you press Y you declare that you have read the above agreement. Do you wish to continue? (Y or N) " -n 1 -r
+echo "" #new line
+if [[ $REPLY =~ ^[Yy]$ ]] 
+then #start of if for agreement
+
+
 echo "Installing rfpi ........."
 
 echo "Updating apt-get..."
@@ -12,6 +36,11 @@ DIRECTORY_RFPI=/etc/rfpi
 DIRECTORY_WWW=/var/www
 DIRECTORY_SAMBA=/etc/samba
 FILE_FSTAB=/etc/fstab
+#DIRECTORY_NODERED=/home/pi/.node-red
+SUB_DIRECTORY_NODE_IOTGEMINI=/node_modules/node-red-contrib-iotgemini
+SUB_DIRECTORY_NODE_DASHBOARD=/node_modules/node-red-dashboard
+
+
 
 disable_getty="0"
 
@@ -146,7 +175,8 @@ sudo systemctl enable rfpi.service
 
 
 ########################## BEGIN INSTALL SAMBA ##########################
-#if [ ! -d "$DIRECTORY_SAMBA" ]; then
+SAMBA_INSTALLED=1
+if [ ! -d "$DIRECTORY_SAMBA" ]; then
 	echo " "
 	echo "########################## INSTALL SAMBA ##########################"
 	echo " IT: Vuoi installare samba per poi condividere le cartelle rfpi e www? (Y=si or N=no) "
@@ -156,14 +186,17 @@ sudo systemctl enable rfpi.service
 	then
 		echo "Install Samba:"
 		sudo apt-get -y install samba samba-common-bin
+	else
+		SAMBA_INSTALLED=0
 	fi
-#fi
+fi
 
 ########################## END INSTALL SAMBA ##########################
 
 
 
 ########################## BEGIN SHARE FOLDERS ##########################
+if [ $SAMBA_INSTALLED == 1 ]; then
 echo " "
 echo "########################## SHARE FOLDERS ##########################"
 if grep -Fxq "[rfpi]" /etc/samba/smb.conf; then
@@ -196,6 +229,7 @@ else
 		fi
 	fi
 fi
+fi
 ########################## END SHARE FOLDERS ##########################
 
 
@@ -206,7 +240,11 @@ fi
 
 
 ########################## BEGIN INSTALL NODE-RED ##########################
-#if [ ! -d "$DIRECTORY_SAMBA" ]; then
+echo "checking if node-red is installed......"
+NODERED_INSTALLED=0
+DIRECTORY_NODERED=$(sudo find / -type d -name ".node-red")
+#echo "$DIRECTORY_NODERED$DIRECTORY_NODE_IOTGEMINI"
+if [ ! -d "$DIRECTORY_NODERED" ]; then
 	echo " "
 	echo "########################## INSTALL NODE-RED ##########################"
 	echo " IT: Vuoi installare Node-Red per creare le tue automazioni personalizzate e pannelli di controllo personalizzati? (Y=si or N=no) "
@@ -214,16 +252,39 @@ fi
 	echo " EN: Do you want to install Node-Red to create your custom automations and custom control panels? (Y or N) "
 	read -p "     if you decide to install Node-Red you will have to be patient because it will take some time ......... " -n 1 -r
 	echo "" #new line
-	if [[ $REPLY =~ ^[Yy]$ ]]
+	if [[ $REPLY =~ ^[Yy]$ ]] 
 	then
 		echo "Install Node-Red:"
+		cd ~
 		bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
 		sudo systemctl enable nodered.service
-		cd ~
-		npm install node-red-contrib-iotgemini
-		npm i node-red-dashboard
+		echo "DONE!"
+		NODERED_INSTALLED=1
 	fi
-#fi
+else
+	echo "NODE-RED is already INSTALLED!"
+	NODERED_INSTALLED=1
+fi
+
+if [ $NODERED_INSTALLED == 1 ]; then
+	cd ~
+	if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_IOTGEMINI" ]; then
+		echo "Updating IOTGEMINI NODES......"
+		npm install node-red-contrib-iotgemini
+		npm update -g node-red-contrib-iotgemini
+	else
+		echo "Installing IOTGEMINI NODES......"
+		npm install node-red-contrib-iotgemini
+	fi
+	if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_DASHBOARD" ]; then
+		echo "Updating DASHBOARD NODES......"
+		npm install node-red-dashboard
+		npm update -g node-red-dashboard
+	else
+		echo "Installing DASHBOARD NODES......"
+		npm install node-red-dashboard
+	fi
+fi
 
 ########################## END INSTALL NODE-RED ##########################
 
@@ -238,3 +299,5 @@ then
 	echo "Rebooting...."
 	sudo reboot
 fi
+
+fi #end of if for agreement
