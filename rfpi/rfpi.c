@@ -55,6 +55,7 @@ int main(int argc, char **argv){
 	int numBytesDataRFPI = 0;
 	char str_net_name_and_address[50];
 	int count1;
+	int cmd_execution;
 	
 	//initializing the fifo to receive command from the GUI
 	FILE *fp,*fp2;
@@ -94,7 +95,7 @@ int main(int argc, char **argv){
 
 		//printf(" statusInit=%s\n",statusInit); fflush(stdout); // Prints immediately to screen
 		
-		char tempVar_Semaphore = 0;
+		/*char tempVar_Semaphore = 0;
 		//if(strcmp(statusInit,"TRUE")!=0){  
 		if(strlen(statusInit)==4){
 			if(strcmp(statusInit,"TRUE")!=0){
@@ -129,13 +130,14 @@ int main(int argc, char **argv){
 				#endif
 			}
 			#endif
+			*/
 			
 			//it check the data into the buffer of the UART, return the data on the string given
 			numBytesDataRFPI=checkDataIntoUART(&handleUART, dataRFPI, MAX_BUF_DATA_RFPI);
 			
 			//it parse the data given. In case of data from peripheral, it will update the struct data
 			rootPeripheralData=parseDataFromUART(dataRFPI, &numBytesDataRFPI, rootPeripheralData);
-		}	
+		//}	
 		
 		//tell to the GUI the various status
 		fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
@@ -155,10 +157,11 @@ int main(int argc, char **argv){
 		writeFifoJsonPeripheralLinked(rootPeripheralData);
 		//writeFifoJsonOneLinePeripheralLinked(rootPeripheralData);
 
-		for(count1=0;count1<EXECUTION_DELAY;count1++){
+		cmd_execution=0;
+		for(count1=0;count1<EXECUTION_DELAY && cmd_execution==0;count1++){
 			//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
-			rootPeripheralData=ParseFIFOdataGUI(&handleUART, rootPeripheralData);
-			delay_ms(1);
+			rootPeripheralData=ParseFIFOdataGUI(&handleUART, rootPeripheralData, &cmd_execution);
+			if(cmd_execution==0) delay_ms(1);
 		}
 		
 		// Turn a led ON and OFF to shows the application is running 
