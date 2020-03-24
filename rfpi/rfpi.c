@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					22/03/2020
+Last Update: 					24/03/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -58,14 +58,47 @@ int main(int argc, char **argv){
 	int cmd_execution;
 	
 	//initializing the fifo to receive command from the GUI
-	FILE *fp,*fp2;
+	FILE *fp;
 	fp  = fopen (FIFO_GUI_CMD_SYNC, "w+");
 	fclose (fp);
-	chmod(FIFO_GUI_CMD_SYNC, 0777);//S_IRUSR|S_IRGRP|S_IROTH);
-	fp2  = fopen (FIFO_GUI_CMD, "w+");
-	fclose (fp2);
+	chmod(FIFO_GUI_CMD_SYNC, 0777);
+	
+	fp  = fopen (FIFO_GUI_CMD, "w+");
+	fclose (fp);
 	chmod(FIFO_GUI_CMD, 0777);
 	
+	fp  = fopen (FIFO_RFPI_RUN, "w+");
+	fclose (fp);
+	chmod(FIFO_RFPI_RUN, 0777);
+	
+	fp  = fopen (FIFO_RFPI_STATUS, "w+");
+	fclose (fp);
+	chmod(FIFO_RFPI_STATUS, 0777);
+	
+	fp  = fopen (FIFO_RFPI_PERIPHERAL, "w+");
+	fclose (fp);
+	chmod(FIFO_RFPI_PERIPHERAL, 0777);
+	
+	fp  = fopen (FIFO_RFPI_PERIPHERAL_JSON, "w+");
+	fclose (fp);
+	chmod(FIFO_RFPI_PERIPHERAL_JSON, 0777);
+	
+	fp  = fopen (FIFO_RFPI_NET_NAME, "w+");
+	fclose (fp);
+	chmod(FIFO_RFPI_NET_NAME, 0777);
+	
+	fp  = fopen (FIFO_GET_BYTES_U, "w+");
+	fclose (fp);
+	chmod(FIFO_GET_BYTES_U, 0777);
+	
+	fp  = fopen (FIFO_SEND_BYTES_F, "w+");
+	fclose (fp);
+	chmod(FIFO_SEND_BYTES_F, 0777);
+		
+	fp  = fopen (FIFO_RTC, "w+");
+	fclose (fp);
+	chmod(FIFO_RTC, 0777);
+
 
 	sem_serial_communication_via_usb=0; //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
 	//sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
