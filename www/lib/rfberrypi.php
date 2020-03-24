@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		22/03/2020
+Last Update: 		24/03/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -85,7 +85,7 @@ define("PATH_RFPI", "/etc/rfpi"); 				//default path
 //define("PATH_RFPI", "/etc/rfpi_usb"); 		//alternative path
 
 //DEFINES of FIFO
-define("FIFO_PATH", PATH_RFPI . "/fifo/"); 								//whwere all FIFO files are written
+define("FIFO_PATH", PATH_RFPI . "/fifo/"); 								//where all FIFO files are written
 define("FIFO_RFPI_RUN", PATH_RFPI . "/fifo/fiforfpirun"); 				//used to check if the rfpi is operating
 define("FIFO_GUI_CMD", PATH_RFPI . "/fifo/fifoguicmd"); 				//used to send command and notifications to the RFPI 
 define("FIFO_GUI_CMD_SYNC", PATH_RFPI . "/fifo/fifocmdsync"); 			//when the command is ready into fifoguicmd then the GUI write '1' into fifocmdsync, that make the rfpi to execute the command. After the reading from rfpi then rfpi write '0' inside fifocmdsync.
@@ -733,8 +733,9 @@ if(file_exists(FIFO_RFPI_PERIPHERAL)){
 	$data="";
 	$num_special_functions_peri="";
 	$fw_version_peri="";
-	$handle = fopen(FIFO_RFPI_PERIPHERAL, 'r');
+	
 	$i=0; $t=0; $maxcountperipheral=254;
+	$handle = fopen(FIFO_RFPI_PERIPHERAL, 'r') or die("Unable to open file!");
 	
 	while($i<$maxcountperipheral && feof($handle)!==TRUE){ 
 
@@ -925,6 +926,7 @@ if(file_exists(FIFO_RFPI_PERIPHERAL)){
 		$t=0;
 		$i++;
 	}
+	fclose($handle);
 	//@unlink(FIFO_RFPI_PERIPHERAL); 
 }
 
