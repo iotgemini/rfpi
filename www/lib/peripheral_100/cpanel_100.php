@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		19/03/2020
+Last Update: 		24/03/2020
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -89,6 +89,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	$lang_msg_turn_on="Turn ON";
 	$lang_msg_turn_off="Turn OFF";
 	$lang_btn_timer = "Timer";
+	$lang_btn_settings = "Settings";
 	if($_SESSION["language"]=="IT"){
 		$lang_btn_timer = "Temporizzatore";
 		$lang_btn_load_json = "Carica Json";
@@ -97,6 +98,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_btn_input = "Entrate";
 		$lang_temperature="Temperatura: ";
 		$lang_btn_thermostat="Termostato";
+		$lang_btn_settings = "Impostazioni";
 	}else if($_SESSION["language"]=="FR"){
 		$lang_btn_timer = "Minuteur";
 		$lang_btn_load_json = "Charge Json";
@@ -105,6 +107,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_btn_input = "Entr&eacute;e";
 		$lang_temperature="Temp&eacute;rature: ";
 		$lang_btn_thermostat="Thermostat";
+		$lang_btn_settings = "R&eacute;glages";
 	}else if($_SESSION["language"]=="SP"){
 		$lang_btn_timer = "Temporizador";
 		$lang_btn_load_json = "Carga Json";
@@ -113,6 +116,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_btn_input = "Entrada";
 		$lang_temperature="Temperature: ";
 		$lang_btn_thermostat="Termostato";
+		$lang_btn_settings = "Ajustes";
 	}
 
 	//---------------------------------------------------------------------------------------//
@@ -764,8 +768,8 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		}
 		
 		//Button to page Input Duty Functions
-		if($array_function_to_show[0]==1 && $count_digital_input_json>0 && ($count_digital_output_json>0 || $count_analogue_output_json>0)){
-		echo '<form name="peri_100_btn_timer2_functions_'.$id.'" action="./lib/peripheral_100/lib/cmd_get_settings.php" method=GET>';
+		if($array_function_to_show[1]==1 && $count_digital_input_json>0 && ($count_digital_output_json>0 || $count_analogue_output_json>0)){
+		echo '<form name="peri_100_btn_input_functions_'.$id.'" action="./lib/peripheral_100/lib/cmd_get_settings.php" method=GET>';
 		echo '<input type=hidden name="position_id" value="'.$id.'">';
 		echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
 		$id_hex_special_function = "02"; //hexadecimal format. example 0x02 as to be written as "02"
@@ -777,6 +781,23 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
 		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_input.php">';
 		echo '<input type=submit value="'.$lang_btn_input.'" class="btn_functions">';
+		echo '</form>';
+		}
+		
+		//Button to page Settings Platform Functions
+		if($array_function_to_show[2]==1){
+		echo '<form name="peri_100_btn_settings_functions_'.$id.'" action="./lib/peripheral_100/lib/cmd_get_settings.php" method=GET>';
+		echo '<input type=hidden name="position_id" value="'.$id.'">';
+		echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+		$id_hex_special_function = "03"; //hexadecimal format. example 0x02 as to be written as "02"
+		echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
+		echo '<input type=hidden name="TAG0" value="DATA">'; 				//Command
+		echo '<input type=hidden name="TAG1" value="RF">'; 					//second parameter
+		echo '<input type=hidden name="TAG2" value="'.$address_peri.'">';	//third parameter
+		$str_TAG3 = "524275" . $id_hex_special_function . "2E2E2E2E2E2E2E2E2E2E2E2E"; 
+		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
+		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_settings.php">';
+		echo '<input type=submit value="'.$lang_btn_settings.'" class="btn_functions">';
 		echo '</form>';
 		}
 		
