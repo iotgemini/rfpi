@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					22/03/2020
+Last Update: 					24/03/2020
 
 
 Description: library for the RFPI
@@ -173,10 +173,9 @@ int var_dummy1,var_dummy2;
 
 #define MAX_NUM_RETRY				8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 
-#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
-#define ERROR_BLINK_LED_DELAY		100	//500	//it is the time in ms between the ON and OFF of the LED
-
-#define EXECUTION_DELAY				50		//it is the delay before to update the fifo with the status
+//#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
+//#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
+#define EXECUTION_DELAY				50		//it is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
 
 
 //LIST OF ERROR
@@ -265,6 +264,8 @@ unsigned char sem_serial_communication_via_usb;  //if the communication is via U
 
 unsigned char sem_init_gpio_rpi_ok;	//if the gpio are initialised then cna control the gpio
 
+char last_status_blinking_led; //used to keep the last status of the binking led
+
 //delay milliseconds
 void delay_ms(unsigned int millis);
 
@@ -348,7 +349,7 @@ extern void loadRadioData(int *handleUART, unsigned char *arrayData, int numChar
 extern void SerialCmdRFPi(int *handleUART, unsigned char *strCmd, char *answerRFPI, int maxTimeOutMs);
 
 //it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
-extern peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheralData);
+extern peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheralData, int *cmd_executed);
 
 //it check the data into the buffer of the UART, return the data on the string given
 extern int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lenght_buffer_dataRFPI);

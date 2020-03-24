@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					22/03/2020
+Last Update: 					24/03/2020
 
 
 Description: library for the RFPI
@@ -2570,10 +2570,12 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 					//answerRFPI[i]='\0';
 					do{
 						
-						for(i=0;i<numC && i<(MAX_LEN_BUFFER_ANSWER_RF-1);i++){
+						for(i=0;i<numC && (i+last_i+1)<(MAX_LEN_BUFFER_ANSWER_RF);i++){
+							
 							answerRFPI[(i+last_i)]=serialGetchar (*handleUART);
 							answerRFPI[(i+last_i+1)]='\0';
-												
+							
+							//this check if the character is inside the ASCII table and then print
 							if(answerRFPI[(i+last_i)]<32 || answerRFPI[(i+last_i)] > 126){
 								if(answerRFPI[(i+last_i)]<10)
 									printf("%d", answerRFPI[(i+last_i)]);
@@ -2589,7 +2591,7 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 					}while(numC>0);
 					
 					//answerRFPI[i+1]='\0';
-					//fflush(stdout); // Prints immediately to screen 
+					fflush(stdout); // Prints immediately to screen 
 					
 					if(contMs>maxTimeOutMs)
 						varExit=1;
@@ -2751,7 +2753,7 @@ extern void SerialCmdRFPi(int *handleUART, unsigned char *strCmd, char *answerRF
 
 
 //it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
-peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheralData){
+peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheralData, int *cmd_executed){
 	
 	//pointers used to manage the data of all linked peripheral
 	peripheraldata *currentPeripheralData;
@@ -2799,6 +2801,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	}
 			
 
+	*cmd_executed=1; //I assume the command would be executed, otherwise at the end this variable is set to 0
+	
 	//it check data from the GUI
 	if(fifoReader(data, FIFO_GUI_CMD)) {
 			sscanf(data,"%s %s %s %s ",tag, type, value1, value2);
@@ -3584,6 +3588,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				//send_to_transceiver_json_settings(rootJsonSettings, address_peri, value1, handleUART);
 				rootPeripheralData=send_to_transceiver_json_settings(rootPeripheralData, address_peri, value1, handleUART);
 				
+			}else{
+				*cmd_executed=0; //no command have been executed!
 			}
 			
 			
@@ -4467,36 +4473,51 @@ void blinkLed(){
 		if(sem_serial_port_USB == 0){
 			#if PLATFORM == PLATFORM_RPI
 				if(sem_init_gpio_rpi_ok==1){
-					bcm2835_gpio_write(PIN_LED_DS2, HIGH);
-					delay_ms(BLINK_LED_DELAY);
-					//bcm2835_gpio_write(PIN_LED_DS2, LOW);
-					//delay_ms(BLINK_LED_DELAY);
+					if(last_status_blinking_led==0){
+						last_status_blinking_led=1;
+						bcm2835_gpio_write(PIN_LED_DS2, HIGH);
+						//delay_ms(BLINK_LED_DELAY);
+					}else{
+						last_status_blinking_led=0;
+						bcm2835_gpio_write(PIN_LED_DS2, LOW);
+						//delay_ms(BLINK_LED_DELAY);
+					}
 				}else{
-					delay_ms(BLINK_LED_DELAY);
+					//delay_ms(BLINK_LED_DELAY);
 					//delay_ms(BLINK_LED_DELAY);
 				}
 			#endif
 			
 			#if PLATFORM == PLATFORM_BBB
-				linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
-				delay_ms(BLINK_LED_DELAY);
-				//linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
-				//delay_ms(BLINK_LED_DELAY);
+				if(last_status_blinking_led==0){
+					last_status_blinking_led=1;
+					linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
+					//delay_ms(BLINK_LED_DELAY);
+				}else{
+					last_status_blinking_led=0;
+					linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
+					//delay_ms(BLINK_LED_DELAY);
+				}
 			#endif
 			
 			#if PLATFORM == PLATFORM_OPZ
-				linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);
-				delay_ms(BLINK_LED_DELAY);
-				//linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
-				//delay_ms(BLINK_LED_DELAY);
+				if(last_status_blinking_led==0){
+					last_status_blinking_led=1;
+					linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);
+					//delay_ms(BLINK_LED_DELAY);
+				}else{
+					last_status_blinking_led=0;
+					linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
+					//delay_ms(BLINK_LED_DELAY);
+				}
 			#endif
 		}else{
-			delay_ms(BLINK_LED_DELAY);
+			//delay_ms(BLINK_LED_DELAY);
 			//delay_ms(BLINK_LED_DELAY);
 		}	
 	
 	#else 
-		delay_ms(BLINK_LED_DELAY);
+		//delay_ms(BLINK_LED_DELAY);
 		//delay_ms(BLINK_LED_DELAY);
 	#endif
 
