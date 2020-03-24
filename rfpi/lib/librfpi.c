@@ -470,17 +470,43 @@ char* GetCmdToSetBaud(unsigned int *baud){
 
 //it create a fifo with written inside the data passed
 int fifoWriter(char *fifoname, char *data) {
-    int fd;
+   /* int fd;
 
-	mkfifo(fifoname, 0666); 
+	//mkfifo(fifoname, 0666); 
 
 	fd = open(fifoname, O_RDWR);  
 	write(fd, data, (strlen(data))); 
 	close(fd); 
+	*/
 	
 	
+	FILE* file_pointer;
+	/*file_pointer  = fopen(fifoname,  "r");
+	if(file_pointer != NULL){
+		//fscanf(file_pointer, "%s ", dataFifoSync);
+		rewind(file_pointer);
+		freopen(NULL,"w+",file_pointer);
+		//fprintf(file_pointer, "%s", data);
+		fputs(data, file_pointer);
+		fflush(file_pointer);	
+	}else{
+		printf("Impossible to write into FIFO: %s\n",fifoname); fflush(stdout);
+	}
+	fclose(file_pointer);
+	*/
 	
-  
+	if(access(fifoname, F_OK) == 0){
+		file_pointer  = fopen(fifoname,  "w+");
+		if(file_pointer != NULL){
+			//fputs(data, file_pointer);
+			fprintf(file_pointer, "%s", data);
+		}else{
+			printf("Impossible to write into FIFO: %s\n",fifoname); fflush(stdout);
+		}
+		fclose(file_pointer);
+	}else{
+		printf("No access to FIFO: %s\n",fifoname); fflush(stdout);
+	}
 
     return 0;
 }
@@ -2790,11 +2816,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	int id_shield_connected; //used to know which shield is connectted to the io
 	int num_pin_used_on_the_peri; //used to know which is the number of the pin used on the peripheral
  	
-	if(contStatusMsg>5 || contStatusMsg<0) //contStatusMsg global variable
+	if(contStatusMsg>TIME_HOLD_MSG_FIFO_RFPI_STATUS || contStatusMsg<0) //contStatusMsg global variable
 		contStatusMsg=0;
 			
 	//each time the statusRFPI change will wait five time and then return to OK
-	if(contStatusMsg==5){
+	if(contStatusMsg==TIME_HOLD_MSG_FIFO_RFPI_STATUS){
 		strcpy(statusRFPI,"OK");
 	}else{
 		contStatusMsg++;
@@ -3110,9 +3136,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strcmp(value2,"ALL")==0){ //it will update the status of all inputs and outputs of each peripherals
 			
 				//unlink all FIFO, thus the GUI will wait for the data updated
-				unlink(FIFO_RFPI_RUN);
-				//unlink(FIFO_GUI_CMD);
-				unlink(FIFO_RFPI_STATUS);
+				//unlink(FIFO_RFPI_RUN);
+			
+				//unlink(FIFO_RFPI_STATUS);
 		
 				//ask to All peripherals the status of all inputs and outputs and update the status into the struct data
 				//askAndUpdateAllIOStatusPeri(handleUART, rootPeripheralData);
@@ -3125,9 +3151,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strlen(value2)==4){ //it will update the status of all inputs and outputs of the peripherals with address contained into value2
 			
 				//unlink all FIFO, thus the GUI will wait for the data updated
-				unlink(FIFO_RFPI_RUN);
-				//unlink(FIFO_GUI_CMD);
-				unlink(FIFO_RFPI_STATUS);
+				//unlink(FIFO_RFPI_RUN);
+		
+				//unlink(FIFO_RFPI_STATUS);
 								
 				//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 				askAndUpdateIOStatusPeri(handleUART, value2, rootPeripheralData);
@@ -3272,11 +3298,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					
 					printf("GET_BYTES_U | id_position = %d | num_function = %d | num_bytes_to_get = %d\n", peri_id_position, num_function,num_bytes_to_get);
 
-					if(access(FIFO_GET_BYTES_U, F_OK) == 0){
+					//if(access(FIFO_GET_BYTES_U, F_OK) == 0){
 						//FIFO Exist!
 						// remove the old FIFO 
-						//unlink(FIFO_GET_BYTES_U);
-					}
+						
+					//}
 
 					stop_by_user = 0;
 
@@ -3428,7 +3454,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					if(access(FIFO_SEND_BYTES_F, F_OK) == 0){
 						//FIFO Exist!
 						// remove the old FIFO 
-						//unlink(FIFO_SEND_BYTES_F);
+						
 						
 						//delay_ms(1);
 						
@@ -4358,9 +4384,9 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 	FILE *file_pointer_error; 			//used for the file of the error history
 		
 	//unlink all FIFO, thus there will be no conflicts
-	unlink(FIFO_RFPI_RUN);
-	//unlink(FIFO_GUI_CMD);
-	unlink(FIFO_RFPI_STATUS);
+	//unlink(FIFO_RFPI_RUN);
+	
+	//unlink(FIFO_RFPI_STATUS);
 	
 	//if an error happen then it will be rewritten
 	strcpy(statusInit,"TRUE");

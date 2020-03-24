@@ -175,8 +175,9 @@ int var_dummy1,var_dummy2;
 
 //#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
 //#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
-#define EXECUTION_DELAY				50		//it is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
 
+#define EXECUTION_DELAY					50		//it is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
+#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	500	//This is the time that the last message into FIFO_RFPI_STATUS would be hold, then ParseFIFOdataGUI(...) will write inside "OK"
 
 //LIST OF ERROR
 
