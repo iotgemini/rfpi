@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					24/03/2020
+Last Update: 					25/03/2020
 
 
 Description: library for the RFPI
@@ -478,8 +478,8 @@ int fifoWriter(char *fifoname, char *data) {
 	write(fd, data, (strlen(data))); 
 	close(fd); 
 	*/
-	
-	
+	char dataFifoSync[10];
+	int i;
 	FILE* file_pointer;
 	/*file_pointer  = fopen(fifoname,  "r");
 	if(file_pointer != NULL){
@@ -495,18 +495,49 @@ int fifoWriter(char *fifoname, char *data) {
 	fclose(file_pointer);
 	*/
 	
-	if(access(fifoname, F_OK) == 0){
-		file_pointer  = fopen(fifoname,  "w+");
-		if(file_pointer != NULL){
-			//fputs(data, file_pointer);
-			fprintf(file_pointer, "%s", data);
+	/*if(strcmp(fifoname,FIFO_RFPI_PERIPHERAL)==0){// || strcmp(fifoname,FIFO_RFPI_PERIPHERAL_JSON)){
+		file_pointer  = fopen(FIFO_RFPI_PERIPHERAL_SYNC,  "r");
+		fscanf(file_pointer, "%s ", dataFifoSync);
+		fclose(file_pointer);		
+		if(dataFifoSync[0] != '1'){	
+		
+			if(access(fifoname, F_OK) == 0){
+				//remove(fifoname);
+				file_pointer  = fopen(fifoname,  "w+");
+				if(file_pointer != NULL){
+					//fputs(data, file_pointer);
+					fprintf(file_pointer, "%s", data);
+
+				}else{
+					printf("Impossible to write into FIFO: %s\n",fifoname); fflush(stdout);
+				}
+				fclose(file_pointer);
+				//chmod(FIFO_RFPI_STATUS, 0777);
+			}else{
+				printf("No access to FIFO: %s\n",fifoname); fflush(stdout);
+			}
+	
 		}else{
-			printf("Impossible to write into FIFO: %s\n",fifoname); fflush(stdout);
+			printf("GUI is reading FIFO: %s\n",fifoname); fflush(stdout);
 		}
-		fclose(file_pointer);
 	}else{
-		printf("No access to FIFO: %s\n",fifoname); fflush(stdout);
-	}
+	*/	
+		if(access(fifoname, F_OK) == 0){
+			//remove(fifoname);
+			file_pointer  = fopen(fifoname,  "w+");
+			if(file_pointer != NULL){
+				//fputs(data, file_pointer);
+				fprintf(file_pointer, "%s", data);
+			}else{
+				printf("Impossible to write into FIFO: %s\n",fifoname); fflush(stdout);
+			}
+			fclose(file_pointer);
+			//chmod(FIFO_RFPI_STATUS, 0777);
+		}else{
+			printf("No access to FIFO: %s\n",fifoname); fflush(stdout);
+		}
+	
+	//}
 
     return 0;
 }
@@ -1405,20 +1436,25 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 	//pointers used to manage the struct with the name of output
 	peripheraldatanameoutput *currentPeripheralDataNameOutput=NULL; 
 	
-	int handleFIFO; 
+	//int handleFIFO; 
 	char data[MAX_LEN_LINE_FILE];
 	char strNum[10];
 	int i;
+	FILE *file_pointer;
 	
 	//create the fifo to give the status of the peripheral to the GUI
-	mkfifo(FIFO_RFPI_PERIPHERAL, 0666); 
-	handleFIFO = open(FIFO_RFPI_PERIPHERAL, O_RDWR);  
-		
-	currentPeripheralData=rootPeripheralData;
-		
-	i=0;
-	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
-	while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
+	//mkfifo(FIFO_RFPI_PERIPHERAL, 0666); 
+	//handleFIFO = open(FIFO_RFPI_PERIPHERAL, O_RDWR);  
+	
+	file_pointer  = fopen(FIFO_RFPI_PERIPHERAL,  "w+");
+	if(file_pointer == NULL){
+		printf("Impossible to write into FIFO: %s\n",FIFO_RFPI_PERIPHERAL); fflush(stdout);
+	}else{
+
+		currentPeripheralData=rootPeripheralData;
+			
+		i=0;
+		while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 		
 			//write first line
 			data[0]='\0';
@@ -1455,7 +1491,8 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			intToStr(currentPeripheralData->fwVersion, strNum); strcat(data,strNum); strcat(data,"\n");
 			
 			//write on the FIFO
-			write(handleFIFO, data, (strlen(data))); 
+			//write(handleFIFO, data, (strlen(data))); 
+			fprintf(file_pointer, "%s", data);
 			
 			//write second line
 			data[0]='\0';
@@ -1502,7 +1539,8 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			}
 			strcat(data,"\n");
 			//write on the FIFO
-			write(handleFIFO, data, (strlen(data))); 
+			//write(handleFIFO, data, (strlen(data))); 
+			fprintf(file_pointer, "%s", data);
 			
 			//write third line
 			data[0]='\0';
@@ -1528,13 +1566,16 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			}
 			strcat(data,"\n");
 			//write on the FIFO
-			write(handleFIFO, data, (strlen(data))); 
+			//write(handleFIFO, data, (strlen(data))); 
+			fprintf(file_pointer, "%s", data);
 			
 			i++;
 			currentPeripheralData=currentPeripheralData->next;
+		}
+		
 	}
-	close(handleFIFO); 
-
+	//close(handleFIFO); 
+	fclose(file_pointer);
 }
 
 //convert a number in string
@@ -2345,7 +2386,7 @@ peripheraldata *deletePeripheralByAddress(char *addressPeri, peripheraldata *roo
 	if(varExit==1){
 		rootPeripheralData=deletePeripheral(positionId, rootPeripheralData);
 	}
-	
+			
 	return rootPeripheralData;
 }
 
@@ -2408,9 +2449,9 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 		strcat(strPathFile,".json");
 		status = remove(strPathFile);
 		if( status == 0 ){
-			printf("%s file deleted successfully.\n",currentPeripheralData->NameFileDescriptor);
+			printf("%s file deleted successfully.\n",strPathFile);
 		}else{
-			printf("Unable to delete the file %s\n", currentPeripheralData->NameFileDescriptor);
+			printf("Unable to delete the file %s\n", strPathFile);
 			perror("Error");
 		}
 	} 
@@ -2488,6 +2529,24 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 
    
 	
+	//need delete the file otherwise inside there will be the data of the old peripheral
+	if(remove(FIFO_RFPI_PERIPHERAL)==0){
+		printf("FIFO_RFPI_PERIPHERAL removed!");
+	}else{
+		printf("Impossible to remove FIFO_RFPI_PERIPHERAL!");
+	}
+	if(remove(FIFO_RFPI_PERIPHERAL_JSON)==0){
+		printf("FIFO_RFPI_PERIPHERAL_JSON removed!");
+	}else{
+		printf("Impossible to remove FIFO_RFPI_PERIPHERAL_JSON!");
+	}
+	//create the fifo to give the status of the peripheral to the GUI
+	writeFifoPeripheralLinked(rootPeripheralData); 
+	chmod(FIFO_RFPI_PERIPHERAL, 0777);
+	writeFifoJsonPeripheralLinked(rootPeripheralData);
+	chmod(FIFO_RFPI_PERIPHERAL_JSON, 0777);
+					
+					
 	return rootPeripheralData;
 				
 }
@@ -2815,6 +2874,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 
 	int id_shield_connected; //used to know which shield is connectted to the io
 	int num_pin_used_on_the_peri; //used to know which is the number of the pin used on the peripheral
+	
+	char strMsgTemp[20];
  	
 	if(contStatusMsg>TIME_HOLD_MSG_FIFO_RFPI_STATUS || contStatusMsg<0) //contStatusMsg global variable
 		contStatusMsg=0;
@@ -2834,7 +2895,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			sscanf(data,"%s %s %s %s ",tag, type, value1, value2);
 			printf("From FIFO_GUI_CMD received: %s %s %s %s\n", tag, type, value1, value2);
 			
-			if(strcmp(tag,"FIND")==0 && strcmp(type,"NEW")==0 && strcmp(value1,"PERI")==0){
+			
+			if(strcmp(tag,"FIND")==0 && strcmp(type,"NEW")==0 && strcmp(value1,"PERI")==0){ 
+			//it start the procedure to find a new peripheral that is waitng to be installed into the network
 				
 				//it init a default network and then send the data to set the current network to the new peripheral
 				rootPeripheralData=findNewPeripheral(handleUART, statusRFPI, rootPeripheralData);
@@ -2842,7 +2905,10 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				//reset the counter to give the time to be read the status by the GUI, after the status return to OK
 				contStatusMsg=0; 
 			
-			}else if(strcmp(tag,"DELETE")==0 && strcmp(type,"ADDRESS")==0){
+			
+			}else if(strcmp(tag,"DELETE")==0 && strcmp(type,"ADDRESS")==0){	
+			//it delete all files and data of the address written in place of xxxx	
+			
 				char addressPeri[5];
 				if(strlen(value1)>=4){
 					for(i=0;i<4;i++){
@@ -2852,16 +2918,21 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					
 					//it delete the peripheral with the specified address
 					rootPeripheralData=deletePeripheralByAddress(addressPeri, rootPeripheralData);
+					
 				}
 				
 	
-			}else if(strcmp(tag,"DELETE")==0 && strcmp(type,"PERI")==0){
+			}else if(strcmp(tag,"DELETE")==0 && strcmp(type,"PERI")==0){ 
+			//it delete all files and data of the ID position written in place of xxxx
+			
 				sscanf(value1,"%d", &positionId);
 				
 				//it delete the peripheral in the postion positionId, the file descriptor will remain
 				rootPeripheralData=deletePeripheral(positionId, rootPeripheralData);
 			
-			}else if(strcmp(tag,"PERIOUT")==0){
+			}else if(strcmp(tag,"PERIOUT")==0){ 
+			//	PERIOUT	xa 		xb 		xc		//it set the output of the peripherla with ID position = xa, ID output = xb, value to set = xc
+			
 				sscanf(type,"%d", &peri_id_position);
 				sscanf(value1,"%d", &output_id);
 				sscanf(value2,"%d", &output_value);
@@ -2925,6 +2996,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				contStatusMsg=0;
 				
 			}else if(strcmp(tag,"SETOUT")==0){
+			//	PERIOUT	xxxx	xb 		xc			//it set the output of the peripherla with address = xxxx, ID output = xb, value to set = xc
+			
 				//sscanf(type,"%d", &peri_id_position);
 				char address_peri[10];
 				char varError = 0;
@@ -3002,9 +3075,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				contStatusMsg=0;
 				
 			}else if(strcmp(tag,"STATUS")==0 && strcmp(type,"RFPI")==0 && strcmp(value1,"GOT")==0){
+			//	STATUS 	RFPI 	GOT 	NULL		//it says to the rfpi that the status has been readed, thus rfpi can write into FIFO_RFPI_STATUS the word "OK"
 				strcpy(statusRFPI,"OK");
 			
 			}else if(strcmp(tag,"NAME")==0 && strcmp(type,"NET")==0){ //it will save the network name
+			//	NAME 	NET 	xxx... 	NULL		//it save the network name and create a numerical address. Name of the network is xxx...
 			
 				//copying the first 128 (MAX_LEN_NET_NAME) characters
 				for(i=0;i<strlen(value1) && i<MAX_LEN_NET_NAME;i++){
@@ -3085,7 +3160,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					
 				}
 			}else if(strcmp(tag,"NAME")==0 && strcmp(type,"PERI")==0){ //it will change the name of the peripheral
-
+			//	NAME 	PERI 	xxx...	xxxx  		//it save the name of aperipheral given by xxx... with address given by xxxx
 				
 				strcpy(strPathFile,PATH_CONFIG_FILE);
 				strcat(strPathFile,"list_peripheral2.txt");
@@ -3134,11 +3209,16 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 
 				
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strcmp(value2,"ALL")==0){ //it will update the status of all inputs and outputs of each peripherals
+			//	REFRESH	PERI STATUS	ALL  		//it refressh all input/output status for all peripherals
+			
 			
 				//unlink all FIFO, thus the GUI will wait for the data updated
 				//unlink(FIFO_RFPI_RUN);
-			
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
+				fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
 				//unlink(FIFO_RFPI_STATUS);
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
+				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
 		
 				//ask to All peripherals the status of all inputs and outputs and update the status into the struct data
 				//askAndUpdateAllIOStatusPeri(handleUART, rootPeripheralData);
@@ -3147,20 +3227,26 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 				askAndUpdateIOStatusPeri(handleUART, value2, rootPeripheralData);
 			
+				
 			
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strlen(value2)==4){ //it will update the status of all inputs and outputs of the peripherals with address contained into value2
+			//	REFRESH	PERI STATUS	xxxx  		//it refressh all input/output status only for the peripheral with address xxxx
 			
 				//unlink all FIFO, thus the GUI will wait for the data updated
 				//unlink(FIFO_RFPI_RUN);
-		
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
+				fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
 				//unlink(FIFO_RFPI_STATUS);
-								
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
+				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
+				
 				//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 				askAndUpdateIOStatusPeri(handleUART, value2, rootPeripheralData);
 				
 				
 			}else if(strcmp(tag,"DATA")==0 && strcmp(type,"RF")==0 && strlen(value1)>3){ //it will send the data written into value2 through the radio at the peripheral with position value1
-								
+			//	DATA	RF 	xxxx	strHex16bytes  		//it send the 16bytes to a peripheral with address xxxx. Example of strHex16bytes: 524275010000000300002E2E2E2E2E2E
+			
 				//sscanf(value1,"%d", &peri_id_position);
 							
 				if(rootPeripheralData!=0){ 
@@ -3270,6 +3356,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				contStatusMsg=0;
 				
 			}else if(strcmp(tag,"RTC")==0 && strcmp(type,"SET")==0 /*&& strcmp(value1,"STATUS")==0 && strcmp(value2,"ALL")==0*/){ //it will update the status of all inputs and outputs of each peripherals
+			//	RTC		SET		NULL	NULL  		//it set RTC if it is installed on the gateway
 					#ifdef RTC_MODEL
 					if(set_RTC(value1, value2)){
 						//RTC 
@@ -3279,6 +3366,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					
 			//***************************** Begin: GET_BYTES_U ************************************
 			}else if(strcmp(tag,"GET_BYTES_U")==0){
+			//	GET_BYTES_U		id_position		num_function	num_bytes_to_get  		//it get a series of data from the peripheral give by the ID position id_position
+				
 				sscanf(type,"%d", &peri_id_position);
 				sscanf(value1,"%d", &num_function);
 				sscanf(value2,"%d", &num_bytes_to_get);
@@ -3434,6 +3523,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 			//***************************** Begin: SEND_BYTES_F ************************************
 			}else if(strcmp(tag,"SEND_BYTES_F")==0){ 
+			//	SEND_BYTES_F		id_position		num_function	num_bytes_to_send  		//it sends a series of data to the peripheral give by the ID position id_position
+			
 				//tag[0]='\0';
 				sscanf(type,"%d", &peri_id_position);
 				sscanf(value1,"%d", &num_function);
@@ -3599,6 +3690,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			//***************************** End: SEND_BYTES_F ************************************
 		
 			if(strcmp(tag,"SENDJSONSETTINGS")==0){
+			//	SENDJSONSETTINGS		address_peri		json_file	NULL  		//it sends a json configuration to a periheral with address = address_peri. The function send_to_transceiver_json_settings(...) is kept into file rfpi_json.c
+			
 				//sscanf(type,"%d", &peri_id_position);
 				char address_peri[10];
 				char varError = 0;
@@ -3609,7 +3702,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				rootJsonSettings->next=0;
 				rootJsonSettings->cont=0;
 				*/
-				//this function build and send command to the transceiver, this the command:
+				//this function build and send command to the transceiver, this is the radio command:
 				//	R	B	s	EEPROM_POS	H_ID_shield	L_ID_shield	PIN_used	PIN_mask	PULL-UP_resistor	ID_function0	ID_function1	ID_function2	ID_function3	ID_function4	ID_function5	ID_function6
 				//send_to_transceiver_json_settings(rootJsonSettings, address_peri, value1, handleUART);
 				rootPeripheralData=send_to_transceiver_json_settings(rootPeripheralData, address_peri, value1, handleUART);
@@ -4382,14 +4475,20 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 
 	FILE *file_pointer; 				//generic pointer to file, used in multiple places
 	FILE *file_pointer_error; 			//used for the file of the error history
-		
+	
+	char strMsgTemp[20];
 	//unlink all FIFO, thus there will be no conflicts
 	//unlink(FIFO_RFPI_RUN);
-	
+	//strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
+	//fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
 	//unlink(FIFO_RFPI_STATUS);
+	//strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
+	//fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
+	
 	
 	//if an error happen then it will be rewritten
-	strcpy(statusInit,"TRUE");
+	//strcpy(statusInit,"TRUE");
+	strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);
 	
 	sem_init_gpio_rpi_ok=0;
 	
@@ -5203,7 +5302,8 @@ void start_DS1307_if_new(void){
 
 
 
-void writeTagAndValueIntoFIFOJson(char *tag, char *value, int handleFIFO){
+//void writeTagAndValueIntoFIFOJson(char *tag, char *value, int handleFIFO){
+void writeTagAndValueIntoFIFOJson(char *tag, char *value, FILE *file_pointer){
 	char apex_ascii=34; 
 	char str_apex[2];// = { "a", '\0' };
 	str_apex[0]='\0';
@@ -5213,15 +5313,18 @@ void writeTagAndValueIntoFIFOJson(char *tag, char *value, int handleFIFO){
 			
 			
 	//here start to write the json
-	//write(handleFIFO, "{\n ", 3);
-			
-	write(handleFIFO, str_apex,1); write(handleFIFO, tag,(strlen(tag))); write(handleFIFO, str_apex,1); write(handleFIFO, ":",1); 
-	write(handleFIFO, str_apex,1); write(handleFIFO, value,(strlen(value))); write(handleFIFO, str_apex,1); 
-	//write(handleFIFO, ",\n",2);
-			
+	fprintf(file_pointer, "%s", str_apex);//write(handleFIFO, str_apex,1); 
+	fprintf(file_pointer, "%s", tag);//write(handleFIFO, tag,(strlen(tag))); 
+	fprintf(file_pointer, "%s", str_apex);//write(handleFIFO, str_apex,1); 
+	fprintf(file_pointer, "%s", ":");//write(handleFIFO, ":",1); 
+	fprintf(file_pointer, "%s", str_apex);//write(handleFIFO, str_apex,1); 
+	fprintf(file_pointer, "%s", value);//write(handleFIFO, value,(strlen(value))); 
+	fprintf(file_pointer, "%s", str_apex);//write(handleFIFO, str_apex,1); 
+
 }
 
-void writeTagIntoFIFOJson(char *tag, int handleFIFO){
+//void writeTagIntoFIFOJson(char *tag, int handleFIFO){
+void writeTagIntoFIFOJson(char *tag, FILE *file_pointer){
 	char apex_ascii=34; 
 	char str_apex[2];// = { "a", '\0' };
 	str_apex[0]='\0';
@@ -5230,12 +5333,13 @@ void writeTagIntoFIFOJson(char *tag, int handleFIFO){
 	//sprintf(data,"%c\n",apex_ascii); write(handleFIFO, data,(strlen(data))); //this print the apex "
 			
 			
-	//here start to write the json
-	//write(handleFIFO, "{\n ", 3);
-			
-	write(handleFIFO, str_apex,1); write(handleFIFO, tag,(strlen(tag))); write(handleFIFO, str_apex,1); write(handleFIFO, ":",1); 
-	//write(handleFIFO, str_apex,1); write(handleFIFO, value,(strlen(value))); write(handleFIFO, str_apex,1); 
-	//write(handleFIFO, ",\n",2);
+	//here start to write the json			
+	fprintf(file_pointer, "%s", str_apex);//write(handleFIFO, str_apex,1); 
+	fprintf(file_pointer, "%s", tag);//write(handleFIFO, tag,(strlen(tag))); 
+	fprintf(file_pointer, "%s", str_apex);//write(handleFIFO, str_apex,1); 
+	fprintf(file_pointer, "%s", ":");//write(handleFIFO, ":",1); 
+	
+
 			
 }
 			
@@ -5251,7 +5355,7 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 	//pointers used to manage the struct with the name of output
 	peripheraldatanameoutput *currentPeripheralDataNameOutput; 
 	
-	int handleFIFO; 
+	FILE *handleFIFO;//int handleFIFO; 
 	//char data[MAX_LEN_LINE_FILE];
 	char tag[50];
 	char st_temp1[30];
@@ -5263,204 +5367,269 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 	int cont_output;
 	char value[]="KO";
 	char mpn[30];
+	FILE *file_pointer;
 	
 	//create the fifo to give the status of the peripheral to the GUI
-	mkfifo(FIFO_RFPI_PERIPHERAL_JSON, 0666); 
-	handleFIFO = open(FIFO_RFPI_PERIPHERAL_JSON, O_RDWR);  
+	//mkfifo(FIFO_RFPI_PERIPHERAL_JSON, 0666); 
+	//handleFIFO = open(FIFO_RFPI_PERIPHERAL_JSON, O_RDWR);  
+	file_pointer  = fopen(FIFO_RFPI_PERIPHERAL_JSON,  "w+");
+	if(file_pointer == NULL){
+		printf("Impossible to write into FIFO: %s\n",FIFO_RFPI_PERIPHERAL_JSON); fflush(stdout);
+	}else{
+		handleFIFO=file_pointer;
 		
-	currentPeripheralData=rootPeripheralData;
-		
-	i=0;
-	
-	
-	write(handleFIFO, "{\n", 2);
-	tag[0]='\0'; strcat(tag,"linked_peri_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
-	write(handleFIFO, "\n {\n", 4);
-	
-	//char str_double_apex[] = { asc(34), '\0' };
-	char str_temp[20];
-	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
-	while( (currentPeripheralData)>0 && currentPeripheralData!=0 ){ //for LINUX_MINT
-		
+		currentPeripheralData=rootPeripheralData;
 			
-			
-			/*char apex_ascii=34; 
-			char str_apex[2];// = { "a", '\0' };
-			str_apex[0]='\0';
-			sprintf(str_apex,"%c",apex_ascii);
-			*/
-			
-			//sprintf(data,"%c\n",apex_ascii); write(handleFIFO, data,(strlen(data))); //this print the apex "
-			
-			
-			//here start to write the json
-			
-			//write the first block the data of the peri
-			if(i==0){
-				//write(handleFIFO, "{\n", 2);
-			}else{
-				write(handleFIFO, " },\n", 4);
-				tag[0]='\0'; strcat(tag,"linked_peri_"); intToStr(i, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
-				write(handleFIFO, "\n {\n", 4);
-			}
-			
-			
-			write(handleFIFO, " ", 1); strcpy(tag,"name");writeTagAndValueIntoFIFOJson(tag, currentPeripheralData->Name, handleFIFO);write(handleFIFO, ",\n", 2);
-			
-			write(handleFIFO, " ", 1); strcpy(tag,"id_peri"); intToStr(currentPeripheralData->IDtype, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",\n", 2);
-			
-			write(handleFIFO, " ", 1); strcpy(tag,"id_position"); intToStr(i, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",\n", 2);
-			
-			write(handleFIFO, " ", 1); strcpy(tag,"hex_address");writeTagAndValueIntoFIFOJson(tag, currentPeripheralData->PeriAddress, handleFIFO);write(handleFIFO, ",\n", 2);
-			
-			write(handleFIFO, " ", 1); strcpy(tag,"num_embedded_functions"); intToStr(currentPeripheralData->numSpecialFunction, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",\n", 2);
-			
-			write(handleFIFO, " ", 1); strcpy(tag,"fw_version"); intToStr(currentPeripheralData->fwVersion, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",\n", 2);
-			
-			write(handleFIFO, " ", 1); strcpy(tag,"strength_link"); intToStr(currentPeripheralData->strengthLink, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+		i=0;
 
-			//write second block the inputs
-			write(handleFIFO, " ", 1); strcpy(tag,"inputs"); writeTagIntoFIFOJson(tag, handleFIFO); write(handleFIFO, "\n", 1);
+		fprintf(file_pointer, "%s", "{\n");//write(handleFIFO, "{\n", 2);
+		tag[0]='\0'; strcat(tag,"linked_peri_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
+		fprintf(file_pointer, "%s", "\n {\n");//write(handleFIFO, "\n {\n", 4);
+		
+		//char str_double_apex[] = { asc(34), '\0' };
+		char str_temp[20];
+		//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+		while( (currentPeripheralData)>0 && currentPeripheralData!=0 ){ //for LINUX_MINT
 			
-			tag[0]='\0';
-			//intToStr(currentPeripheralData->NumInput, strNum); strcat(tag,strNum); strcat(tag," ");
-			currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
-			cont_input=0;
-			cont_status_link_input = 0;
-			write(handleFIFO, "   {\n", 5);
-			if(currentPeripheralData->NumInput>0){
-				write(handleFIFO, "   ", 3); strcpy(tag,"in_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
-				write(handleFIFO, "\n     {\n", 8);
-				while(currentPeripheralDataNameInput!=0){
-					//printf("ID=%d\n",currentPeripheralDataNameInput->id_shield_input);
-					
-					if(cont_input==0){
-						//write(handleFIFO, "{\n   ", 5);
-					}else{
-						write(handleFIFO, "     },\n", 8);
-						write(handleFIFO, "   ", 3); strcpy(tag,"in_"); intToStr(cont_input, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
-						write(handleFIFO, "\n     {\n", 8);
-					}
-				
-					write(handleFIFO, "     ", 5); strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->NameInput, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					write(handleFIFO, "     ", 5); strcpy(tag,"id"); intToStr(cont_input, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-				
-					write(handleFIFO, "     ", 5); strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->Type, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					write(handleFIFO, "     ", 5); strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameInput->StatusInput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
 				
 				
-					write(handleFIFO, "     ", 5); strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameInput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					//char value[]="KO";
-					if(currentPeripheralDataNameInput->StatusCommunication != -1) strcpy(value ,"OK");
-					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					//char mpn[30];//="MCP9701A";
-					return_mpn(mpn, &currentPeripheralDataNameInput->id_shield_input);
-					write(handleFIFO, "     ", 5); strcpy(tag,"mpn_shield_connected"); writeTagAndValueIntoFIFOJson(tag, mpn, handleFIFO); write(handleFIFO, ",\n", 2);
-					write(handleFIFO, "     ", 5); strcpy(tag,"id_shield_connected"); intToStr(currentPeripheralDataNameInput->id_shield_input, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);  write(handleFIFO, ",\n", 2);
-					write(handleFIFO, "     ", 5); strcpy(tag,"num_pin"); intToStr(currentPeripheralDataNameInput->num_pin_used_on_the_peri, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); //write(handleFIFO, ",\n   ", 5);
-					
-					write(handleFIFO, "\n", 1);
+				/*char apex_ascii=34; 
+				char str_apex[2];// = { "a", '\0' };
+				str_apex[0]='\0';
+				sprintf(str_apex,"%c",apex_ascii);
+				*/
+				
+				//sprintf(data,"%c\n",apex_ascii); write(handleFIFO, data,(strlen(data))); //this print the apex "
 				
 				
-					if(currentPeripheralDataNameInput->StatusInput == -1)
-						cont_status_link_input++;
-					
-					
-					currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
-					cont_input++;
+				//here start to write the json
+				
+				//write the first block the data of the peri
+				if(i==0){
+					//write(handleFIFO, "{\n", 2);
+				}else{
+					fprintf(file_pointer, "%s", " },\n");//write(handleFIFO, " },\n", 4);
+					tag[0]='\0'; strcat(tag,"linked_peri_"); intToStr(i, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
+					fprintf(file_pointer, "%s", "\n {\n");//write(handleFIFO, "\n {\n", 4);
 				}
-				write(handleFIFO, "     }\n", 7);
-			}
-			write(handleFIFO, "   },\n", 6);
-			//write(handleFIFO, " ,\n", 4);
-			
-			
-			//write third block with the outputs
-			write(handleFIFO, " ", 1);strcpy(tag,"outputs"); writeTagIntoFIFOJson(tag, handleFIFO); write(handleFIFO, "\n", 1);
-			
-			tag[0]='\0';
-			//intToStr(currentPeripheralData->NumOutput, strNum); strcat(tag,strNum); strcat(tag," ");
-			currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
-			cont_output=0;
-			cont_status_link_output = 0;
-			write(handleFIFO, "   {\n", 5);
-			if(currentPeripheralData->NumOutput>0){
-				write(handleFIFO, "   ", 3); strcpy(tag,"out_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
-				write(handleFIFO, "\n     {\n", 8);
-				while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
-					
-					if(cont_output==0){
-						//write(handleFIFO, "{\n   ", 5);
-					}else{
-						write(handleFIFO, "     },\n", 8);
-						write(handleFIFO, "   ", 3); strcpy(tag,"out_"); intToStr(cont_output, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
-						write(handleFIFO, "\n     {\n", 8);
-					}
 				
-					write(handleFIFO, "     ", 5); strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->NameOutput, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					write(handleFIFO, "     ", 5); strcpy(tag,"id"); intToStr(cont_output, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
 				
-					write(handleFIFO, "     ", 5); strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->Type, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					write(handleFIFO, "     ", 5); strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameOutput->StatusOutput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"name");writeTagAndValueIntoFIFOJson(tag, currentPeripheralData->Name, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
 				
-					write(handleFIFO, "     ", 5); strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameOutput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					char value[]="KO";
-					if(currentPeripheralDataNameOutput->StatusCommunication != -1) strcpy(value ,"OK");
-					write(handleFIFO, "     ", 5); strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); write(handleFIFO, ",\n", 2);
-					
-					//char mpn[30];//="LED";
-					return_mpn(mpn, &currentPeripheralDataNameOutput->id_shield_output);
-					write(handleFIFO, "     ", 5); strcpy(tag,"mpn_shield_connected"); writeTagAndValueIntoFIFOJson(tag, mpn, handleFIFO); write(handleFIFO, ",\n", 2);
-					write(handleFIFO, "     ", 5); strcpy(tag,"id_shield_connected"); intToStr(currentPeripheralDataNameOutput->id_shield_output, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);  write(handleFIFO, ",\n", 2);
-					write(handleFIFO, "     ", 5); strcpy(tag,"num_pin"); intToStr(currentPeripheralDataNameOutput->num_pin_used_on_the_peri, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); //write(handleFIFO, ",\n   ", 5);
-					
-					
-					write(handleFIFO, "\n", 1);
-					
-									
-					if(currentPeripheralDataNameOutput->StatusOutput == -1)
-						cont_status_link_output++;
-					
-					
-					currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-					cont_output++;
-				}
-				write(handleFIFO, "     }\n", 7);
-			}
-			write(handleFIFO, "   },\n", 6);
-			//write(handleFIFO, " ],\n", 4);
-			
-			
-			st_temp1[0]='\0';
-			if(cont_status_link_input==cont_input && cont_status_link_output==cont_output){
-				strcat(st_temp1,"offline");
-			}else if(cont_status_link_input>0 || cont_status_link_output>0){
-				strcat(st_temp1,"weakness");
-			}else{
-				strcat(st_temp1,"online");
-			}
-			
-			
-			write(handleFIFO, " ", 1);strcpy(tag,"status_link"); writeTagAndValueIntoFIFOJson(tag, st_temp1, handleFIFO);write(handleFIFO, "\n", 1);
-			
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"id_peri"); intToStr(currentPeripheralData->IDtype, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"id_position"); intToStr(i, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"hex_address");writeTagAndValueIntoFIFOJson(tag, currentPeripheralData->PeriAddress, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"num_embedded_functions"); intToStr(currentPeripheralData->numSpecialFunction, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"fw_version"); intToStr(currentPeripheralData->fwVersion, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"strength_link"); intToStr(currentPeripheralData->strengthLink, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
 
-			
-			i++;
-			currentPeripheralData=currentPeripheralData->next;
+				//write second block the inputs
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"inputs"); writeTagIntoFIFOJson(tag, handleFIFO);
+				fprintf(file_pointer, "%s", "\n");//write(handleFIFO, "\n", 1);
+				
+				tag[0]='\0';
+				//intToStr(currentPeripheralData->NumInput, strNum); strcat(tag,strNum); strcat(tag," ");
+				currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
+				cont_input=0;
+				cont_status_link_input = 0;
+				fprintf(file_pointer, "%s", "   {\n");//write(handleFIFO, "   {\n", 5);
+				if(currentPeripheralData->NumInput>0){
+					fprintf(file_pointer, "%s", "   ");//write(handleFIFO, "   ", 3); 
+					strcpy(tag,"in_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
+					fprintf(file_pointer, "%s", "\n     {\n");//write(handleFIFO, "\n     {\n", 8);
+					while(currentPeripheralDataNameInput!=0){
+						//printf("ID=%d\n",currentPeripheralDataNameInput->id_shield_input);
+						
+						if(cont_input==0){
+							//write(handleFIFO, "{\n   ", 5);
+						}else{
+							fprintf(file_pointer, "%s", "     },\n");//write(handleFIFO, "     },\n", 8);
+							fprintf(file_pointer, "%s", "   ");//write(handleFIFO, "   ", 3); 
+							strcpy(tag,"in_"); intToStr(cont_input, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
+							fprintf(file_pointer, "%s", "\n     {\n");//write(handleFIFO, "\n     {\n", 8);
+						}
+					
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->NameInput, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"id"); intToStr(cont_input, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+					
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->Type, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameInput->StatusInput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+					
+					
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameInput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						//char value[]="KO";
+						if(currentPeripheralDataNameInput->StatusCommunication != -1) strcpy(value ,"OK");
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						//char mpn[30];//="MCP9701A";
+						return_mpn(mpn, &currentPeripheralDataNameInput->id_shield_input);
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"mpn_shield_connected"); writeTagAndValueIntoFIFOJson(tag, mpn, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5);
+						strcpy(tag,"id_shield_connected"); intToStr(currentPeripheralDataNameInput->id_shield_input, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);  
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"num_pin"); intToStr(currentPeripheralDataNameInput->num_pin_used_on_the_peri, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						
+						fprintf(file_pointer, "%s", "\n");//write(handleFIFO, "\n", 1);
+					
+					
+						if(currentPeripheralDataNameInput->StatusInput == -1)
+							cont_status_link_input++;
+						
+						
+						currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
+						cont_input++;
+					}
+					fprintf(file_pointer, "%s", "     }\n");//write(handleFIFO, "     }\n", 7);
+				}
+				fprintf(file_pointer, "%s", "   },\n");//write(handleFIFO, "   },\n", 6);
+				//write(handleFIFO, " ,\n", 4);
+				
+				
+				//write third block with the outputs
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1);
+				strcpy(tag,"outputs"); writeTagIntoFIFOJson(tag, handleFIFO); 
+				fprintf(file_pointer, "%s", "\n");//write(handleFIFO, "\n", 1);
+				
+				tag[0]='\0';
+				//intToStr(currentPeripheralData->NumOutput, strNum); strcat(tag,strNum); strcat(tag," ");
+				currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
+				cont_output=0;
+				cont_status_link_output = 0;
+				fprintf(file_pointer, "%s", "   {\n");//write(handleFIFO, "   {\n", 5);
+				if(currentPeripheralData->NumOutput>0){
+					fprintf(file_pointer, "%s", "   ");//write(handleFIFO, "   ", 3); 
+					strcpy(tag,"out_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
+					fprintf(file_pointer, "%s", "\n     {\n");//write(handleFIFO, "\n     {\n", 8);
+					while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
+						
+						if(cont_output==0){
+							//write(handleFIFO, "{\n   ", 5);
+						}else{
+							fprintf(file_pointer, "%s", "     },\n");//write(handleFIFO, "     },\n", 8);
+							fprintf(file_pointer, "%s", "   ");//write(handleFIFO, "   ", 3); 
+							strcpy(tag,"out_"); intToStr(cont_output, strNum); strcat(tag,strNum); writeTagIntoFIFOJson(tag, handleFIFO); 
+							fprintf(file_pointer, "%s", "\n     {\n");//write(handleFIFO, "\n     {\n", 8);
+						}
+					
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->NameOutput, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"id"); intToStr(cont_output, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+					
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->Type, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"raw_value"); intToStr(currentPeripheralDataNameOutput->StatusOutput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+					
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"bit_resolution"); intToStr(currentPeripheralDataNameOutput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						char value[]="KO";
+						if(currentPeripheralDataNameOutput->StatusCommunication != -1) strcpy(value ,"OK");
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						
+						//char mpn[30];//="LED";
+						return_mpn(mpn, &currentPeripheralDataNameOutput->id_shield_output);
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"mpn_shield_connected"); writeTagAndValueIntoFIFOJson(tag, mpn, handleFIFO); 
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"id_shield_connected"); intToStr(currentPeripheralDataNameOutput->id_shield_output, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);  
+						fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+						fprintf(file_pointer, "%s", "     ");//write(handleFIFO, "     ", 5); 
+						strcpy(tag,"num_pin"); intToStr(currentPeripheralDataNameOutput->num_pin_used_on_the_peri, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); 
+						
+						
+						fprintf(file_pointer, "%s", "\n");//write(handleFIFO, "\n", 1);
+						
+										
+						if(currentPeripheralDataNameOutput->StatusOutput == -1)
+							cont_status_link_output++;
+						
+						
+						currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
+						cont_output++;
+					}
+					fprintf(file_pointer, "%s", "     }\n");//write(handleFIFO, "     }\n", 7);
+				}
+				fprintf(file_pointer, "%s", "   },\n");//write(handleFIFO, "   },\n", 6);
+				//write(handleFIFO, " ],\n", 4);
+				
+				
+				st_temp1[0]='\0';
+				if(cont_status_link_input==cont_input && cont_status_link_output==cont_output){
+					strcat(st_temp1,"offline");
+				}else if(cont_status_link_input>0 || cont_status_link_output>0){
+					strcat(st_temp1,"weakness");
+				}else{
+					strcat(st_temp1,"online");
+				}
+				
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1);
+				strcpy(tag,"status_link"); writeTagAndValueIntoFIFOJson(tag, st_temp1, handleFIFO);
+				fprintf(file_pointer, "%s", "\n");//write(handleFIFO, "\n", 1);
+				
+
+				
+				i++;
+				currentPeripheralData=currentPeripheralData->next;
+		}
+		fprintf(file_pointer, "%s", " }\n");//write(handleFIFO, " }\n", 3);
+		
+		//write(handleFIFO, "\n", 2); //close the tag linked_peri
+		fprintf(file_pointer, "%s", "}\n");//write(handleFIFO, "}\n", 2);
+		
+	//close(handleFIFO); 
 	}
-	write(handleFIFO, " }\n", 3);
-	
-	//write(handleFIFO, "\n", 2); //close the tag linked_peri
-	write(handleFIFO, "}\n", 2);
-	
-	close(handleFIFO); 
+	fclose(file_pointer);
 
 }
 /*

@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					24/03/2020
+Last Update: 					25/03/2020
 
 
 Description: library for the RFPI
@@ -153,6 +153,7 @@ int var_dummy1,var_dummy2;
 #define FIFO_GUI_CMD_SYNC			PATH_RFPI_SW "/fifo/fifocmdsync" 		//when the command is ready into fifoguicmd then the GUI write '1' into fifocmdsync, that make the rfpi to execute the command. After the reading from rfpi then rfpi write '0' inside fifocmdsync.
 #define FIFO_RFPI_STATUS 			PATH_RFPI_SW "/fifo/fiforfpistatus" 	//used to communicate to the GUI the status and answer of the RFberry Pi
 #define FIFO_RFPI_PERIPHERAL 		PATH_RFPI_SW "/fifo/fifoperipheral" 	//used to communicate to the GUI the all data of the all peripherals installed
+#define FIFO_RFPI_PERIPHERAL_SYNC	PATH_RFPI_SW "/fifo/fifoperipheralsync" 		//
 #define FIFO_RFPI_PERIPHERAL_JSON	PATH_RFPI_SW "/fifo/fifoperipheraljson" 	//
 #define FIFO_RFPI_NET_NAME			PATH_RFPI_SW "/fifo/fifonetname" 		//used to communicate to the GUI the network name
 #define FIFO_GET_BYTES_U 			PATH_RFPI_SW "/fifo/fifogetbytesu"	//used to get GET_BYTES_U
@@ -176,8 +177,16 @@ int var_dummy1,var_dummy2;
 //#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
 //#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
 
-#define EXECUTION_DELAY					50		//it is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
-#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	500	//This is the time that the last message into FIFO_RFPI_STATUS would be hold, then ParseFIFOdataGUI(...) will write inside "OK"
+
+#define DELAY_AFTER_PARSED_DATA_GUI		5		//mS. It is then multiplied by EXECUTION_DELAY by a cycle 
+
+#define EXECUTION_DELAY					10		//This is multiplied by DELAY_AFTER_PARSED_DATA_GUI
+												//It is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
+												
+//This is the time that the last message into FIFO_RFPI_STATUS would be hold, then ParseFIFOdataGUI(...) will write inside "OK"
+#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	DELAY_AFTER_PARSED_DATA_GUI*50		
+												
+
 
 //LIST OF ERROR
 
@@ -190,6 +199,16 @@ int var_dummy1,var_dummy2;
 #define  ERROR007		"ERROR007 =	Error in parsing the command SEND_BYTES_F!"
 #define  ERROR008		"ERROR008 =	Impossible to access to the file data for the command SEND_BYTES_F!"
 #define  ERROR009		"ERROR009 =	Error in reading the file for the command SEND_BYTES_F! Data is less than expected!"
+
+
+//LIST OF MESSAGE THAT ARE WRITTEN INTO FIFO
+
+#define  MSG_FIFO_RFPI_RUN_TRUE		"TRUE"
+#define  MSG_FIFO_RFPI_RUN_BUSY		"BUSY"
+
+#define  MSG_FIFO_RFPI_STATUS_EXECUTING		"EXECUTING"
+
+
 
 //the struct where is kept the list of inputs name and status for each peripheral
 typedef struct peripheralnameinput{
@@ -351,6 +370,24 @@ extern void SerialCmdRFPi(int *handleUART, unsigned char *strCmd, char *answerRF
 
 //it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
 extern peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheralData, int *cmd_executed);
+//Here the commands to write into FIFO_GUI_CMD that are parsed by the fuction ParseFIFOdataGUI(...):
+//	FIND 			NEW 		PERI 			NULL				//it start the procedure to find a new peripheral that is waitng to be installed into the network
+//	DELETE 			ADDRESS 	xxxx 			NULL				//it delete all files and data of the address written in place of xxxx
+//	DELETE 			PERI 		x 				NULL				//it delete all files and data of the ID position written in place of xxxx
+//	PERIOUT			xa 			xb 				xc					//it set the output of the peripherla with ID position = xa, ID output = xb, value to set = xc
+//	PERIOUT			xxxx		xb 				xc					//it set the output of the peripherla with address = xxxx, ID output = xb, value to set = xc 
+//	STATUS 			RFPI 		GOT 			NULL				//it says to the rfpi that the status has been readed, thus rfpi can write into FIFO_RFPI_STATUS the word "OK"
+//	NAME 			NET 		xxx... 			NULL				//it save the network name and create a numerical address. Name of the network is xxx...
+//	NAME 			PERI 		xxx...			xxxx  				//it save the name of aperipheral given by xxx... with address given by xxxx
+//	REFRESH			PERI 		STATUS			ALL  				//it refressh all input/output status for all peripherals
+//	REFRESH			PERI 		STATUS			xxxx  				//it refressh all input/output status only for the peripheral with address xxxx
+//	DATA			RF 			xxxx			strHex16bytes  		//it send the 16bytes to a peripheral with address xxxx. Example of strHex16bytes: 524275010000000300002E2E2E2E2E2E
+//	RTC				SET			NULL			NULL  				//it set RTC if it is installed on the gateway
+//	GET_BYTES_U		id_position	num_function	num_bytes_to_get  	//it get a series of data from the peripheral give by the ID position id_position
+//	SEND_BYTES_F	id_position	num_function	num_bytes_to_send  	//it sends a series of data to the peripheral give by the ID position id_position
+//	SENDJSONSETTINGS		address_peri		json_file	NULL  		//it sends a json configuration to a periheral with address = address_peri. The function send_to_transceiver_json_settings(...) is kept into file rfpi_json.c
+
+
 
 //it check the data into the buffer of the UART, return the data on the string given
 extern int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lenght_buffer_dataRFPI);
