@@ -102,9 +102,9 @@ int main(int argc, char **argv){
 	fclose (fp);
 	chmod(FIFO_RTC, 0777);
 	
-	//fp  = fopen (FIFO_RFPI_PERIPHERAL_SYNC, "w+");
-	//fclose (fp);
-	//chmod(FIFO_RFPI_PERIPHERAL_SYNC, 0777);
+	fp  = fopen (FIFO_RFPI_PERIPHERAL_SYNC, "w+");
+	fclose (fp);
+	chmod(FIFO_RFPI_PERIPHERAL_SYNC, 0777);
 
 
 	sem_serial_communication_via_usb=0; //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
