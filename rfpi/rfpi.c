@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					24/03/2020
+Last Update: 					25/03/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -68,6 +68,9 @@ int main(int argc, char **argv){
 	chmod(FIFO_GUI_CMD, 0777);
 	
 	fp  = fopen (FIFO_RFPI_RUN, "w+");
+	if(fp != NULL){
+		fprintf(fp, "%s", MSG_FIFO_RFPI_RUN_BUSY); //this would become TRUE after the execution of InitRFPI(...)
+	}
 	fclose (fp);
 	chmod(FIFO_RFPI_RUN, 0777);
 	
@@ -98,6 +101,10 @@ int main(int argc, char **argv){
 	fp  = fopen (FIFO_RTC, "w+");
 	fclose (fp);
 	chmod(FIFO_RTC, 0777);
+	
+	//fp  = fopen (FIFO_RFPI_PERIPHERAL_SYNC, "w+");
+	//fclose (fp);
+	//chmod(FIFO_RFPI_PERIPHERAL_SYNC, 0777);
 
 
 	sem_serial_communication_via_usb=0; //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
@@ -194,7 +201,7 @@ int main(int argc, char **argv){
 		for(count1=0;count1<EXECUTION_DELAY && cmd_execution==0;count1++){
 			//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
 			rootPeripheralData=ParseFIFOdataGUI(&handleUART, rootPeripheralData, &cmd_execution);
-			if(cmd_execution==0) delay_ms(1);
+			if(cmd_execution!=0) delay_ms(DELAY_AFTER_PARSED_DATA_GUI);
 		}
 		
 		// Turn a led ON and OFF to shows the application is running 
