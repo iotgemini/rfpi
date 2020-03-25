@@ -1,9 +1,22 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 24-03-2020"
+echo "Last update of this script was on 25-03-2020"
 
 
 echo "########################## AGREEMENT ##########################"
+echo " "
+echo " *    RFPI is free software: you can redistribute it and/or modify"
+echo " *    it under the terms of the GNU Lesser General Public License as published by"
+echo " *    the Free Software Foundation, either version 3 of the License, or"
+echo " *    (at your option) any later version."
+echo " *"
+echo " *    RFPI is distributed in the hope that it will be useful,"
+echo " *    but WITHOUT ANY WARRANTY; without even the implied warranty of"
+echo " *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the"
+echo " *    GNU Lesser General Public License for more details."
+echo " *"
+echo " *    You should have received a copy of the GNU Lesser General Public License"
+echo " *    along with RFPI.  If not, see <http://www.gnu.org/licenses/>."
 echo " "
 echo " ATTENTION:  This software is provided in a way"
 echo "             free and without any warranty"
@@ -18,6 +31,7 @@ echo "             responsabilità per danni portati o"
 echo "             causati da questo software."
 echo " "
 echo "########################## AGREEMENT ##########################"
+echo " "
 echo " IT: Se premi Y dichiari di aver preso visione dell'accordo riportato sopra. Vuoi continuare? (Y=si or N=no) "
 read -p " EN: If you press Y you declare that you have read the above agreement. Do you wish to continue? (Y or N) " -n 1 -r
 echo "" #new line
