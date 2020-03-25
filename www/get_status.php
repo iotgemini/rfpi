@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		17/12/2015
+Last Update: 		25/03/2020
 
 Description: it will read the FIFO of the status of the RFberry Pi
 example FIFO: NOTX
@@ -56,18 +56,22 @@ if($_SESSION["language"]=="IT"){
 
 //---------------------------------------------------------------------------------------//
 
+usleep( 100 * 1000 );//delay to leave the time for the execution of the command
 
 $action=$_GET['action'];
 
-//sleep(1);
+$status="?";
 
 //open the fifo to check the message into
-$handle = fopen(FIFO_RFPI_STATUS, 'r');
-if(feof($handle)!==TRUE){ 
-	$status=fgets($handle, 40);
+if(file_exists(FIFO_RFPI_STATUS)){ 
+	$handle = fopen(FIFO_RFPI_STATUS, 'r');
+	if(feof($handle)!==TRUE){ 
+		$status=fgets($handle, 40);
+	}
 	fclose($handle);
+	//@unlink(FIFO_RFPI_STATUS);
 }
-@unlink(FIFO_RFPI_STATUS); 
+//echo $status;
 
 echo '<html>';
 echo ' <meta content="width=device-width, initial-scale=1" name="viewport"/>';

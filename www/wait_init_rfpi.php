@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		17/05/2016
+Last Update: 		25/03/2020
 
 Description:	it return the writing to the client and then it go back to the
 				index.php and check if the rfpi routine has been initialised
@@ -76,7 +76,7 @@ print_r($files2);
 echo '<script type="text/javascript">';
 echo ' setTimeout("';
 echo "location.href = 'index.php?counter=" . $counter . "';";
-echo '", 3000); ';
+echo '", 500); ';
 echo '</script>';
 
 echo '</div>';

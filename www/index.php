@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		16/05/2016
+Last Update: 		25/03/2020
 
 Description: it check if the rfpi is running 
 
@@ -43,6 +43,9 @@ if(!file_exists(FIFO_RFPI_RUN)){
 	//if the message into the fifo is 'TRUE' it redirect to the home.php to show the  list of peripheral else it redirect to display the error message
 	if($data==="TRUE"){
 		header('Location: home.php') ;
+	}else if($data==="BUSY"){
+		//if the RFPI routine has not started yet it goes to wait for a while and then get back to the index.php to retry
+		header( 'Location: wait_init_rfpi.php?counter=' . $counter ) ;
 	}else{
 		//it notify to the running application rfpi.c the error has been got
 		writeFIFO(FIFO_GUI_CMD, STATUS_ERROR_GOT);
