@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		20/04/2019
+Last Update: 		25/03/2020
 
 Description: it write the FIFO and redirect on read_fifo_data.php
 
@@ -55,7 +55,8 @@ writeFIFO(FIFO_GUI_CMD, $cmd_to_write_into_fifo);
 
 
 // sleep for 1 second
-sleep(1);
+//sleep(1);
+usleep( 100 * 1000 );//delay to leave the time for the execution of the command
 
 
 
@@ -70,7 +71,7 @@ $cmd_to_write_into_fifo = $TAG0." ".$TAG1." ".$TAG2." ".$TAG3." "; //the space a
 //echo $cmd_to_write_into_fifo . " <br>";
 writeFIFO(FIFO_GUI_CMD, $cmd_to_write_into_fifo);
 
-
+usleep( 50 * 1000 );//delay to leave the time for the execution of the command
 
 //@unlink(FIFO_RFPI_RUN); 
 
@@ -81,6 +82,8 @@ writeFIFO(FIFO_GUI_CMD, $cmd_to_write_into_fifo);
 //writeFIFO(FIFO_GUI_CMD, $strCmd);
 
 header('Location: ./login.php');
+//header( 'Location: ./../../home.php') ;
+
 /*
 
 header('Location: ./read_fifo_data.php?page_to_show_data='. $page_to_show_data 
