@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		24/03/2020
+Last Update: 		25/03/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -91,11 +91,14 @@ define("FIFO_GUI_CMD", PATH_RFPI . "/fifo/fifoguicmd"); 				//used to send comma
 define("FIFO_GUI_CMD_SYNC", PATH_RFPI . "/fifo/fifocmdsync"); 			//when the command is ready into fifoguicmd then the GUI write '1' into fifocmdsync, that make the rfpi to execute the command. After the reading from rfpi then rfpi write '0' inside fifocmdsync.
 define("FIFO_RFPI_STATUS", PATH_RFPI . "/fifo/fiforfpistatus"); 		//used to send command and notifications to the RFPI 
 define("FIFO_RFPI_PERIPHERAL", PATH_RFPI . "/fifo/fifoperipheral"); 	//used to get the status of the peripherals (it can goes from 0 to 254)
+define("FIFO_RFPI_PERIPHERAL_SYNC", PATH_RFPI . "/fifo/fifoperipheralsync"); 			//
 define("FIFO_RFPI_NET_NAME", PATH_RFPI . "/fifo/fifonetname"); 			//used to get the network name set
 define("FIFO_RTC", PATH_RFPI . "/fifo/fifortc"); 						//used to get the time from the RTC
 define("FIFO_GET_BYTES_U", PATH_RFPI . "/fifo/fifogetbytesu"); 			//used to get GET_BYTES_U
 define("FIFO_SEND_BYTES_U", PATH_RFPI . "/fifo/fifosendbytesf"); 		//used to get SEND_BYTES_F
 define("CONF_PATH", PATH_RFPI . "/config/"); 							//whwere all JSON file are kept
+
+
 
 //DEFINES of message to write into the FIFO RFPI DATA
 define("STATUS_ERROR_GOT",  "STATUS ERROR GOT NULL "); 	//used to get the status of the peripherals (it can goes from 0 to 254)
@@ -735,14 +738,39 @@ if(file_exists(FIFO_RFPI_PERIPHERAL)){
 	$fw_version_peri="";
 	
 	$i=0; $t=0; $maxcountperipheral=254;
-	$handle = fopen(FIFO_RFPI_PERIPHERAL, 'r') or die("Unable to open file!");
 	
+	
+	$cont_retry=0;
+	$reload = 0;
+	while($reload < 1){
+		$reload++;
+		
+		
+	file_put_contents(FIFO_RFPI_PERIPHERAL_SYNC, "1 "); //it says to rfpi that its going to read the FIFO_RFPI_PERIPHERAL
+	
+	usleep( 1 * 1000 );//delay to leave the time to rfpi deamon to write last things and exit
+	
+	$handle = fopen(FIFO_RFPI_PERIPHERAL, 'r') or die("Unable to open file!");
+		
 	while($i<$maxcountperipheral && feof($handle)!==TRUE){ 
 
 		if($data = fscanf($handle, "%s %s %s %s %s %s\n")){ 
 				list($id,$idperipheral,$name, $address_peri, $num_special_functions_peri,  $fw_version_peri) = $data;
 				$t++;
 		}
+		
+		if(feof($handle)===TRUE && $cont_retry<1){
+			/*echo 'Reloading......';
+			echo '<script type="text/javascript">';
+			echo 'setTimeout("'; 
+				echo "location.href = './home.php';";
+			echo '", 500);'; 
+			echo '</script>';
+			*/
+			$reload--;
+			$i = $maxcountperipheral;
+		}
+		$cont_retry++;
 		
 		if($num_special_functions_peri==""){
 			$num_special_functions_peri = "0";
@@ -927,6 +955,8 @@ if(file_exists(FIFO_RFPI_PERIPHERAL)){
 		$i++;
 	}
 	fclose($handle);
+	file_put_contents(FIFO_RFPI_PERIPHERAL_SYNC, "0 ");
+	}
 	//@unlink(FIFO_RFPI_PERIPHERAL); 
 }
 
