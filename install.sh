@@ -257,7 +257,7 @@ fi
 echo "checking if node-red is installed......"
 NODERED_INSTALLED=0
 DIRECTORY_NODERED=$(sudo find / -type d -name ".node-red")
-#echo "$DIRECTORY_NODERED$DIRECTORY_NODE_IOTGEMINI"
+
 if [ ! -d "$DIRECTORY_NODERED" ]; then
 	echo " "
 	echo "########################## INSTALL NODE-RED ##########################"
@@ -269,11 +269,18 @@ if [ ! -d "$DIRECTORY_NODERED" ]; then
 	if [[ $REPLY =~ ^[Yy]$ ]] 
 	then
 		echo "Install Node-Red:"
-		cd ~
+		NODERED_SCRIPT=22;
 		bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
-		sudo systemctl enable nodered.service
+		NODERED_SCRIPT=$?
+		if [ $NODERED_SCRIPT == 0 ]; then
+			echo "NODE-RED Script TRUE: $NODERED_SCRIPT"
+			sudo systemctl enable nodered.service
+			NODERED_INSTALLED=1
+		else
+			echo "NODE-RED Script FALSE: $NODERED_SCRIPT"
+			NODERED_INSTALLED=0
+		fi
 		echo "DONE!"
-		NODERED_INSTALLED=1
 	fi
 else
 	echo "NODE-RED is already INSTALLED!"
@@ -281,22 +288,28 @@ else
 fi
 
 if [ $NODERED_INSTALLED == 1 ]; then
-	cd ~
-	if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_IOTGEMINI" ]; then
-		echo "Updating IOTGEMINI NODES......"
-		npm install node-red-contrib-iotgemini
-		npm update -g node-red-contrib-iotgemini
+	DIRECTORY_NODERED=$(sudo find / -type d -name ".node-red")
+	if [  -d "$DIRECTORY_NODERED" ]; then
+		cd $DIRECTORY_NODERED
+		echo "found directory node-red: $DIRECTORY_NODERED"
+		if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_IOTGEMINI" ]; then
+			echo "Updating IOTGEMINI NODES......"
+			npm install node-red-contrib-iotgemini
+			npm update -g node-red-contrib-iotgemini
+		else
+			echo "Installing IOTGEMINI NODES......"
+			npm install node-red-contrib-iotgemini
+		fi
+		if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_DASHBOARD" ]; then
+			echo "Updating DASHBOARD NODES......"
+			npm install node-red-dashboard
+			npm update -g node-red-dashboard
+		else
+			echo "Installing DASHBOARD NODES......"
+			npm install node-red-dashboard
+		fi
 	else
-		echo "Installing IOTGEMINI NODES......"
-		npm install node-red-contrib-iotgemini
-	fi
-	if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_DASHBOARD" ]; then
-		echo "Updating DASHBOARD NODES......"
-		npm install node-red-dashboard
-		npm update -g node-red-dashboard
-	else
-		echo "Installing DASHBOARD NODES......"
-		npm install node-red-dashboard
+		echo "NODE-RED Directory does not exist!"
 	fi
 fi
 
@@ -314,4 +327,7 @@ then
 	sudo reboot
 fi
 
+	exit 0
+else 
+	exit 1
 fi #end of if for agreement
