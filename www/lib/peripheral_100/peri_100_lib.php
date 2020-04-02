@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		13/07/2019
+Last Update: 		02/04/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -82,6 +82,25 @@ define("MAX_VOLTAGE_ADC_INPUT", 3.3);
 echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css" type="text/css" >';
 
 //-------------------------------END INCLUDE CSS----------------------------------//
+
+
+function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value){
+	$voltage = $ADC_10bit_value; 
+	$voltage = (($ADC_10bit_value * 5 ) / 1024); 
+	//$voltage = ceil($voltage);
+	return $voltage;
+}
+
+function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value){
+	$voltage="";
+	//$voltage=number_format((float)strval(voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value)), 0, '.', ''); 
+	$voltage_int = voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);
+	$voltage_int = $voltage_int * 100;
+	$voltage_int = ceil($voltage_int);
+	$voltage_int = $voltage_int / 100;
+	$voltage = number_format($voltage_int, 2, '.', ''); 
+	return $voltage;
+}
 
 
 function temperature_DHT11_from_raw_value_peri_100($raw_value){
