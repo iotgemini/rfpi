@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/03/2020
+Last Update: 					02/04/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -38,9 +38,12 @@ Description: application rfpi.c to run the RFPI network
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include "lib/librfpi.h"
-#include "lib/librfpi.c"
 
+#include "lib/librfpi.h"
+#include "lib/iotg.h"
+
+#include "lib/librfpi.c"
+#include "lib/iotg.c"
 
 #define MAX_BUF_DATA_RFPI		47	 //it is the data coming from the uart
 									 //into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
@@ -127,11 +130,12 @@ int main(int argc, char **argv){
 	//send the status to the support
 	//send_status_to_support(FILE_LIST_PERIPHERAL, networkName);
 
-
+	cmd_execution=1;
     do{// beginning of the infinite loop
 	   	  
 		//tell to the GUI the init status
-		fifoWriter(FIFO_RFPI_RUN, statusInit);
+		//if(cmd_execution!=0)
+		//fifoWriter(FIFO_RFPI_RUN, statusInit);
 
 		//printf(" statusInit=%s\n",statusInit); fflush(stdout); // Prints immediately to screen
 		
@@ -176,27 +180,35 @@ int main(int argc, char **argv){
 			numBytesDataRFPI=checkDataIntoUART(&handleUART, dataRFPI, MAX_BUF_DATA_RFPI);
 			
 			//it parse the data given. In case of data from peripheral, it will update the struct data
-			rootPeripheralData=parseDataFromUART(dataRFPI, &numBytesDataRFPI, rootPeripheralData);
+			rootPeripheralData=parseDataFromUART(dataRFPI, &numBytesDataRFPI, rootPeripheralData, &cmd_execution);
 		//}	
 		
-		//tell to the GUI the various status
-		fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
-		//printf(" statusInit=%s\n",statusRFPI); fflush(stdout); // Prints immediately to screen
-
-		//tell to the GUI the network name
-		//fifoWriter(FIFO_RFPI_NET_NAME, networkName);
-		addressFromName(networkName, networkAddress); //networkAddress will contain the the address in hex format like 1FA2
-		strcpy(str_net_name_and_address,networkName);
-		strcat(str_net_name_and_address,"\n");
-		strcat(str_net_name_and_address,networkAddress);
-		fifoWriter(FIFO_RFPI_NET_NAME, str_net_name_and_address);
 		
+		if(cmd_execution!=0){
+			printf("Rewriting fifo.....%d\n",cmd_execution);
 
-		//create the fifo to give the status of the peripheral to the GUI
-		writeFifoPeripheralLinked(rootPeripheralData); 
-		writeFifoJsonPeripheralLinked(rootPeripheralData);
-		//writeFifoJsonOneLinePeripheralLinked(rootPeripheralData);
+			//tell to the GUI the network name
+			//fifoWriter(FIFO_RFPI_NET_NAME, networkName);
+			addressFromName(networkName, networkAddress); //networkAddress will contain the the address in hex format like 1FA2
+			strcpy(str_net_name_and_address,networkName);
+			strcat(str_net_name_and_address,"\n");
+			strcat(str_net_name_and_address,networkAddress);
+			fifoWriter(FIFO_RFPI_NET_NAME, str_net_name_and_address);
+			
 
+			//create the fifo to give the status of the peripheral to the GUI
+			writeFifoPeripheralLinked(rootPeripheralData); 
+			writeFifoJsonPeripheralLinked(rootPeripheralData);
+			//writeFifoJsonOneLinePeripheralLinked(rootPeripheralData);
+		
+			fifoWriter(FIFO_RFPI_RUN, statusInit);
+			//tell to the GUI the various status
+			fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
+			//printf(" statusInit=%s\n",statusRFPI); fflush(stdout); // Prints immediately to screen
+			
+			printf("FIFO REWRITTEN!\n");
+		}
+		
 		cmd_execution=0;
 		for(count1=0;count1<EXECUTION_DELAY && cmd_execution==0;count1++){
 			//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
