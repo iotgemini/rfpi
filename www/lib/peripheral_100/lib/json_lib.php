@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		25/10/2019
+Last Update: 		02/04/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -292,7 +292,7 @@ function decode_iotgemini_json(
 				
 				$count_digital_output_json++;
 				
-			}else if($id_shield==2){ //DIGITAL INPUT
+			}else if($id_shield==2 || $id_shield==7){ //DIGITAL INPUT
 				//$array_pin_digital_inputs_json [$count_digital_input_json]  = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
 				//$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 				
@@ -323,7 +323,7 @@ function decode_iotgemini_json(
 				
 				$count_digital_input_json++;
 				
-			}else if($id_shield==3){ //ANALOGUE INPUT
+			}else if($id_shield==3 || $id_shield==6){ //ANALOGUE INPUT
 				//$array_pin_analogue_inputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
 				//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 				
