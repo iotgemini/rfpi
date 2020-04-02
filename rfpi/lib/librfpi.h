@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/03/2020
+Last Update: 					02/04/2020
 
 
 Description: library for the RFPI
@@ -206,7 +206,10 @@ int var_dummy1,var_dummy2;
 #define  MSG_FIFO_RFPI_RUN_TRUE		"TRUE"
 #define  MSG_FIFO_RFPI_RUN_BUSY		"BUSY"
 
+
+#define  MSG_FIFO_RFPI_STATUS_OK			"OK"
 #define  MSG_FIFO_RFPI_STATUS_EXECUTING		"EXECUTING"
+
 
 
 
@@ -393,7 +396,7 @@ extern peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPer
 extern int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lenght_buffer_dataRFPI);
 
 //it parse the data given. In case of data from peripheral, it will update the struct data
-extern peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI, peripheraldata *rootPeripheralData);
+extern peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI, peripheraldata *rootPeripheralData, int *cmd_executed);
 
 //asks to All peripherals the status of all inputs and outputs and update the status into the struct data
 //extern void askAndUpdateAllIOStatusPeri(int *handleUART, peripheraldata *rootPeripheralData);
@@ -453,5 +456,5 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData);
 char* return_serial_port_path(char *path_search, char *serial_port_path, int *handleUART);
 
 //this function return the MPN from the id, this is used for peripheral 100
-char* return_mpn(char *mpn, int *id_shield);
+//char* return_mpn(char *mpn, int *id_shield);
 	

@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/03/2020
+Last Update: 					02/04/2020
 
 
 Description: library for the RFPI
@@ -2888,7 +2888,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	}
 			
 
-	*cmd_executed=1; //I assume the command would be executed, otherwise at the end this variable is set to 0
+	//*cmd_executed=1; //I assume the command would be executed, otherwise at the end this variable is set to 0
 	
 	//it check data from the GUI
 	if(fifoReader(data, FIFO_GUI_CMD)) {
@@ -2898,6 +2898,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 			if(strcmp(tag,"FIND")==0 && strcmp(type,"NEW")==0 && strcmp(value1,"PERI")==0){ 
 			//it start the procedure to find a new peripheral that is waitng to be installed into the network
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 				
 				//it init a default network and then send the data to set the current network to the new peripheral
 				rootPeripheralData=findNewPeripheral(handleUART, statusRFPI, rootPeripheralData);
@@ -2908,7 +2909,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 			}else if(strcmp(tag,"DELETE")==0 && strcmp(type,"ADDRESS")==0){	
 			//it delete all files and data of the address written in place of xxxx	
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 				char addressPeri[5];
 				if(strlen(value1)>=4){
 					for(i=0;i<4;i++){
@@ -2924,7 +2926,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	
 			}else if(strcmp(tag,"DELETE")==0 && strcmp(type,"PERI")==0){ 
 			//it delete all files and data of the ID position written in place of xxxx
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 				sscanf(value1,"%d", &positionId);
 				
 				//it delete the peripheral in the postion positionId, the file descriptor will remain
@@ -2932,7 +2935,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 			}else if(strcmp(tag,"PERIOUT")==0){ 
 			//	PERIOUT	xa 		xb 		xc		//it set the output of the peripherla with ID position = xa, ID output = xb, value to set = xc
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 				sscanf(type,"%d", &peri_id_position);
 				sscanf(value1,"%d", &output_id);
 				sscanf(value2,"%d", &output_value);
@@ -2997,7 +3001,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				
 			}else if(strcmp(tag,"SETOUT")==0){
 			//	PERIOUT	xxxx	xb 		xc			//it set the output of the peripherla with address = xxxx, ID output = xb, value to set = xc
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 				//sscanf(type,"%d", &peri_id_position);
 				char address_peri[10];
 				char varError = 0;
@@ -3076,11 +3081,20 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				
 			}else if(strcmp(tag,"STATUS")==0 && strcmp(type,"RFPI")==0 && strcmp(value1,"GOT")==0){
 			//	STATUS 	RFPI 	GOT 	NULL		//it says to the rfpi that the status has been readed, thus rfpi can write into FIFO_RFPI_STATUS the word "OK"
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 				strcpy(statusRFPI,"OK");
 			
 			}else if(strcmp(tag,"NAME")==0 && strcmp(type,"NET")==0){ //it will save the network name
 			//	NAME 	NET 	xxx... 	NULL		//it save the network name and create a numerical address. Name of the network is xxx...
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
+				//the GUI will wait for the data updated
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
+				fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
+				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
+				
+				
 				//copying the first 128 (MAX_LEN_NET_NAME) characters
 				for(i=0;i<strlen(value1) && i<MAX_LEN_NET_NAME;i++){
 					networkName[i]=value1[i];
@@ -3159,8 +3173,13 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					}
 					
 				}
+				
+				strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
+				strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);
+			
 			}else if(strcmp(tag,"NAME")==0 && strcmp(type,"PERI")==0){ //it will change the name of the peripheral
 			//	NAME 	PERI 	xxx...	xxxx  		//it save the name of aperipheral given by xxx... with address given by xxxx
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 				
 				strcpy(strPathFile,PATH_CONFIG_FILE);
 				strcat(strPathFile,"list_peripheral2.txt");
@@ -3210,7 +3229,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strcmp(value2,"ALL")==0){ //it will update the status of all inputs and outputs of each peripherals
 			//	REFRESH	PERI STATUS	ALL  		//it refressh all input/output status for all peripherals
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 			
 				//unlink all FIFO, thus the GUI will wait for the data updated
 				//unlink(FIFO_RFPI_RUN);
@@ -3231,7 +3250,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strlen(value2)==4){ //it will update the status of all inputs and outputs of the peripherals with address contained into value2
 			//	REFRESH	PERI STATUS	xxxx  		//it refressh all input/output status only for the peripheral with address xxxx
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 				//unlink all FIFO, thus the GUI will wait for the data updated
 				//unlink(FIFO_RFPI_RUN);
 				strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
@@ -3246,7 +3266,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				
 			}else if(strcmp(tag,"DATA")==0 && strcmp(type,"RF")==0 && strlen(value1)>3){ //it will send the data written into value2 through the radio at the peripheral with position value1
 			//	DATA	RF 	xxxx	strHex16bytes  		//it send the 16bytes to a peripheral with address xxxx. Example of strHex16bytes: 524275010000000300002E2E2E2E2E2E
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 				//sscanf(value1,"%d", &peri_id_position);
 							
 				if(rootPeripheralData!=0){ 
@@ -3357,6 +3378,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				
 			}else if(strcmp(tag,"RTC")==0 && strcmp(type,"SET")==0 /*&& strcmp(value1,"STATUS")==0 && strcmp(value2,"ALL")==0*/){ //it will update the status of all inputs and outputs of each peripherals
 			//	RTC		SET		NULL	NULL  		//it set RTC if it is installed on the gateway
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 					#ifdef RTC_MODEL
 					if(set_RTC(value1, value2)){
 						//RTC 
@@ -3367,6 +3390,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			//***************************** Begin: GET_BYTES_U ************************************
 			}else if(strcmp(tag,"GET_BYTES_U")==0){
 			//	GET_BYTES_U		id_position		num_function	num_bytes_to_get  		//it get a series of data from the peripheral give by the ID position id_position
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 				
 				sscanf(type,"%d", &peri_id_position);
 				sscanf(value1,"%d", &num_function);
@@ -3524,7 +3548,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			//***************************** Begin: SEND_BYTES_F ************************************
 			}else if(strcmp(tag,"SEND_BYTES_F")==0){ 
 			//	SEND_BYTES_F		id_position		num_function	num_bytes_to_send  		//it sends a series of data to the peripheral give by the ID position id_position
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
 				//tag[0]='\0';
 				sscanf(type,"%d", &peri_id_position);
 				sscanf(value1,"%d", &num_function);
@@ -3691,7 +3716,15 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 		
 			if(strcmp(tag,"SENDJSONSETTINGS")==0){
 			//	SENDJSONSETTINGS		address_peri		json_file	NULL  		//it sends a json configuration to a periheral with address = address_peri. The function send_to_transceiver_json_settings(...) is kept into file rfpi_json.c
-			
+				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+				
+				//the GUI will wait for the data updated
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
+				fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
+				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
+				
+				
 				//sscanf(type,"%d", &peri_id_position);
 				char address_peri[10];
 				char varError = 0;
@@ -3707,8 +3740,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				//send_to_transceiver_json_settings(rootJsonSettings, address_peri, value1, handleUART);
 				rootPeripheralData=send_to_transceiver_json_settings(rootPeripheralData, address_peri, value1, handleUART);
 				
+				strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
+				strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE); 
+				
 			}else{
-				*cmd_executed=0; //no command have been executed!
+				//*cmd_executed=0; //no command have been executed!
 			}
 			
 			
@@ -3751,6 +3787,7 @@ int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lenght_buffe
 	}*/
 	
 	if(numCharacters>0){
+	//if(numCharacters>19){	
 		if (numCharacters > lenght_buffer_dataRFPI ) numCharacters = lenght_buffer_dataRFPI-1;
 		printf(" Data (%d bytes) from the Transceiver: ",numCharacters);
 		for(i=0;i<numCharacters;i++){
@@ -3783,7 +3820,7 @@ int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lenght_buffe
 
 
 //it parse the data given. In case of data from peripheral, it will update the struct data
-peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI, peripheraldata *rootPeripheralData){
+peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI, peripheraldata *rootPeripheralData, int *cmd_executed){
 
 	peripheraldata *currentPeripheralData;
 	peripheraldatanameinput *currentPeripheralDataNameInput;
@@ -3811,6 +3848,7 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 		if(dataRFPI[cont_pos]!='\0' && dataRFPI[cont_pos+4]=='R' && dataRFPI[cont_pos+5]=='B'){
 				
 			if(dataRFPI[cont_pos+6]=='i'){ //an input has been changed
+					*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 					
 					//coping the address of the peripheral which has transmitted
 					addressPeri[0]=dataRFPI[cont_pos];
@@ -3866,7 +3904,8 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					}
 					
 			}else if(dataRFPI[cont_pos+6]=='p'){ //an output has been changed
-
+					*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+					
 					//copying the address of the peripheral which has transmitted
 					addressPeri[0]=dataRFPI[cont_pos];
 					addressPeri[1]=dataRFPI[cont_pos+1];
@@ -3914,7 +3953,8 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					}
 					
 			}else if(dataRFPI[cont_pos+6]=='u'){ //a special function of a peri sent its status
-				
+					*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
+					
 					//copying the address of the peripheral which has transmitted
 					addressPeri[0]=dataRFPI[cont_pos];
 					addressPeri[1]=dataRFPI[cont_pos+1];
@@ -5929,7 +5969,7 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 
 
 //this function return the MPN from the id, this is used for peripheral 100
-char* return_mpn(char *mpn, int *id_shield){
+/*char* return_mpn(char *mpn, int *id_shield){
 	int id;
 	if(*id_shield>5 || *id_shield<0){
 		*id_shield = 0;
@@ -5950,4 +5990,4 @@ char* return_mpn(char *mpn, int *id_shield){
 	}
 	
 	return mpn;
-}
+}*/
