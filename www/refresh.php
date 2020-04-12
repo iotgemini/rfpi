@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		31/07/2016
+Last Update: 		12/04/2020
 
 Description: it unlink the FIFO and redirect on index.php
 
@@ -47,7 +47,7 @@ if($_SESSION["language"]=="IT"){
 //ask to the RFPI.C to update all inputs and outputs status
 writeFIFO(FIFO_GUI_CMD, "REFRESH PERI STATUS ALL ");
 
-@unlink(FIFO_RFPI_RUN); 
+//@unlink(FIFO_RFPI_RUN); 
 
 echo '<br>' . $lang_refresh; 
 ob_flush(); //it will send to the client the html before to goes forward with the next instruction
