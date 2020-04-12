@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					02/04/2020
+Last Update: 					12/04/2020
 
 
 Description: library for the RFPI
@@ -2876,7 +2876,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	int num_pin_used_on_the_peri; //used to know which is the number of the pin used on the peripheral
 	
 	char strMsgTemp[20];
- 	
+				
+	
 	if(contStatusMsg>TIME_HOLD_MSG_FIFO_RFPI_STATUS || contStatusMsg<0) //contStatusMsg global variable
 		contStatusMsg=0;
 			
@@ -2892,6 +2893,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	
 	//it check data from the GUI
 	if(fifoReader(data, FIFO_GUI_CMD)) {
+				
 			sscanf(data,"%s %s %s %s ",tag, type, value1, value2);
 			printf("From FIFO_GUI_CMD received: %s %s %s %s\n", tag, type, value1, value2);
 			
@@ -2900,12 +2902,20 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			//it start the procedure to find a new peripheral that is waitng to be installed into the network
 				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 				
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
+				fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
+				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
+				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);			
+				
 				//it init a default network and then send the data to set the current network to the new peripheral
 				rootPeripheralData=findNewPeripheral(handleUART, statusRFPI, rootPeripheralData);
 				
 				//reset the counter to give the time to be read the status by the GUI, after the status return to OK
 				contStatusMsg=0; 
-			
+				
+
+				strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE); 
+
 			
 			}else if(strcmp(tag,"DELETE")==0 && strcmp(type,"ADDRESS")==0){	
 			//it delete all files and data of the address written in place of xxxx	
@@ -3089,11 +3099,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
 				
 				//the GUI will wait for the data updated
-				strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
+				/*strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
 				fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
 				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
 				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
-				
+				*/
 				
 				//copying the first 128 (MAX_LEN_NET_NAME) characters
 				for(i=0;i<strlen(value1) && i<MAX_LEN_NET_NAME;i++){
@@ -3174,8 +3184,8 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					
 				}
 				
-				strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
-				strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);
+				//strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
+				//strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);
 			
 			}else if(strcmp(tag,"NAME")==0 && strcmp(type,"PERI")==0){ //it will change the name of the peripheral
 			//	NAME 	PERI 	xxx...	xxxx  		//it save the name of aperipheral given by xxx... with address given by xxxx
@@ -3246,6 +3256,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 				askAndUpdateIOStatusPeri(handleUART, value2, rootPeripheralData);
 			
+				strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
+				//fifoWriter(FIFO_RFPI_STATUS, statusRFPI);
+				strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE); 
+				//fifoWriter(FIFO_RFPI_RUN, statusInit);
+				
 				
 			
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strlen(value2)==4){ //it will update the status of all inputs and outputs of the peripherals with address contained into value2
