@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		16/05/2015
+Last Update: 		12/04/2016
 
 Description: it save the network name given by the page get_network_name.php
 
@@ -44,6 +44,8 @@ if(preg_match('/\s/',$network_name)){
 	//it will write into the fiforfpidata the tag=name, type=net, and value=name
 	//example FIFO: name net mynetworkname
 	writeFIFO(FIFO_GUI_CMD, "NAME NET " . $network_name . " ");
+	
+	sleep(1);
 	
 	if($page_to_redirect === '')
 		header( 'Location: index.php' ) ;
