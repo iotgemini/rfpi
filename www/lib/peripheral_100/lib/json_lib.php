@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		02/04/2020
+Last Update: 		17/04/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -369,7 +369,7 @@ function decode_iotgemini_json(
 				//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
 				$count_analogue_output_json++;
 				
-			}else if($id_shield==5){ //ANALOGUE INPUT DHT11
+			}else if($id_shield==5 || $id_shield==8){ //ANALOGUE INPUT DHT11 and for $id_shield==8 is the DHT22 sensor
 				//$array_pin_analogue_outputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
 				//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 				//$array_id_analogue_outputs_json [$count_analogue_input_json] = $count_analogue_input_json + $count_analogue_input_json;
