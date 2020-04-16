@@ -2,7 +2,7 @@
 
 Programmer: 					Emanuele Aimone
 Start date:						02/04/2020
-Last Update: 					02/04/2020
+Last Update: 					17/04/2020
 
 
 Description: library for the RFPI
@@ -40,9 +40,9 @@ Description: library for the RFPI
 //this function return the MPN from the id, this is used for peripheral 100
 char* return_mpn(char *mpn, int *id_shield){
 	int id;
-	if(*id_shield>5 || *id_shield<0){
-		*id_shield = 0;
-	}
+	//if(*id_shield>7|| *id_shield<0){
+	//	*id_shield = 0;
+	//}
 	id = *id_shield;
 	if(id==1){
 		strcpy(mpn,"LED");
@@ -58,8 +58,12 @@ char* return_mpn(char *mpn, int *id_shield){
 		strcpy(mpn,"ADC0V5V");
 	}else if(id==7){
 		strcpy(mpn,"HC-SR505");
+	}else if(id==8){
+		strcpy(mpn,"DHT22");
 	}else{
-		strcpy(mpn,"NULL");
+		// Implementation of itoa(). Convert a number into a string
+		mpn=itoaRFPI(id, mpn, 10);
+		//strcpy(mpn,"NULL");
 	}
 	
 	return mpn;
