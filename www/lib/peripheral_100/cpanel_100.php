@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		02/04/2020
+Last Update: 		17/04/2020
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -541,9 +541,16 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					echo '</h2>';
 				}else if($array_shield_mpn_analogue_inputs_json[$l]==="DHT11" || $array_shield_mpn_analogue_inputs_json[$l]==="dht11"){
 					echo '<h2>';
-					echo umidity_DHT11_from_raw_value_peri_100($arrayStatusInput[$counter]);
+					echo humidity_DHT11_from_raw_value_peri_100($arrayStatusInput[$counter]);
 					echo ' %<br>';
 					echo temperature_DHT11_from_raw_value_peri_100($arrayStatusInput[$counter]);
+					echo '&nbsp&#176C&nbsp'; //°C
+					echo '</h2>';
+				}else if($array_shield_mpn_analogue_inputs_json[$l]==="DHT22" || $array_shield_mpn_analogue_inputs_json[$l]==="dht22"){
+					echo '<h2>';
+					echo humidity_DHT22_from_raw_value_peri_100($arrayStatusInput[$counter]);
+					echo ' %<br>';
+					echo temperature_DHT22_from_raw_value_peri_100($arrayStatusInput[$counter]);
 					echo '&nbsp&#176C&nbsp'; //°C
 					echo '</h2>';
 				}else if($array_shield_mpn_analogue_inputs_json[$l]==="ADC0V5V" || $array_shield_mpn_analogue_inputs_json[$l]==="adc0v5v"){

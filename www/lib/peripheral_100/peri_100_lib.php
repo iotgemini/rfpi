@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		02/04/2020
+Last Update: 		17/04/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -30,6 +30,14 @@ Description: it is the library with all useful function to use RFPI
 
 
 //-------------------------------BEGIN FUNCTIONS DESCRIPTIONS----------------------------------//
+
+//	function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);			//return the value in Volt
+
+//	function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);		//return a string that contain the value in Volt of the ADC 10bit resolution
+
+//	function temperature_DHT11_from_raw_value_peri_100($raw_value);				//return a string with the value of the temperature converted from the raw value read from the sensor DHT11
+
+//	function humidity_DHT11_from_raw_value_peri_100($raw_value);				//return a string with the value of the humidity converted from the raw value read from the sensor DHT11
 
 //	function temperature_MCP9701_from_8bit_value_peri_100($ADC_8bit_value); 	//return the temperature in °C
 
@@ -106,28 +114,58 @@ function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value){
 function temperature_DHT11_from_raw_value_peri_100($raw_value){
 	$temperature = $raw_value & 0x0000FFFF;
 	
-	$temperature_int = $temperature >> 8;
-	$temperature_dec = $temperature & 0x00FF;
 	
-	if( ($temperature & 0x8000) == 0x8000 ){
-		$temperature_int &= 0x7F;
+	
+	if( ($temperature & 0x4000) == 0x4000 ){
+		$temperature &= ~0x4000;
+		
+		$temperature_int = $temperature >> 8;
+		$temperature_dec = $temperature & 0x00FF;
 		return "? " . $temperature_int . "." . $temperature_dec;
 	}else{
+		$temperature_int = $temperature >> 8;
+		$temperature_dec = $temperature & 0x00FF;
 		return $temperature_int . "." . $temperature_dec;
 	}
 }
 
-function umidity_DHT11_from_raw_value_peri_100($raw_value){
-	$umidity = $raw_value >> 16;
+function humidity_DHT11_from_raw_value_peri_100($raw_value){
+	$humidity = $raw_value >> 16;
 
-	$umidity_int = $umidity >> 8;
-	$umidity_dec = $umidity & 0x00FF;
-	
-	if( ($umidity & 0x8000) == 0x8000 ){
-		$umidity_int &= 0x7F;
-		return "? " . $umidity_int;// . "." . $umidity_dec;
+	if( ($humidity & 0x4000) == 0x4000 ){
+		$humidity &= ~0x4000;
+		
+		$humidity_int = $humidity >> 8;
+		$humidity_dec = $humidity & 0x00FF;
+		return "? " . $humidity_int;// . "." . $humidity_dec;
 	}else{
-		return $umidity_int;// . "." . $umidity_dec;
+		$humidity_int = $humidity >> 8;
+		$humidity_dec = $humidity & 0x00FF;
+		return $humidity_int;// . "." . $humidity_dec;
+	}
+}
+
+function temperature_DHT22_from_raw_value_peri_100($raw_value){
+	$temperature = $raw_value & 0x0000FFFF;
+
+	//the bit before the the MSB means the IOTG platfor has encounterd an error in reading the data from the sensor
+	if( ($temperature & 0x4000) == 0x4000 ){
+		$temperature &= ~0x4000;
+		return "? " . $temperature/10 ;
+	}else{
+		return $temperature/10 ;
+	}
+}
+
+function humidity_DHT22_from_raw_value_peri_100($raw_value){
+	$humidity = $raw_value >> 16;
+
+	//the bit before the the MSB means the IOTG platfor has encounterd an error in reading the data from the sensor
+	if( ($humidity & 0x4000) == 0x4000 ){
+		$humidity &= ~0x4000;
+		return "? " . $humidity/10 ;
+	}else{
+		return $humidity/10 ;
 	}
 }
 
