@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		17/04/2020
+Last Update: 		24/04/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -113,60 +113,58 @@ function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value){
 
 function temperature_DHT11_from_raw_value_peri_100($raw_value){
 	$temperature = $raw_value & 0x0000FFFF;
-	
-	
-	
-	if( ($temperature & 0x4000) == 0x4000 ){
+
+	/*if( ($temperature & 0x4000) == 0x4000 ){
 		$temperature &= ~0x4000;
 		
 		$temperature_int = $temperature >> 8;
 		$temperature_dec = $temperature & 0x00FF;
 		return "? " . $temperature_int . "." . $temperature_dec;
-	}else{
+	}else{*/
 		$temperature_int = $temperature >> 8;
 		$temperature_dec = $temperature & 0x00FF;
 		return $temperature_int . "." . $temperature_dec;
-	}
+	//}
 }
 
 function humidity_DHT11_from_raw_value_peri_100($raw_value){
 	$humidity = $raw_value >> 16;
 
-	if( ($humidity & 0x4000) == 0x4000 ){
+	/*if( ($humidity & 0x4000) == 0x4000 ){
 		$humidity &= ~0x4000;
 		
 		$humidity_int = $humidity >> 8;
 		$humidity_dec = $humidity & 0x00FF;
 		return "? " . $humidity_int;// . "." . $humidity_dec;
-	}else{
+	}else{*/
 		$humidity_int = $humidity >> 8;
 		$humidity_dec = $humidity & 0x00FF;
 		return $humidity_int;// . "." . $humidity_dec;
-	}
+	//}
 }
 
 function temperature_DHT22_from_raw_value_peri_100($raw_value){
 	$temperature = $raw_value & 0x0000FFFF;
 
 	//the bit before the the MSB means the IOTG platfor has encounterd an error in reading the data from the sensor
-	if( ($temperature & 0x4000) == 0x4000 ){
+	/*if( ($temperature & 0x4000) == 0x4000 ){
 		$temperature &= ~0x4000;
 		return "? " . $temperature/10 ;
-	}else{
+	}else{*/
 		return $temperature/10 ;
-	}
+	//}
 }
 
 function humidity_DHT22_from_raw_value_peri_100($raw_value){
 	$humidity = $raw_value >> 16;
 
 	//the bit before the the MSB means the IOTG platfor has encounterd an error in reading the data from the sensor
-	if( ($humidity & 0x4000) == 0x4000 ){
+	/*if( ($humidity & 0x4000) == 0x4000 ){
 		$humidity &= ~0x4000;
 		return "? " . $humidity/10 ;
-	}else{
+	}else{*/
 		return $humidity/10 ;
-	}
+	//}
 }
 
 
