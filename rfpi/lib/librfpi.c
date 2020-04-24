@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					12/04/2020
+Last Update: 					24/04/2020
 
 
 Description: library for the RFPI
@@ -1922,7 +1922,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 		
 	//updating the status if needed
 	if(!(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K')){
-		strcpy(statusRFPI,"NOPERI");
+		strcpy(statusRFPI,"NOPERI"); 
 		//printf("%c%c\n", answerRFPI[0],answerRFPI[1]);
 		printf("PERI DID NOT REPLY!\n"); fflush(stdout);
 	}else{
@@ -1945,8 +1945,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 			strcpy(networkAddress,"C733");
 		}
 		
-		numPeripheral=0;
-		
+		/*numPeripheral=0;
 		if(rootPeripheralData==0){
 			nextPeripheralData=(peripheraldata*)malloc(sizeof(peripheraldata));
 			nextPeripheralData->next=0; 
@@ -1962,8 +1961,10 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 			nextPeripheralData->next=0; 
 			currentPeripheralData->next=nextPeripheralData;
 		} 
-		
 		currentPeripheralData=nextPeripheralData;
+		*/
+		
+		delay_ms(50); //gives the time to the peri to set on the new network
 		
 		strcpy(strCmd,"C03"); //cmd to set address of this new peripheral
 		strcat(strCmd,peripheralAddress);
@@ -1980,294 +1981,335 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 		//ask to the peripheral the type, number of IO
 		SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBt.............", 19, answerRFPI, CMD_WAIT2,1); fflush(stdout);
 
-		
-		if(answerRFPI[11]==0){ //no peri characteristics returned, error!
-			strcpy(statusRFPI,"NOTYPE");
-			IDtype=0; 
-			numInputDigital=0;
-			numOutputDigital=0;
-			numInputAnalogue=0; 
-			numOutputAnalogue=0;
-			numSpecialFunction=0;
-			fwVersion=0;
-			
-			printf("\nTHE PERIPHERAL DID NOT REPLY WITH ITS IDENTIFICATION CODE!\n\n"); fflush(stdout);
+		//if(!(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K')){
+		//if( !( strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K' && answerRFPI[2]=='*' && strlen(answerRFPI)>9 ) ){ 
+		if( !( 		answerRFPI[2]=='*' 
+					&& answerRFPI[3]==peripheralAddress[0] 
+					&& answerRFPI[4]==peripheralAddress[1]
+					&& answerRFPI[5]==peripheralAddress[2]
+					&& answerRFPI[6]==peripheralAddress[3]
+					&& answerRFPI[9]=='t' 
+					&& strlen(answerRFPI)>9 ) ){ //there are 10 character for "OK*0001RBt"
+			strcpy(statusRFPI,"NOPERI"); 
+			printf("PERI DID NOT REPLY WITH THE CHARATERISTICS!\n"); fflush(stdout);
 		}else{
-			IDtype=0;
-			IDtype=answerRFPI[10];
-			IDtype=IDtype<<8;
-			IDtype=IDtype+answerRFPI[11]; 
-			numInputDigital=answerRFPI[12];
-			numOutputDigital=answerRFPI[13];
-			numInputAnalogue=answerRFPI[14];
-			numOutputAnalogue=answerRFPI[15];
-			numSpecialFunction=answerRFPI[16];
-			fwVersion=answerRFPI[17];
-
-		} 
-		NumInput=numInputAnalogue+numInputDigital; //number of inputs on the peripheral
-		NumOutput=numOutputAnalogue+numOutputDigital; //number of outputs on the peripheral
-
-		if(NumInput>255) NumInput=255; //max num input 255
-		if(NumOutput>255) NumOutput=255; //max num output 255
-		
-		currentPeripheralData->IDtype=IDtype;
-		
-		
-		//########### v1.0 ###########
-		//ask to the peripheral the name
-		//SerialCmdRFPI(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT1);
-		//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-					
-		//########### v1.1 ###########
-		//ask to the peripheral the name
-		SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT2,1);
-	
-		
-		if(strlen(answerRFPI)<10){ //no name returned, error!
-			strcpy(statusRFPI,"NONAME");
-			strcpy(NamePeripheral,"NONAME"); 
-			printf("\nTHE PERIPHERAL DID NOT REPLY WITH ITS NAME!\n\n"); fflush(stdout);
-		}else{
-			strncpy(NamePeripheral, answerRFPI+10, 23); 
-		} 
-		
-		printf("\nPERIPHERAL CHARACTERISTICS:\n"); fflush(stdout);
-		printf(" Peripheral Name: %s\n", NamePeripheral);
-		printf(" Peripheral ID: %d   NUM INPUT: %d   NUM OUTPUT: %d   NUM ANALOGUE INPUT: %d   NUM ANALOGUE OUTPUT: %d   NUM SPECIAL FUNCTIONS: %d   FW VERSION: %d\n\n", IDtype, NumInput, NumOutput, numInputAnalogue, numOutputAnalogue,numSpecialFunction,fwVersion); fflush(stdout);
-		
-		currentPeripheralData->Name=(char*)malloc((strlen(NamePeripheral)+1)*sizeof(char));
-		strcpy(currentPeripheralData->Name, NamePeripheral);
-		
-		strcpy(currentPeripheralData->NetAddress,networkAddress);
-		strcpy(currentPeripheralData->PeriAddress,peripheralAddress);
-
-		
-		//creating the struct data of inputs and outputs
-
-		//init the struct of the input names
-		rootPeripheralDataNameInput=0;
-		if(NumInput>0){
-			for(i=0;i<NumInput;i++){
-			
-				if(i<numInputDigital){ //set a name for the kind of input (Analogue or Digital)
-					strcpy(strTemp,"DIGITAL"); 
-				}else{
-					strcpy(strTemp,"ANALOGUE"); 
-				}
-				if(i==0){
-					rootPeripheralDataNameInput = (peripheraldatanameinput*)malloc(sizeof(peripheraldatanameinput));
-					rootPeripheralDataNameInput->next=0;
-					rootPeripheralDataNameInput->NameInput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(rootPeripheralDataNameInput->NameInput, strTemp);
-					rootPeripheralDataNameInput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(rootPeripheralDataNameInput->Type, strTemp);
-					
-					rootPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameInput->id_shield_input, &rootPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
-					
-					if(rootPeripheralDataNameInput->StatusInput == -1){
-						rootPeripheralDataNameInput->StatusCommunication=-1;
-						rootPeripheralDataNameInput->id_shield_input=-1;
-						rootPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
-					}else{
-						rootPeripheralDataNameInput->StatusCommunication=1;
-					}
-					
-					
-					//rootPeripheralDataNameInput->StatusInput=askInputResolutionPeri(handleUART, peripheralAddress, i); //ask to the peripheral for the status of the input
-					
-					currentPeripheralDataNameInput=rootPeripheralDataNameInput;
-				}else{
-					nextPeripheralDataNameInput = (peripheraldatanameinput*)malloc(sizeof(peripheraldatanameinput));
-					nextPeripheralDataNameInput->next=0;
-					nextPeripheralDataNameInput->NameInput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(nextPeripheralDataNameInput->NameInput, strTemp);
-					nextPeripheralDataNameInput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(nextPeripheralDataNameInput->Type, strTemp);
-					nextPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameInput->id_shield_input, &nextPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
-					
-					if(nextPeripheralDataNameInput->StatusInput == -1){
-						nextPeripheralDataNameInput->StatusCommunication=-1;
-						nextPeripheralDataNameInput->id_shield_input=-1;
-						nextPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
-					}else{
-						nextPeripheralDataNameInput->StatusCommunication=1;
-					}
-					
-					currentPeripheralDataNameInput->next=nextPeripheralDataNameInput;
-					currentPeripheralDataNameInput=nextPeripheralDataNameInput;
-				}
-			}
+			printf("PERI REPLIED WITH ITS CHARACTERISTICS!\n"); fflush(stdout);
 		}
+		
+		if(strcmp(statusRFPI,"OK")==0){ ////begin of the if where it check the correct reply from pery with all its characteristics
+			
+			
+			//################ BEGIN ALLOCATING THE STRUCT DATA OF THIS PERIPHERAL ################
+			numPeripheral=0;
+			if(rootPeripheralData==0){
+				nextPeripheralData=(peripheraldata*)malloc(sizeof(peripheraldata));
+				nextPeripheralData->next=0; 
+				rootPeripheralData=nextPeripheralData;
+			}else{
+				currentPeripheralData=rootPeripheralData;
+				while(currentPeripheralData->next!=0){
+					numPeripheral++;
+					currentPeripheralData=currentPeripheralData->next;
+				}
+				numPeripheral++; 
+				nextPeripheralData=(peripheraldata*)malloc(sizeof(peripheraldata));
+				nextPeripheralData->next=0; 
+				currentPeripheralData->next=nextPeripheralData;
+			} 
+			currentPeripheralData=nextPeripheralData;
+			//################ END ALLOCATING THE STRUCT DATA OF THIS PERIPHERAL ################
+			
+		
+			if(answerRFPI[11]==0){ //no peri characteristics have been returned thus there is an error!
+				strcpy(statusRFPI,"NOTYPE");
+				IDtype=0; 
+				numInputDigital=0;
+				numOutputDigital=0;
+				numInputAnalogue=0; 
+				numOutputAnalogue=0;
+				numSpecialFunction=0;
+				fwVersion=0;
+				
+				printf("\nTHE PERIPHERAL DID NOT REPLY WITH ITS IDENTIFICATION CODE!\n\n"); fflush(stdout);
+			}else{
+				IDtype=0;
+				IDtype=answerRFPI[10];
+				IDtype=IDtype<<8;
+				IDtype=IDtype+answerRFPI[11]; 
+				numInputDigital=answerRFPI[12];
+				numOutputDigital=answerRFPI[13];
+				numInputAnalogue=answerRFPI[14];
+				numOutputAnalogue=answerRFPI[15];
+				numSpecialFunction=answerRFPI[16];
+				fwVersion=answerRFPI[17];
+
+			} 
+			NumInput=numInputAnalogue+numInputDigital; //number of inputs on the peripheral
+			NumOutput=numOutputAnalogue+numOutputDigital; //number of outputs on the peripheral
+
+			if(NumInput>255) NumInput=255; //max num input 255
+			if(NumOutput>255) NumOutput=255; //max num output 255
+			
+			currentPeripheralData->IDtype=IDtype;
+			
+			
+			delay_ms(50); //gives the time to elaborate the last command
+			
+			//########### v1.0 ###########
+			//ask to the peripheral the name
+			//SerialCmdRFPI(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT1);
+			//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
 						
-		//init the struct of the output names
-		rootPeripheralDataNameOutput=0;
-		if(NumOutput>0){
-			for(i=0;i<NumOutput;i++){
+			//########### v1.1 ###########
+			//ask to the peripheral the name
+			SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT2,1);
+		
 			
-				if(i<numOutputDigital){ //set a name for the kind of input (Analogue or Digital)
-					strcpy(strTemp,"DIGITAL"); 
-				}else{
-					strcpy(strTemp,"ANALOGUE"); 
-				}
-				if(i==0){
-					rootPeripheralDataNameOutput = (peripheraldatanameoutput*)malloc(sizeof(peripheraldatanameoutput));
-					rootPeripheralDataNameOutput->next=0;
-					rootPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(rootPeripheralDataNameOutput->NameOutput, strTemp);
-					rootPeripheralDataNameOutput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(rootPeripheralDataNameOutput->Type, strTemp);
-					rootPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameOutput->id_shield_output, &rootPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
-					
-					if(rootPeripheralDataNameOutput->StatusOutput == -1){
-						rootPeripheralDataNameOutput->StatusCommunication=-1;
-						rootPeripheralDataNameOutput->id_shield_output=-1;
-						rootPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
-					}else{
-						rootPeripheralDataNameOutput->StatusCommunication=1;
-					}
-					
-					currentPeripheralDataNameOutput=rootPeripheralDataNameOutput;
-				}else{
-					nextPeripheralDataNameOutput = (peripheraldatanameoutput*)malloc(sizeof(peripheraldatanameoutput));
-					nextPeripheralDataNameOutput->next=0;
-					nextPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(nextPeripheralDataNameOutput->NameOutput, strTemp);
-					nextPeripheralDataNameOutput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
-					strcpy(nextPeripheralDataNameOutput->Type, strTemp);
-					nextPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameOutput->id_shield_output, &nextPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
+			if(strlen(answerRFPI)<10){ //no name returned, error!
+				strcpy(statusRFPI,"NONAME");
+				strcpy(NamePeripheral,"NONAME"); 
+				printf("\nTHE PERIPHERAL DID NOT REPLY WITH ITS NAME!\n\n"); fflush(stdout);
+			}else{
+				strncpy(NamePeripheral, answerRFPI+10, 23); 
+			} 
+			
+			printf("\nPERIPHERAL CHARACTERISTICS:\n"); fflush(stdout);
+			printf(" Peripheral Name: %s\n", NamePeripheral);
+			printf(" Peripheral ID: %d   NUM INPUT: %d   NUM OUTPUT: %d   NUM ANALOGUE INPUT: %d   NUM ANALOGUE OUTPUT: %d   NUM SPECIAL FUNCTIONS: %d   FW VERSION: %d\n\n", IDtype, NumInput, NumOutput, numInputAnalogue, numOutputAnalogue,numSpecialFunction,fwVersion); fflush(stdout);
+			
+			currentPeripheralData->Name=(char*)malloc((strlen(NamePeripheral)+1)*sizeof(char));
+			strcpy(currentPeripheralData->Name, NamePeripheral);
+			
+			strcpy(currentPeripheralData->NetAddress,networkAddress);
+			strcpy(currentPeripheralData->PeriAddress,peripheralAddress);
 
-					if(nextPeripheralDataNameOutput->StatusOutput == -1){
-						nextPeripheralDataNameOutput->StatusCommunication=-1;
-						nextPeripheralDataNameOutput->id_shield_output=-1;
-						nextPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
+			
+			//creating the struct data of inputs and outputs
+
+			//init the struct of the input names
+			rootPeripheralDataNameInput=0;
+			if(NumInput>0){
+				for(i=0;i<NumInput;i++){
+				
+					if(i<numInputDigital){ //set a name for the kind of input (Analogue or Digital)
+						strcpy(strTemp,"DIGITAL"); 
 					}else{
-						nextPeripheralDataNameOutput->StatusCommunication=1;
+						strcpy(strTemp,"ANALOGUE"); 
 					}
-					
-					currentPeripheralDataNameOutput->next=nextPeripheralDataNameOutput;
-					currentPeripheralDataNameOutput=nextPeripheralDataNameOutput;
+					if(i==0){
+						rootPeripheralDataNameInput = (peripheraldatanameinput*)malloc(sizeof(peripheraldatanameinput));
+						rootPeripheralDataNameInput->next=0;
+						rootPeripheralDataNameInput->NameInput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(rootPeripheralDataNameInput->NameInput, strTemp);
+						rootPeripheralDataNameInput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(rootPeripheralDataNameInput->Type, strTemp);
+						
+						rootPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameInput->id_shield_input, &rootPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
+						
+						if(rootPeripheralDataNameInput->StatusInput == -1){
+							rootPeripheralDataNameInput->StatusCommunication=-1;
+							rootPeripheralDataNameInput->id_shield_input=-1;
+							rootPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
+						}else{
+							rootPeripheralDataNameInput->StatusCommunication=1;
+						}
+						
+						
+						//rootPeripheralDataNameInput->StatusInput=askInputResolutionPeri(handleUART, peripheralAddress, i); //ask to the peripheral for the status of the input
+						
+						currentPeripheralDataNameInput=rootPeripheralDataNameInput;
+					}else{
+						nextPeripheralDataNameInput = (peripheraldatanameinput*)malloc(sizeof(peripheraldatanameinput));
+						nextPeripheralDataNameInput->next=0;
+						nextPeripheralDataNameInput->NameInput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(nextPeripheralDataNameInput->NameInput, strTemp);
+						nextPeripheralDataNameInput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(nextPeripheralDataNameInput->Type, strTemp);
+						nextPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameInput->id_shield_input, &nextPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
+						
+						if(nextPeripheralDataNameInput->StatusInput == -1){
+							nextPeripheralDataNameInput->StatusCommunication=-1;
+							nextPeripheralDataNameInput->id_shield_input=-1;
+							nextPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
+						}else{
+							nextPeripheralDataNameInput->StatusCommunication=1;
+						}
+						
+						currentPeripheralDataNameInput->next=nextPeripheralDataNameInput;
+						currentPeripheralDataNameInput=nextPeripheralDataNameInput;
+					}
 				}
 			}
-		}
-		
-		
-		currentPeripheralData->NumInput=NumInput;
-		currentPeripheralData->NumOutput=NumOutput;
-		currentPeripheralData->numSpecialFunction=numSpecialFunction;
-		currentPeripheralData->fwVersion=fwVersion;
+							
+			//init the struct of the output names
+			rootPeripheralDataNameOutput=0;
+			if(NumOutput>0){
+				for(i=0;i<NumOutput;i++){
+				
+					if(i<numOutputDigital){ //set a name for the kind of input (Analogue or Digital)
+						strcpy(strTemp,"DIGITAL"); 
+					}else{
+						strcpy(strTemp,"ANALOGUE"); 
+					}
+					if(i==0){
+						rootPeripheralDataNameOutput = (peripheraldatanameoutput*)malloc(sizeof(peripheraldatanameoutput));
+						rootPeripheralDataNameOutput->next=0;
+						rootPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(rootPeripheralDataNameOutput->NameOutput, strTemp);
+						rootPeripheralDataNameOutput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(rootPeripheralDataNameOutput->Type, strTemp);
+						rootPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameOutput->id_shield_output, &rootPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
+						
+						if(rootPeripheralDataNameOutput->StatusOutput == -1){
+							rootPeripheralDataNameOutput->StatusCommunication=-1;
+							rootPeripheralDataNameOutput->id_shield_output=-1;
+							rootPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
+						}else{
+							rootPeripheralDataNameOutput->StatusCommunication=1;
+						}
+						
+						currentPeripheralDataNameOutput=rootPeripheralDataNameOutput;
+					}else{
+						nextPeripheralDataNameOutput = (peripheraldatanameoutput*)malloc(sizeof(peripheraldatanameoutput));
+						nextPeripheralDataNameOutput->next=0;
+						nextPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(nextPeripheralDataNameOutput->NameOutput, strTemp);
+						nextPeripheralDataNameOutput->Type=(char*)malloc((strlen(strTemp)+1)*sizeof(char));
+						strcpy(nextPeripheralDataNameOutput->Type, strTemp);
+						nextPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameOutput->id_shield_output, &nextPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
 
-
-		//assigning to the main peripheral data struct the roots pointers of the inputs and outputs structs
-		currentPeripheralData->rootNameInput=rootPeripheralDataNameInput;
-		currentPeripheralData->rootNameOutput=rootPeripheralDataNameOutput;
-		
-		//creates file descriptor 
-		strcpy(NameFileDescriptor,"desc_");
-		strcat(NameFileDescriptor,  currentPeripheralData->Name);
-		strcat(NameFileDescriptor, peripheralAddress);
-		strcat(NameFileDescriptor, ".txt"); 
-		
-		//if exist, delete the file descriptor
-		strcpy(strPathFile,PATH_CONFIG_FILE);
-		strcat(strPathFile, NameFileDescriptor);
-		if( access( strPathFile, F_OK ) == -1) { 
-				if( remove(strPathFile) ){
-					printf("%s file deleted successfully.\n", NameFileDescriptor);
-				}else{
-					printf("Unable to delete the file %s\n", NameFileDescriptor);
-					perror("Error");
+						if(nextPeripheralDataNameOutput->StatusOutput == -1){
+							nextPeripheralDataNameOutput->StatusCommunication=-1;
+							nextPeripheralDataNameOutput->id_shield_output=-1;
+							nextPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
+						}else{
+							nextPeripheralDataNameOutput->StatusCommunication=1;
+						}
+						
+						currentPeripheralDataNameOutput->next=nextPeripheralDataNameOutput;
+						currentPeripheralDataNameOutput=nextPeripheralDataNameOutput;
+					}
 				}
-		}
+			}
 			
 			
-		//saving into the struct the name of the file descriptor
-		currentPeripheralData->NameFileDescriptor=(char*)malloc((strlen(NameFileDescriptor)+1)*sizeof(char));
-		strcpy(currentPeripheralData->NameFileDescriptor,NameFileDescriptor); 
-			
-		//now create the file descriptor
-		strcpy(strPathFile,PATH_CONFIG_FILE);
-		strcat(strPathFile,currentPeripheralData->NameFileDescriptor);
-		file_pointer = fopen(strPathFile,"w+"); //creating the file descriptor
-			
-		//first line with inputs
-		currentPeripheralDataNameInput=rootPeripheralDataNameInput; //currentPeripheralData->rootNameInput;
-		sprintf(strTemp, "%d", NumInput); //convert int to string
-		strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
-		while(currentPeripheralDataNameInput!=0){ //writing all name
-			strcat(strTemp2, " "); 
-			//strcat(strTemp2, currentPeripheralDataNameInput->NameInput); 
-			strcat(strTemp2, currentPeripheralDataNameInput->Type); 
-			currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
-		}
-		currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
-		while(currentPeripheralDataNameInput!=0){ //writing all name
-			strcat(strTemp2, " "); 
-			//sprintf(strTemp, "%d", currentPeripheralDataNameInput->StatusInput); //convert int to string
-			sprintf(strTemp, "%d", currentPeripheralDataNameInput->BitResolution); //convert int to string
-			strcat(strTemp2, strTemp); 
-			currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
-		}
-		fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the inputs
-			
-		//second line with outputs
-		currentPeripheralDataNameOutput=rootPeripheralDataNameOutput; //currentPeripheralData->rootNameOutput;
-		sprintf(strTemp, "%d", NumOutput); //convert int to string
-		strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
-		while(currentPeripheralDataNameOutput!=0){ //writing all name
-			strcat(strTemp2, " "); 
-			//strcat(strTemp2, currentPeripheralDataNameOutput->NameOutput); 
-			strcat(strTemp2, currentPeripheralDataNameOutput->Type);
-			currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-		}
-		currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
-		while(currentPeripheralDataNameOutput!=0){ //writing all name
-			strcat(strTemp2, " "); 
-			//sprintf(strTemp, "%d", currentPeripheralDataNameOutput->StatusOutput); //convert int to string
-			sprintf(strTemp, "%d", currentPeripheralDataNameOutput->BitResolution); //convert int to string
-			strcat(strTemp2, strTemp); 
-			currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-		}
-		fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the outputs
-		
-		
-		//third line with name of the input
-		currentPeripheralDataNameInput=rootPeripheralDataNameInput; //currentPeripheralData->rootNameInput;
-		sprintf(strTemp, "%d", NumInput); //convert int to string
-		strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
-		while(currentPeripheralDataNameInput!=0){ //writing all name
-			strcat(strTemp2, " "); 
-			strcat(strTemp2, currentPeripheralDataNameInput->NameInput); 
-			currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
-		}
-		//currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
-		fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the inputs
-		
-		
-		//third line with name of the outputs
-		currentPeripheralDataNameOutput=rootPeripheralDataNameOutput; //currentPeripheralData->rootNameOutput;
-		sprintf(strTemp, "%d", NumOutput); //convert int to string
-		strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
-		while(currentPeripheralDataNameOutput!=0){ //writing all name
-			strcat(strTemp2, " "); 
-			strcat(strTemp2, currentPeripheralDataNameOutput->NameOutput); 
-			currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-		}
-		//currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
-		fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the outputs
-
-		
-		fclose(file_pointer); 
+			currentPeripheralData->NumInput=NumInput;
+			currentPeripheralData->NumOutput=NumOutput;
+			currentPeripheralData->numSpecialFunction=numSpecialFunction;
+			currentPeripheralData->fwVersion=fwVersion;
 
 
-		file_pointer = fopen(FILE_LIST_PERIPHERAL,"a+"); //opening the list of peripherals 
-		if( file_pointer == NULL){
-			perror("Error while opening the file.\n");
-			exit(EXIT_FAILURE);
-		}else{ 
-			fprintf(file_pointer,"%d %d %s %s %s %d %d\n", numPeripheral, currentPeripheralData->IDtype, currentPeripheralData->Name, currentPeripheralData->NameFileDescriptor, currentPeripheralData->PeriAddress, currentPeripheralData->numSpecialFunction, currentPeripheralData->fwVersion);
-		}
-		fclose(file_pointer); 
+			//assigning to the main peripheral data struct the roots pointers of the inputs and outputs structs
+			currentPeripheralData->rootNameInput=rootPeripheralDataNameInput;
+			currentPeripheralData->rootNameOutput=rootPeripheralDataNameOutput;
+			
+			//creates file descriptor 
+			strcpy(NameFileDescriptor,"desc_");
+			strcat(NameFileDescriptor,  currentPeripheralData->Name);
+			strcat(NameFileDescriptor, peripheralAddress);
+			strcat(NameFileDescriptor, ".txt"); 
+			
+			//if exist, delete the file descriptor
+			strcpy(strPathFile,PATH_CONFIG_FILE);
+			strcat(strPathFile, NameFileDescriptor);
+			if( access( strPathFile, F_OK ) == -1) { 
+					if( remove(strPathFile) ){
+						printf("%s file deleted successfully.\n", NameFileDescriptor);
+					}else{
+						printf("Unable to delete the file %s\n", NameFileDescriptor);
+						perror("Error");
+					}
+			}
+				
+				
+			//saving into the struct the name of the file descriptor
+			currentPeripheralData->NameFileDescriptor=(char*)malloc((strlen(NameFileDescriptor)+1)*sizeof(char));
+			strcpy(currentPeripheralData->NameFileDescriptor,NameFileDescriptor); 
+				
+			//now create the file descriptor
+			strcpy(strPathFile,PATH_CONFIG_FILE);
+			strcat(strPathFile,currentPeripheralData->NameFileDescriptor);
+			file_pointer = fopen(strPathFile,"w+"); //creating the file descriptor
+				
+			//first line with inputs
+			currentPeripheralDataNameInput=rootPeripheralDataNameInput; //currentPeripheralData->rootNameInput;
+			sprintf(strTemp, "%d", NumInput); //convert int to string
+			strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
+			while(currentPeripheralDataNameInput!=0){ //writing all name
+				strcat(strTemp2, " "); 
+				//strcat(strTemp2, currentPeripheralDataNameInput->NameInput); 
+				strcat(strTemp2, currentPeripheralDataNameInput->Type); 
+				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
+			}
+			currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
+			while(currentPeripheralDataNameInput!=0){ //writing all name
+				strcat(strTemp2, " "); 
+				//sprintf(strTemp, "%d", currentPeripheralDataNameInput->StatusInput); //convert int to string
+				sprintf(strTemp, "%d", currentPeripheralDataNameInput->BitResolution); //convert int to string
+				strcat(strTemp2, strTemp); 
+				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
+			}
+			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the inputs
+				
+			//second line with outputs
+			currentPeripheralDataNameOutput=rootPeripheralDataNameOutput; //currentPeripheralData->rootNameOutput;
+			sprintf(strTemp, "%d", NumOutput); //convert int to string
+			strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
+			while(currentPeripheralDataNameOutput!=0){ //writing all name
+				strcat(strTemp2, " "); 
+				//strcat(strTemp2, currentPeripheralDataNameOutput->NameOutput); 
+				strcat(strTemp2, currentPeripheralDataNameOutput->Type);
+				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
+			}
+			currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
+			while(currentPeripheralDataNameOutput!=0){ //writing all name
+				strcat(strTemp2, " "); 
+				//sprintf(strTemp, "%d", currentPeripheralDataNameOutput->StatusOutput); //convert int to string
+				sprintf(strTemp, "%d", currentPeripheralDataNameOutput->BitResolution); //convert int to string
+				strcat(strTemp2, strTemp); 
+				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
+			}
+			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the outputs
+			
+			
+			//third line with name of the input
+			currentPeripheralDataNameInput=rootPeripheralDataNameInput; //currentPeripheralData->rootNameInput;
+			sprintf(strTemp, "%d", NumInput); //convert int to string
+			strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
+			while(currentPeripheralDataNameInput!=0){ //writing all name
+				strcat(strTemp2, " "); 
+				strcat(strTemp2, currentPeripheralDataNameInput->NameInput); 
+				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
+			}
+			//currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
+			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the inputs
+			
+			
+			//third line with name of the outputs
+			currentPeripheralDataNameOutput=rootPeripheralDataNameOutput; //currentPeripheralData->rootNameOutput;
+			sprintf(strTemp, "%d", NumOutput); //convert int to string
+			strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
+			while(currentPeripheralDataNameOutput!=0){ //writing all name
+				strcat(strTemp2, " "); 
+				strcat(strTemp2, currentPeripheralDataNameOutput->NameOutput); 
+				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
+			}
+			//currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
+			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the outputs
+
+			
+			fclose(file_pointer); 
+
+
+			file_pointer = fopen(FILE_LIST_PERIPHERAL,"a+"); //opening the list of peripherals 
+			if( file_pointer == NULL){
+				perror("Error while opening the file.\n");
+				exit(EXIT_FAILURE);
+			}else{ 
+				fprintf(file_pointer,"%d %d %s %s %s %d %d\n", numPeripheral, currentPeripheralData->IDtype, currentPeripheralData->Name, currentPeripheralData->NameFileDescriptor, currentPeripheralData->PeriAddress, currentPeripheralData->numSpecialFunction, currentPeripheralData->fwVersion);
+			}
+			fclose(file_pointer); 
+		} //end of the if where it check the correct reply from pery with all its characteristics
 	}
 	
 	printf("status= %s\n",statusRFPI);
@@ -2640,10 +2682,13 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 				
 				//delay_ms(100);
 				
+				if(varExit==1){ delay_ms(25); } //gives time to the peri to get ready 
+				
+				
+				for(i=0;i<MAX_LEN_BUFFER_ANSWER_RF;i++){ answerRFPI[i]=0; }
+				answerRFPI[0]='\0';
 				contMs = 0;
-				i = 0;
 				last_i = 0;
-				//answerRFPI[i]='\0';
 				numC=0;
 				varExit=0;
 				do{
@@ -2666,8 +2711,9 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 									printf("%d", answerRFPI[(i+last_i)]);
 								else
 									printf("X");
-							}else
+							}else{
 								printf("%c", answerRFPI[(i+last_i)]);
+							}
 						}
 						last_i += i;
 						//i--;
@@ -2678,13 +2724,15 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 					//answerRFPI[i+1]='\0';
 					fflush(stdout); // Prints immediately to screen 
 					
-					if(contMs>maxTimeOutMs)
+					if(contMs>maxTimeOutMs){
 						varExit=1;
-					else if(last_i > (7+16-1)) //7 is the OK*XXXX and the 16 are the 16byte protocol
+					//}else if(answerRFPI[0] == 'O' && answerRFPI[1] == 'K' && answerRFPI[2] == '*' && last_i > (7+16-1)) //7 is the OK*XXXX and the 16 are the 16byte protocol
+					}else if(last_i > (7+16-1)){ //7 is the OK*XXXX and the 16 are the 16byte protocol
 						varExit=2;
-					else if(answerRFPI[0] == 'O' && answerRFPI[1] == 'K' && answerRFPI[2] == '*' && mustReply==0)
+					}else if(answerRFPI[0] == 'O' && answerRFPI[1] == 'K' && answerRFPI[2] == '*' && mustReply==0){
 						varExit=3;
-						
+					}
+					
 					contMs++;
 				}while(varExit==0);
 				printf("\n");
