@@ -1,5 +1,5 @@
-1.6.2.8
-24/04/2020
+1.6.2.9
+27/04/2020
 
 v1.6
 	- Added function Input Duty that allow to set a trigger for a digital input and when the trigger occur it set the status for a selected output 

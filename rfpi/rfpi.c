@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					02/04/2020
+Last Update: 					25/04/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -113,9 +113,10 @@ int main(int argc, char **argv){
 	sem_serial_communication_via_usb=0; //if the communication is via USB then no gpio will control leds. This would be updated by function return_serial_port_path(....)
 	//sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
 	//this function test all serial port under the path given by path_search
-	serial_port_path_str = return_serial_port_path(path_to_search_serial_port, serial_port_path_str, &handleUART); 
-	printf("Serial port path found: %s", serial_port_path_str);
-	
+	serial_port_path_str = return_serial_port_path(path_to_search_serial_port, serial_port_path_str, &handleUART);
+	#if DEBUG_LEVEL>0
+		printf("Serial port path found: %s", serial_port_path_str);
+	#endif
 
 	//it init the RFPI
 	rootPeripheralData=InitRFPI(rootPeripheralData, serial_port_path_str);
@@ -185,8 +186,9 @@ int main(int argc, char **argv){
 		
 		
 		if(cmd_execution!=0){
-			printf("Rewriting fifo.....%d\n",cmd_execution);
-
+			#if DEBUG_LEVEL>0
+				printf("\n\nRewriting fifo.....");
+			#endif
 			//tell to the GUI the network name
 			//fifoWriter(FIFO_RFPI_NET_NAME, networkName);
 			addressFromName(networkName, networkAddress); //networkAddress will contain the the address in hex format like 1FA2
@@ -201,14 +203,20 @@ int main(int argc, char **argv){
 			writeFifoJsonPeripheralLinked(rootPeripheralData);
 			//writeFifoJsonOneLinePeripheralLinked(rootPeripheralData);
 		
-			fifoWriter(FIFO_RFPI_RUN, statusInit);
-			//tell to the GUI the various status
 			fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
 			//printf(" statusInit=%s\n",statusRFPI); fflush(stdout); // Prints immediately to screen
 			
-			printf("FIFO REWRITTEN!\n");
+			fifoWriter(FIFO_RFPI_RUN, statusInit);
+			//tell to the GUI the various status
+			
+			#if DEBUG_LEVEL>0
+				printf("FIFO REWRITTEN!\n\n");
+			#endif
 		}
 		
+		//tell to the GUI the various status
+	//	fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
+			
 		cmd_execution=0;
 		for(count1=0;count1<EXECUTION_DELAY && cmd_execution==0;count1++){
 			//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
