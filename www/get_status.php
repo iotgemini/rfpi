@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		25/03/2020
+Last Update: 		26/04/2020
 
 Description: it will read the FIFO of the status of the RFberry Pi
 example FIFO: NOTX
@@ -56,7 +56,7 @@ if($_SESSION["language"]=="IT"){
 
 //---------------------------------------------------------------------------------------//
 
-usleep( 100 * 1000 );//delay to leave the time for the execution of the command
+usleep( 200 * 1000 );//delay to leave the time for the execution of the command
 
 $action=$_GET['action'];
 
@@ -80,7 +80,7 @@ echo '<div class="div_home">';
 
 echo '<br>';
 
-if($status==="OK" && $action==="PERI_OUT"){
+if($status===MSG_FIFO_RFPI_STATUS_OK && $action==="PERI_OUT"){
 	echo '<p style="color:green">'.$lang_tx_ok.'</p>';
 	ob_flush(); //it will send to the client what has been executed and then proceed with next instruction
 	flush();
@@ -89,25 +89,25 @@ if($status==="OK" && $action==="PERI_OUT"){
 			echo "location.href = './index.php';";
 		echo '", 10);';
 	echo '</script>';
-}else if($status==="OK" && $action==="FIND_NEW"){
+}else if($status===MSG_FIFO_RFPI_STATUS_OK && $action==="FIND_NEW"){
 	echo '<p style="color:green">'.$lang_peri_found.'</p>';
 	ob_flush(); //it will send to the client what has been executed and then proceed with next instruction
 	flush();
 	echo '<script type="text/javascript">';
 		echo 'setTimeout("'; 
 			echo "location.href = './index.php';";
-		echo '", 500);';
+		echo '", 1000);';
 	echo '</script>';
-}else if($status==="NOPERI" && $action==="FIND_NEW"){
+}else if($status===MSG_FIFO_RFPI_STATUS_NOPERI && $action==="FIND_NEW"){
 	echo '<p style="color:red">'.$lang_peri_not_found.'</p>';
 	ob_flush(); //it will send to the client what has been executed and then proceed with next instruction
 	flush();
 	echo '<script type="text/javascript">';
 		echo 'setTimeout("'; 
 			echo "location.href = './index.php';";
-		echo '", 9000);';
+		echo '", 6000);';
 	echo '</script>';
-}else if($status==="NOTX" && $action==="PERI_OUT"){
+}else if($status===MSG_FIFO_RFPI_STATUS_NOTX && $action==="PERI_OUT"){
 	echo '<p style="color:red">'.$lang_output_not_set.'</p>';
 	ob_flush(); //it will send to the client what has been executed and then proceed with next instruction
 	flush();
@@ -116,7 +116,7 @@ if($status==="OK" && $action==="PERI_OUT"){
 			echo "location.href = './index.php';";
 		echo '", 9000);';
 	echo '</script>';
-}else if($status!=="OK"){
+}else if($status!==MSG_FIFO_RFPI_STATUS_OK){
 	//if the status has not change yet
 	htmlMsgWaitanswerFromRFPI(); //it just shows a message: Waiting answer from RFPI......
 	flush();
