@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					02/04/2020
+Last Update: 					25/04/2020
 
 
 Description: library for the RFPI
@@ -115,6 +115,11 @@ Description: library for the RFPI
 //#define 	SEND_COMAND_TO_SET_OPERATING_BAUDRATE 	SerialCmdRFPi(handleUART, "C556", answerRFPI, CMD_WAIT1) 	//set a baud rate of 57600
 
 
+#define DEBUG_LEVEL 	2	//enable the debug setting this parameter with a value above 0
+
+#define ENABLE_RADIO_DATA_CHECKSUM	//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
+
+
 #define SERVER "http://rfpi/"
 
 int var_dummy1,var_dummy2;
@@ -172,19 +177,20 @@ int var_dummy1,var_dummy2;
 #define CMD_WAIT1					30//120//420 	//it is a delay needed after each command sent through the uart to the Transceiver
 #define CMD_WAIT2					100//50 //1200 	//it is a longer delay used to wait answer after radio frequency transmission
 
-#define MAX_NUM_RETRY				8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
+#define MAX_NUM_RETRY				25//8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
+#define MIN_NUM_RETRY				8//8//3	 		//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 
 //#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
 //#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
 
 
-#define DELAY_AFTER_PARSED_DATA_GUI		5		//mS. It is then multiplied by EXECUTION_DELAY by a cycle 
+#define DELAY_AFTER_PARSED_DATA_GUI		50		//mS. It is then multiplied by EXECUTION_DELAY by a cycle 
 
 #define EXECUTION_DELAY					10		//This is multiplied by DELAY_AFTER_PARSED_DATA_GUI
 												//It is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
 												
 //This is the time that the last message into FIFO_RFPI_STATUS would be hold, then ParseFIFOdataGUI(...) will write inside "OK"
-#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	DELAY_AFTER_PARSED_DATA_GUI*50		
+#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	DELAY_AFTER_PARSED_DATA_GUI*1000		
 												
 
 
@@ -203,15 +209,35 @@ int var_dummy1,var_dummy2;
 
 //LIST OF MESSAGE THAT ARE WRITTEN INTO FIFO
 
+//fifo rfpi run
 #define  MSG_FIFO_RFPI_RUN_TRUE		"TRUE"
 #define  MSG_FIFO_RFPI_RUN_BUSY		"BUSY"
 
+//FIFO status rfpi
+#define  MSG_FIFO_RFPI_STATUS_OK					"OK"
+#define  MSG_FIFO_RFPI_STATUS_EXECUTING				"EXECUTING"
+#define  MSG_FIFO_RFPI_STATUS_NOTX					"NOTX"		
+#define  MSG_FIFO_RFPI_STATUS_NOPERI				"NOPERI"		//used above all when it find a new peripheral
+#define  MSG_FIFO_RFPI_STATUS_NOTYPE				"NOTYPE" 		//used above all when it find a new peripheral
+#define  MSG_FIFO_RFPI_STATUS_NONAME				"NONAME" 		//used above all when it find a new peripheral
+#define  MSG_FIFO_RFPI_STATUS_SENDING				"SENDING"
+#define  MSG_FIFO_RFPI_STATUS_READING				"READING"		//used above all  into command GET_BYTES_U
+#define  MSG_FIFO_RFPI_STATUS_STOPPED				"STOPPED"		//used above all  into command GET_BYTES_U
 
-#define  MSG_FIFO_RFPI_STATUS_OK			"OK"
-#define  MSG_FIFO_RFPI_STATUS_EXECUTING		"EXECUTING"
 
 
-
+//DEFINE THE DATA POSITION INTO THE ARRY OF 16 BYTES OF RADIO TXRX FOR Input and Output
+#define  POS_IO_R				0	//it is the 'R'
+#define  POS_IO_B				1	//it is the 'B'
+#define  POS_IO_CMD				2	//it is the command 'i' or 'p'
+#define  POS_IO_ID				3	//it is the ID of the IO
+#define  POS_IO_STATUS_8BIT		4	//it is the status of the Input or Output on 8bit
+#define  POS_IO_RESOLUTION		5	//it is the resolution in bit of the Input or Output on 8bit
+#define  POS_IO_DATA0			6	//it is the
+//.........
+#define  POS_IO_ID_SHIELD		13	//it is the ID of the shield connected to the pin
+#define  POS_IO_NUM_PIN			14	//it is the number of the pin
+#define  POS_IO_CHECKSUM		15	//it is the byte containing checksum
 
 //the struct where is kept the list of inputs name and status for each peripheral
 typedef struct peripheralnameinput{
@@ -220,7 +246,7 @@ typedef struct peripheralnameinput{
 	signed long StatusInput;
 	int BitResolution;
 	int StatusCommunication;
-	int id_shield_input;
+	int id_shield_connected;
 	int num_pin_used_on_the_peri;
 	struct peripheralnameinput	*next;
 }peripheraldatanameinput;
@@ -232,7 +258,7 @@ typedef struct peripheralnameoutput{
 	signed long StatusOutput;
 	int BitResolution;
 	int StatusCommunication;
-	int id_shield_output;
+	int id_shield_connected;
 	int num_pin_used_on_the_peri;
 	struct peripheralnameoutput	*next;
 }peripheraldatanameoutput;
@@ -263,7 +289,7 @@ typedef struct peripheral{
 
 //global variables used into the functions
 char statusRFPI[200]; 				//used into: ParseFIFOdataGUI
-int contStatusMsg; 					//used into: ParseFIFOdataGUI
+long contStatusMsg; 					//used into: ParseFIFOdataGUI
 char statusInit[200]; 				//it contain the initialisation status of rfpi.c
 char networkName[MAX_LEN_NET_NAME]; //it will keep the name of the network
 char networkAddress[5]; 			//it will contain the address of the network generated from the networkName
@@ -347,7 +373,8 @@ extern void setCurrentNetwork(int *handleUART);
 extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peripheraldata *rootPeripheralData);
 
 //it update the status into the struct data of the peripheral linked
-extern void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
+//extern void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
+//extern void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput);
 
 //it calculate and return the address for the network. Example name="SDS" return="00EA"
 extern void addressFromName(char *name, char *address);
@@ -405,13 +432,14 @@ extern peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesD
 extern void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, peripheraldata *rootPeripheralData);
 
 //get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
-int getIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int ID_IO, char type_IO, unsigned char *array_status);
+//extern int getIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int ID_IO, char type_IO, unsigned char *array_status);
+extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPeripheralData, unsigned int ID_IO, char type_IO, unsigned char *array_status);
 	
 //asks to the peripheral the status of the input
-extern int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput, int *id_shield_connected, int *num_pin_used_on_the_peri);
+//extern int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput, int *id_shield_connected, int *num_pin_used_on_the_peri);
 
 //asks to the peripheral the status of the output
-extern int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
+//extern int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
 
 // Implementation of itoa(). Convert a number into a string
 extern char* itoaRFPI(int num, char* str, int base);
