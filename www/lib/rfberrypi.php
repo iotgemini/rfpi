@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		25/03/2020
+Last Update: 		26/04/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -117,7 +117,27 @@ define("DIRECTORY_CONFIG_ALL_SETTINGS", PATH_RFPI . "/config/"); 			//where all 
 define("DIRECTORY_CONFIG_PERI", DIRECTORY_CONFIG_ALL_SETTINGS ."peri/");	//where the configuration files for this peripheral are kept
 //address_peri . FILE_NAME_CONFIG_PERI . id . FILE_EXTENSION_CONFIG_PERI
 define("FILE_NAME_CONFIG_PERI", "_what_to_show_peri_"); 						
-define("FILE_EXTENSION_CONFIG_PERI", ".txt"); 								
+define("FILE_EXTENSION_CONFIG_PERI", ".txt"); 	
+
+
+
+//LIST OF MESSAGE THAT ARE WRITTEN INTO FIFO
+
+//fifo rfpi run
+define("MSG_FIFO_RFPI_RUN_TRUE", "TRUE"); 
+define("MSG_FIFO_RFPI_RUN_BUSY", "BUSY"); 
+
+//FIFO status rfpi
+define("MSG_FIFO_RFPI_STATUS_OK", "OK"); 
+define("MSG_FIFO_RFPI_STATUS_EXECUTING", "EXECUTING"); 
+define("MSG_FIFO_RFPI_STATUS_NOTX", "NOTX"); 
+define("MSG_FIFO_RFPI_STATUS_NOPERI", "NOPERI"); 		//used above all when it find a new peripheral
+define("MSG_FIFO_RFPI_STATUS_NOTYPE", "NOTYPE"); 		//used above all when it find a new peripheral	
+define("MSG_FIFO_RFPI_STATUS_NONAME", "NONAME"); 		//used above all when it find a new peripheral
+define("MSG_FIFO_RFPI_STATUS_SENDING", "SENDING");
+define("MSG_FIFO_RFPI_STATUS_READING", "READING");		//used above all  into command GET_BYTES_U	
+define("MSG_FIFO_RFPI_STATUS_STOPPED", "STOPPED");		//used above all  into command GET_BYTES_U		
+	
 
 //-------------------------------END DEFINE----------------------------------//
 
