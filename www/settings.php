@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		23/05/2019
+Last Update: 		01/05/2020
 
 Description: tools to change parameters
 
@@ -87,9 +87,9 @@ echo '</p>';
 //button settings
 
 //button security
-echo '<p align=center>';
+/*echo '<p align=center>';
 echo '<a href="./config/login_to_security_settings.php" class="btn_release">'.$lang_btn_security.'</a>';
-
+*/
 //button release
 //echo '<p align=center>';
 //echo '<a href="./release.php" class="btn_release">'.$lang_btn_release_info.'</a>';
@@ -99,11 +99,12 @@ echo '<a href="./config/login_to_security_settings.php" class="btn_release">'.$l
 echo '<a href="./config/get_refresh_time.php" class="btn_release">'.$lang_btn_change_refresh_time.'</a>';
 
 //button Set RTC
-$str_rtc_time = str_rtc_time();
+/*$str_rtc_time = str_rtc_time();
 if($str_rtc_time[0] != 'N' && $str_rtc_time[0] != 'O'){
 	echo '<a href="./get_rtc_time.php?page_to_redirect=home" class="btn_release">'.$lang_btn_set_rtc.'</a>';
 }
 echo '</p>';
+*/
 
 //button HOME
 echo '<p align=left>';
