@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/04/2020
+Last Update: 					01/05/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -221,7 +221,7 @@ int main(int argc, char **argv){
 		for(count1=0;count1<EXECUTION_DELAY && cmd_execution==0;count1++){
 			//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
 			rootPeripheralData=ParseFIFOdataGUI(&handleUART, rootPeripheralData, &cmd_execution);
-			if(cmd_execution!=0) delay_ms(DELAY_AFTER_PARSED_DATA_GUI);
+			if(cmd_execution==0) delay_ms(DELAY_AFTER_PARSED_DATA_GUI);
 		}
 		
 		// Turn a led ON and OFF to shows the application is running 
