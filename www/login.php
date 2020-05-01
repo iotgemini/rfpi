@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		16/05/2016
+Last Update: 		01/05/2020
 
 Description: ask for user and password
 
@@ -27,6 +27,10 @@ Description: ask for user and password
 		include './lib/rfberrypi.php';  
 //---------------------------------------------------------------------------------------//
 
+$_SESSION["login_yes"]=1;
+header('Location: index.php') ;
+
+/*
 echo '<html>';
 echo ' <meta content="width=device-width, initial-scale=1" name="viewport"/>';
 echo '<head>';
@@ -49,7 +53,7 @@ echo '</form>';
 echo '</div>';
 
 echo '</body></html>';
-
+*/
 ?>
 
 
