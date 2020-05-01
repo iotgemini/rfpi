@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/04/2020
+Last Update: 					01/05/2020
 
 
 Description: library for the RFPI
@@ -184,13 +184,13 @@ int var_dummy1,var_dummy2;
 //#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
 
 
-#define DELAY_AFTER_PARSED_DATA_GUI		50		//mS. It is then multiplied by EXECUTION_DELAY by a cycle 
+#define DELAY_AFTER_PARSED_DATA_GUI		5		//mS. It is then multiplied by EXECUTION_DELAY by a cycle 
 
 #define EXECUTION_DELAY					10		//This is multiplied by DELAY_AFTER_PARSED_DATA_GUI
 												//It is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
 												
 //This is the time that the last message into FIFO_RFPI_STATUS would be hold, then ParseFIFOdataGUI(...) will write inside "OK"
-#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	DELAY_AFTER_PARSED_DATA_GUI*1000		
+#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	DELAY_AFTER_PARSED_DATA_GUI*10000		
 												
 
 
