@@ -190,7 +190,7 @@ int var_dummy1,var_dummy2;
 												//It is the delay before to update the fifo with the status, this will also give the semiperiod of the blinking led
 												
 //This is the time that the last message into FIFO_RFPI_STATUS would be hold, then ParseFIFOdataGUI(...) will write inside "OK"
-#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	DELAY_AFTER_PARSED_DATA_GUI*10000		
+#define TIME_HOLD_MSG_FIFO_RFPI_STATUS	DELAY_AFTER_PARSED_DATA_GUI*100	
 												
 
 
