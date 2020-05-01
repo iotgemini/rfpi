@@ -2873,7 +2873,7 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 					if(contMs>maxTimeOutMs){
 						varExit=1;
 						if(contRetry==1){
-							random_delay = random_num(MIN_NUM_RETRY,MAX_NUM_RETRY);
+							MaxNumRetry = random_num(MIN_NUM_RETRY,MAX_NUM_RETRY);
 							#if DEBUG_LEVEL>1
 								printf("\n  random-num-retry=%d",random_delay);fflush(stdout);
 							#endif
@@ -2886,18 +2886,21 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 						}
 					//}else if(answerRFPI[0] == 'O' && answerRFPI[1] == 'K' && answerRFPI[2] == '*' && last_i > (7+16-1)) //7 is the OK*XXXX and the 16 are the 16byte protocol
 					}else if(last_i > (7+16-1)){ //7 is the OK*XXXX and the 16 are the 16byte protocol
-						//varExit=2;//to delete
-						varchecksum = checksum((unsigned char *)&answerRFPI[7], 16);
-						if(varchecksum == 0){ //if it is 0 then data is ok!
-							varExit=2;
-						}else{
-							contMs=maxTimeOutMs;
-							#if DEBUG_LEVEL>0
-								if(varchecksum!=0){
-									printf(" CHECKSUM ERROR!!! CHECKSUM = %d\n",varchecksum);fflush(stdout);
-								}
-							#endif
-						}
+						#ifdef ENABLE_RADIO_DATA_CHECKSUM
+							varchecksum = checksum((unsigned char *)&answerRFPI[7], 16);
+							if(varchecksum == 0){ //if it is 0 then data is ok!
+								varExit=2;
+							}else{
+								contMs=maxTimeOutMs;
+								#if DEBUG_LEVEL>0
+									if(varchecksum!=0){
+										printf(" CHECKSUM ERROR!!! CHECKSUM = %d\n",varchecksum);fflush(stdout);
+									}
+								#endif
+							}
+						#else
+							varExit=2;//to delete
+						#endif
 					}else if(answerRFPI[0] == 'O' && answerRFPI[1] == 'K' && answerRFPI[2] == '*' && mustReply==0){
 						varExit=3;
 					}
