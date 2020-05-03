@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 31-03-2020"
+echo "Last update of this script was on 04-05-2020"
 
 if ! [ $(id -u) = 0 ]; then
 	echo "The script need to be run as root."
@@ -159,6 +159,7 @@ fi
 
 
 ########################## BEGIN INSTALL RFPI SERVICE ##########################
+#https://www.raspberrypi.org/documentation/linux/usage/systemd.md
 echo "Installing the service rfpi...."
 #sudo cp $DIRECTORY_RFPI/service/rfpi /etc/init.d/
 #sudo chmod +x /etc/init.d/rfpi
@@ -169,18 +170,19 @@ echo "Installing the service rfpi...."
 chmod u+x /etc/rfpi/runrfpi.sh
 
 echo "copying the service under /lib/systemd/"
+sudo chmod 777 $DIRECTORY_RFPI/service/rfpi.service
 sudo cp $DIRECTORY_RFPI/service/rfpi.service /lib/systemd/
 
 echo "creating a link under /etc/systemd/system/"
 cd /etc/systemd/system/
 sudo ln /lib/systemd/rfpi.service rfpi.service
-sudo chmod 777 rfpi.service
+#sudo chmod 777 rfpi.service
+#sudo chmod 644 rfpi.service
 
 echo "Make systemd reload the configuration file, start the service immediately..."
 sudo systemctl daemon-reload
 sudo systemctl start rfpi.service
 sudo systemctl enable rfpi.service
-
 
 #if [ "$disable_getty" -eq "1" ]; then
 #	#echo "Edit the file inittab - Disable the getty"
