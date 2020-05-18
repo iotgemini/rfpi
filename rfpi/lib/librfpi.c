@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					25/04/2020
+Last Update: 					18/05/2020
 
 
 Description: library for the RFPI
@@ -134,13 +134,13 @@ int nsleep(long miliseconds)
 
    if(miliseconds > 999)
    {   
-        req.tv_sec = (int)(miliseconds / 1000);                            /* Must be Non-Negative */
-        req.tv_nsec = (miliseconds - ((long)req.tv_sec * 1000)) * 1000000; /* Must be in range of 0 to 999999999 */
+        req.tv_sec = (int)(miliseconds / 1000);                            // Must be Non-Negative 
+        req.tv_nsec = (miliseconds - ((long)req.tv_sec * 1000)) * 1000000; // Must be in range of 0 to 999999999
    }   
    else
    {   
-        req.tv_sec = 0;                         /* Must be Non-Negative */
-        req.tv_nsec = miliseconds * 1000000;    /* Must be in range of 0 to 999999999 */
+        req.tv_sec = 0;                         // Must be Non-Negative 
+        req.tv_nsec = miliseconds * 1000000;    // Must be in range of 0 to 999999999 
    }   
 
    return nanosleep(&req , &rem);
@@ -166,18 +166,14 @@ void delay_ms(unsigned int millis){
 //it will init the serial communication between Transceiver and Raspberry Pi. 
 unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){ 	
 	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	char *cmd;
-	unsigned int i;
-	int numCharacters;
+	char *cmd=0;
+	unsigned int i=0;
+	int numCharacters=0;
 	unsigned int baud=9600;
-	//unsigned int varTmpExit=0;
 	unsigned int varTmpExit=1;
 
 	varTmpExit=0;
 	do{
-		
-		//if(PLATFORM == PLATFORM_RPI)
-		//#if PLATFORM == PLATFORM_RPI
 		if(strcmp(serial_port_path,"null")!=0){
 			*handleUART = serialOpen (serial_port_path, baud) ;
 			
@@ -239,11 +235,10 @@ unsigned int InitSerialCommunication(int *handleUART, char *serial_port_path){
 //It chang the baudrate of the transceiver with the one defined by BAUD_RATE_SERIAL_PORT
 unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *serial_port_path){ 	
 	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	char *cmd;
-	unsigned int i;
+	char *cmd=0;
+	unsigned int i=0;
 	int numCharacters;
 	unsigned int baud=9600;
-	//unsigned int varTmpExit=0;
 	unsigned int varTmpExit=1;
 	
 	#if DEBUG_LEVEL>0
@@ -252,9 +247,7 @@ unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *s
 	
 	varTmpExit=0;
 	do{
-		
-		//if(PLATFORM == PLATFORM_RPI)
-		//#if PLATFORM == PLATFORM_RPI
+
 		if(strcmp(serial_port_path,"null")!=0){
 			*handleUART = serialOpen (serial_port_path, baud) ;
 			
@@ -262,20 +255,7 @@ unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *s
 			*handleUART = serialOpen (SERIAL_PORT_PATH, baud) ;
 			
 		}
-		//printf("Serial baud at %d: ", baud);
-		
-		//#endif
-		//else if(PLATFORM == PLATFORM_BBB)
-		//#if PLATFORM == PLATFORM_BBB
-		//	*handleUART = serialOpen (SERIAL_PORT_PATH, baud) ;
-		//#endif
-		
-		//set the baud rate at 115200 on the Transceiver module
-		//SerialCmdRFPI(handleUART, "C557", 4, answerRFPI, CMD_WAIT1);
-		//SerialCmdRFPi(handleUART, "C557", answerRFPI, CMD_WAIT1);	//set a baud rate of 115200 (no compatible with Black Transceiver)
-		//SerialCmdRFPi(handleUART, "C556", answerRFPI, CMD_WAIT1); //set a baud rate of 57600
-		//SEND_COMAND_TO_SET_OPERATING_BAUDRATE;	//defined into librfpi.h
-		
+
 		if(BAUD_RATE_SERIAL_PORT==9600){
 			SerialCmdRFPi(handleUART, "C553", answerRFPI, CMD_WAIT1);
 		}else if(BAUD_RATE_SERIAL_PORT==19200){
@@ -307,9 +287,7 @@ unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *s
 			
 			numCharacters = 0;
 		}
-		//if(varTmpExit!=1){
-			serialClose (*handleUART) ; //closing the serial port
-		//}
+		serialClose (*handleUART) ; //closing the serial port
 		
 		if(varTmpExit==0){
 			if(baud==38400)
@@ -321,17 +299,12 @@ unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *s
 	}while(baud<=115200 && varTmpExit==0);	
 	
 	delay_ms(700);
-	
-	
-	
-	//if(baud<=115200){
-		if(strcmp(serial_port_path,"null")!=0){
+
+	if(strcmp(serial_port_path,"null")!=0){
 			*handleUART = serialOpen (serial_port_path, BAUD_RATE_SERIAL_PORT) ;
-		}else{
+	}else{
 			*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
-		}
-		//*handleUART = serialOpen (SERIAL_PORT_PATH, BAUD_RATE_SERIAL_PORT) ;
-	//}	
+	}
 	
 	delay_ms(700);
 	
@@ -360,9 +333,7 @@ unsigned int InitSerialCommunicationWithDefaultBaudRate(int *handleUART, char *s
 			
 	}
 	
-		
-	
-	
+
 	fflush(stdout); // Prints immediately to screen 
 	
 	return varTmpExit;
@@ -374,75 +345,52 @@ void ResetRFPI(void){
 	
 	#ifndef SERIAL_PORT_FTDI_USB
 	if(sem_serial_port_USB == 0){ 
-		//if(PLATFORM == PLATFORM_RPI){
 		#if PLATFORM == PLATFORM_RPI
 			// Set the pin to be an output
 			bcm2835_gpio_fsel(PIN_RESET, BCM2835_GPIO_FSEL_OUTP);
 			#ifdef LED_YES
-		
-				//if(sem_ctrl_led == 1){
-					bcm2835_gpio_fsel(PIN_LED_DS1, BCM2835_GPIO_FSEL_OUTP);
-					bcm2835_gpio_fsel(PIN_LED_DS2, BCM2835_GPIO_FSEL_OUTP);
-					bcm2835_gpio_set(PIN_LED_DS1);
-					// Turn it on
-					bcm2835_gpio_write(PIN_LED_DS2, HIGH);
-				//}
-			
+				bcm2835_gpio_fsel(PIN_LED_DS1, BCM2835_GPIO_FSEL_OUTP);
+				bcm2835_gpio_fsel(PIN_LED_DS2, BCM2835_GPIO_FSEL_OUTP);
+				bcm2835_gpio_set(PIN_LED_DS1);
+				// Turn it on
+				bcm2835_gpio_write(PIN_LED_DS2, HIGH);
 			#endif
 			bcm2835_gpio_write(PIN_RESET, LOW);
 			// wait
 			delay_ms(1000);
 			// turn it off
 			#ifdef LED_YES
-	
-			//if(sem_ctrl_led == 1){
 				bcm2835_gpio_write(PIN_LED_DS2, LOW);
-			//}
-	
 			#endif
 			bcm2835_gpio_write(PIN_RESET, HIGH);
 			// wait 
 			delay_ms(1000);
 		#endif
-		
-		
-		//}else if(PLATFORM == PLATFORM_BBB){
+
 		#if PLATFORM == PLATFORM_BBB
 			#ifdef LED_YES
-			//if(sem_ctrl_led == 1){
 				linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
-			//}
 			#endif
 			linux_gpio_set_value(BBB_PIN_RESET, LOW_GPIO);
 			// wait
 			delay_ms(1000);
 			#ifdef LED_YES
-			//if(sem_ctrl_led == 1){
 				linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
-			//}
 			#endif
 			linux_gpio_set_value(BBB_PIN_RESET, HIGH_GPIO);
 		#endif
 		
-		//}else if(PLATFORM == PLATFORM_OPZ){
 		#if PLATFORM == PLATFORM_OPZ
 			#ifdef LED_YES
-		
-			//if(sem_ctrl_led == 1){
-				linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);	// Led On
-			//}
-			
+				linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);	// Led On		
 			#endif
 			linux_gpio_set_value(OPZ_PIN_RESET, LOW_GPIO);
 			// wait
 			delay_ms(1000);
 			#ifdef LED_YES
-			//if(sem_ctrl_led == 1){
 				linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);	// Led On
-			//}
 			#endif
 			linux_gpio_set_value(OPZ_PIN_RESET, HIGH_GPIO);
-		//}
 		#endif
 	}
 	#endif
@@ -453,8 +401,8 @@ void ResetRFPI(void){
 //it will set the baud rate 
 void SetBaud(int *handleUART){  
 
-			char *cmd;
-			unsigned int baud;
+			char *cmd=0;
+			unsigned int baud=0;
 			
 			#if DEBUG_LEVEL>0
 				printf(" Type the baud rate wanted: ");
@@ -521,58 +469,10 @@ char* GetCmdToSetBaud(unsigned int *baud){
 
 //it create a fifo with written inside the data passed
 int fifoWriter(char *fifoname, char *data) {
-   /* int fd;
-
-	//mkfifo(fifoname, 0666); 
-
-	fd = open(fifoname, O_RDWR);  
-	write(fd, data, (strlen(data))); 
-	close(fd); 
-	*/
 	char dataFifoSync[10];
-	int i;
-	FILE* file_pointer;
-	/*file_pointer  = fopen(fifoname,  "r");
-	if(file_pointer != NULL){
-		//fscanf(file_pointer, "%s ", dataFifoSync);
-		rewind(file_pointer);
-		freopen(NULL,"w+",file_pointer);
-		//fprintf(file_pointer, "%s", data);
-		fputs(data, file_pointer);
-		fflush(file_pointer);	
-	}else{
-		printf("Impossible to write into FIFO: %s\n",fifoname); fflush(stdout);
-	}
-	fclose(file_pointer);
-	*/
-	
-	/*if(strcmp(fifoname,FIFO_RFPI_PERIPHERAL)==0){// || strcmp(fifoname,FIFO_RFPI_PERIPHERAL_JSON)){
-		file_pointer  = fopen(FIFO_RFPI_PERIPHERAL_SYNC,  "r");
-		fscanf(file_pointer, "%s ", dataFifoSync);
-		fclose(file_pointer);		
-		if(dataFifoSync[0] != '1'){	
-		
-			if(access(fifoname, F_OK) == 0){
-				//remove(fifoname);
-				file_pointer  = fopen(fifoname,  "w+");
-				if(file_pointer != NULL){
-					//fputs(data, file_pointer);
-					fprintf(file_pointer, "%s", data);
+	int i=0;
+	FILE* file_pointer=0;
 
-				}else{
-					printf("Impossible to write into FIFO: %s\n",fifoname); fflush(stdout);
-				}
-				fclose(file_pointer);
-				//chmod(FIFO_RFPI_STATUS, 0777);
-			}else{
-				printf("No access to FIFO: %s\n",fifoname); fflush(stdout);
-			}
-	
-		}else{
-			printf("GUI is reading FIFO: %s\n",fifoname); fflush(stdout);
-		}
-	}else{
-	*/	
 		if(access(fifoname, F_OK) == 0){
 			//remove(fifoname);
 			file_pointer  = fopen(fifoname,  "w+");
@@ -592,75 +492,31 @@ int fifoWriter(char *fifoname, char *data) {
 			#endif
 		}
 	
-	//}
-
     return 0;
 }
 
 
-//it read the fifo and then it will delete
-/*int fifoReader(char *data, char *fifoname){ 
-	
-	int fifo_handle;
-	
-	if(access(fifoname, F_OK) == 0){
-		//printf("FIFO Exist!\n"); fflush(stdout); 
-		fifo_handle = open(fifoname, O_RDWR);  
-		//printf("FIFO Opened!\n"); fflush(stdout);
-		read(fifo_handle, data, MAX_BUF_FIFO_GUI_CMD);
-		//printf("FIFO Data!\n"); fflush(stdout);
-		close(fifo_handle);
-		//printf("FIFO Closed!\n"); fflush(stdout);
-		// remove the FIFO 
-		unlink(fifoname);
-		//printf("FIFO Unlinked!\n"); fflush(stdout);
-		return 1;
-	}else{
-		//printf("FIFO NOT Exist!\n"); fflush(stdout); 
-		data[0]='\0';
-		return 0;
-	}
-
-}*/
-
 
 int fifoReader(char *data, char *fifoname){ 
 	int varReturn=0;
-	int fifo_handle;
-	int fifo_handle_sync;
+	int fifo_handle=0;
+	int fifo_handle_sync=0;
 	char dataFifoSync[10];
 	
-	//char str0[]="0\n";
-	FILE* file_pointer;
+	FILE* file_pointer=0;
 
 	
 	if(access(FIFO_GUI_CMD_SYNC, F_OK) == 0){
-		//fifo_handle_sync = open(FIFO_GUI_CMD_SYNC, O_RDWR);  
-		//read(fifo_handle_sync, dataFifoSync, 10);
-		
 		file_pointer  = fopen(FIFO_GUI_CMD_SYNC,  "r");
 		fscanf(file_pointer, "%s ", dataFifoSync);
-		//printf("fifocmdsync EXIST! %s\n",dataFifoSync); fflush(stdout);
-		//delay_ms(5000);
-		
+
 		if(dataFifoSync[0] == '1'){	
-			//printf("fifocmdsync 1!\n"); fflush(stdout);
-			//delay_ms(5000);
 			if(access(fifoname, F_OK) == 0){
-				//printf("FIFO Exist!\n"); fflush(stdout); 
 				fifo_handle = open(fifoname, O_RDWR);  
-				//printf("FIFO Opened!\n"); fflush(stdout);
-				///delay_ms(1);
 				read(fifo_handle, data, MAX_BUF_FIFO_GUI_CMD);
-				//printf("FIFO Data!\n"); fflush(stdout);
 				close(fifo_handle);
-				//printf("FIFO Closed!\n"); fflush(stdout);
-				// remove the FIFO 
-				//unlink(fifoname);
-				//printf("FIFO Unlinked!\n"); fflush(stdout);
 				varReturn = 1;
-			}else{
-				//printf("FIFO NOT Exist!\n"); fflush(stdout); 
+			}else{ //not exist!
 				data[0]='\0';
 				varReturn = 0;
 			}
@@ -671,16 +527,10 @@ int fifoReader(char *data, char *fifoname){
 			fflush(file_pointer);
 			
 		}
-		
-		
+
 		fclose(file_pointer);
 
-		//write(fifo_handle_sync, str0, (strlen(str0))); 
-		//close(fifo_handle_sync);
-		
-	
-	}else{
-		//printf("FIFO NOT Exist!\n"); fflush(stdout); 
+	}else{ //not exist!
 		data[0]='\0';
 		varReturn = 0;
 	}
@@ -693,7 +543,7 @@ int fifoReader(char *data, char *fifoname){
 //convert a int with value between 0 and 255 to a hexadecimal, example: 255 return FF
 void byteToHexStr(char *strHex, int num){
 	char hex[] = "0123456789ABCDEF";
-	int i;
+	int i=0;
 	strHex[3]='\0';
 	i=num&0b00001111;
 	strHex[1]=hex[i];		
@@ -705,14 +555,14 @@ void byteToHexStr(char *strHex, int num){
  
 //it just print on the terminal the data into all struct used for the Transceiver
 void printPeripheralStructData(peripheraldata *rootPeripheralData){
-	peripheraldata *currentPeripheralData;
-	peripheraldatanameinput *currentPeripheralDataNameInput;
-	peripheraldatanameoutput *currentPeripheralDataNameOutput;
+	#if DEBUG_LEVEL>0
+	peripheraldata *currentPeripheralData=0;
+	peripheraldatanameinput *currentPeripheralDataNameInput=0;
+	peripheraldatanameoutput *currentPeripheralDataNameOutput=0;
 	
 	currentPeripheralData=rootPeripheralData;
 	printf("\n\n");
 	int i=0;
-	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
 	while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 		printf("IDtype=%d    TYPE=%d    NAME=%s\n", i, currentPeripheralData->IDtype, currentPeripheralData->Name);
 		
@@ -736,6 +586,7 @@ void printPeripheralStructData(peripheraldata *rootPeripheralData){
 		i++;
 		currentPeripheralData=currentPeripheralData->next;
 	}
+	#endif
  }
  
  
@@ -744,9 +595,10 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 
 	//variable used to read the files descriptor of each peripheral
 	int contJ, contL, contK, lastCont, maxLenLine, varExit;
-	char strLineFile[MAX_LEN_LINE_FILE];
+	contJ = contL = contK = lastCont = maxLenLine = varExit = 0;
+	char strLineFile[MAX_LEN_LINE_FILE]; strLineFile[0]='\0';
 							
-							
+			
 	//pointers used to manage the data of all linked peripheral
 	peripheraldata *rootPeripheralData=NULL;
 	peripheraldata *currentPeripheralData=NULL;
@@ -764,56 +616,34 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 	peripheraldatanameoutput *nextPeripheralDataNameOutput=NULL; 
 	peripheraldatanameoutput *previousPeripheralDataNameOutput=NULL; 
 	
-	int NumPeripheral; //used to keep the number of linked peripheral
-	int IdPeripheral; //used to read the file with the list of peripheral
-	int TypePeripheral; //used to read the file with the list of files descriptor
-	char NamePeripheral[MAX_LEN_NAME]; //used to read the file with the list of peripheral
-	char NameFileDescriptor[MAX_LEN_NAME]; //used to read the file descriptor
-	char strPathFile[MAX_LEN_PATH]; //used to read the file descriptor
+	int NumPeripheral = 0; //used to keep the number of linked peripheral
+	int IdPeripheral = 0; //used to read the file with the list of peripheral
+	int TypePeripheral = 0; //used to read the file with the list of files descriptor
+	char NamePeripheral[MAX_LEN_NAME];NamePeripheral[0]='\0'; //used to read the file with the list of peripheral
+	char NameFileDescriptor[MAX_LEN_NAME]; NameFileDescriptor[0]='\0'; //used to read the file descriptor
+	char strPathFile[MAX_LEN_PATH]; strPathFile[0]='\0'; //used to read the file descriptor
 	unsigned char peripheralAddress[5];
-	int numSpecialFunction;
-	int fwVersion;
+	int numSpecialFunction = 0;
+	int fwVersion = 0;
 	
-	char strNum[10]; //used to convert int to string
-	char strMessage[30]; //used to construct message, used in multiple places. it is temporary variable
-	char strTemp[MAX_LEN_PATH];
-	char strHex[10];
+	char strNum[10]; strNum[0]='\0'; //used to convert int to string
+	char strMessage[30]; strMessage[0]='\0';//used to construct message, used in multiple places. it is temporary variable
+	char strTemp[MAX_LEN_PATH]; strTemp[0]='\0';
+	char strHex[10];strHex[0]='\0';
 	
 	FILE *file_pointer=NULL; //generic pointer to file, used in multiple places
 	FILE *file_pointer2=NULL; //generic pointer to file, used in multiple places
 	FILE *file_pointer3=NULL; //generic pointer to file, used in multiple places
 	
 	char  *pointer=NULL;
-	char   buffer[256];
+	char   buffer[256]; buffer[0]='\0';
 	
 	int i,l,cont_line;
+	i=l=cont_line=0;
 	
-	char networkAddress[5];
-	char networkName[MAX_LEN_NET_NAME];
-	
-	
-	//BEGIN: VARIABLES USED TO RECREATE THE FILE DESCRIPTOR ASKING THE NUM OF IO TO THE PERIPHERAL
-	/*unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
-	char peripheralAddressTemp[5];
-	char AddressRFPI[5];
-	char AddressInt[10];
+	char networkAddress[5]; networkAddress[0]='\0';
+	char networkName[MAX_LEN_NET_NAME]; networkName[0]='\0';
 
-	char strTemp2[MAX_LEN_LINE_FILE];
-	
-	unsigned int intPeripheralAddress; //contain the integer number of the address of the peripheral
-	unsigned int NumInput; //number of inputs on the peripheral
-	unsigned int NumOutput; //number of outputs on the peripheral
-	unsigned int IDtype;
-	unsigned int numInputAnalogue; 
-	unsigned int numInputDigital;
-	unsigned int numOutputAnalogue;
-	unsigned int numOutputDigital;
-	
-	unsigned char byteH, byteL;*/
-	//END: VARIABLES USED TO RECREATE THE FILE DESCRIPTOR ASKING THE NUM OF IO TO THE PERIPHERAL
-	
-	
 	if(!readNetworkNameFromFile(networkName)){
 		addressFromName(networkName, networkAddress);
 	}else{
@@ -849,8 +679,6 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 
 					field = 0;
 					while ((token = strtok(pointer, " ")) != NULL){
-						//printf("line %zu, field %zu -> %s\n", cont_line, field, token);
-						
 						token[strcspn(token, "\n")] = 0;
 						
 						if(field == 0) i=atoi(token); 
@@ -864,7 +692,9 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 						field  += 1;
 						pointer = NULL;
 					}
+					#if DEBUG_LEVEL>0
 					printf("\n LINE GOT = %d %d %s %s %s %d %d \n", i,IdPeripheral, NamePeripheral, NameFileDescriptor, peripheralAddress, numSpecialFunction, fwVersion); fflush(stdout); // Prints immediately to screen 
+					#endif
 				}
 				cont_line++;
 				
@@ -980,97 +810,7 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 							fprintf(file_pointer3,"%s\n",statusInit); //writing on the file the line of the inputs
 							fclose(file_pointer3);
 							
-							file_pointer3 = fopen(strPathFile,"r"); //opening the file descriptor just created
-							
-							/*printf("DEBUG %s \n",currentPeripheralData->PeriAddress); fflush(stdout); // Prints immediately to screen 
-														
-							//ask to the peripheral the type, number of IO
-							for(i=0;i<20;i++) strCmd[i]='\0';
-							strcpy(strCmd,"C03"); //cmd to set address of this new peripheral
-							strcat(strCmd,currentPeripheralData->PeriAddress);
-							SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1);
-							SerialCmdRFPI(handleUART, "C30RBt.............", 19, answerRFPI, CMD_WAIT1);
-							SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-							
-							if(answerRFPI[11]==0){ //no type returned, error!
-								strcpy(statusInit,"ERROR004 : Missing file descriptor and peripheral does not answer! File: ");
-								strcat(statusInit, NameFileDescriptor);
-							
-								//strcpy(statusRFPI,"NOTYPE");
-								
-								//IDtype=0; 
-								numInputDigital=0;
-								numOutputDigital=0;
-								numInputAnalogue=0; 
-								numOutputAnalogue=0;
-							}else{
-								//IDtype=0;
-								//IDtype=answerRFPI[10];
-								//IDtype=IDtype<<8;
-								//IDtype=IDtype+answerRFPI[11]; 
-								numInputDigital=answerRFPI[12];
-								numOutputDigital=answerRFPI[13];
-								numInputAnalogue=answerRFPI[14];
-								numOutputAnalogue=answerRFPI[15];
-							} 
-							NumInput=numInputAnalogue+numInputDigital; //number of inputs on the peripheral
-							NumOutput=numOutputAnalogue+numOutputDigital; //number of outputs on the peripheral
-
-							if(NumInput>255) NumInput=255; //max num input 255
-							if(NumOutput>255) NumOutput=255; //max num output 255
-							
-	
-							//RECREATING THE FILE DESCRIPOTR
-							file_pointer3 = fopen(strPathFile,"w+");
-																	
-							//first line with inputs
-							sprintf(strTemp, "%d", NumInput); //convert int to string
-							strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
-														
-							for(i=0;i<numInputDigital;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "Digital"); 
-							}
-							for(i=0;i<numInputAnalogue;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "Analogue"); 
-							}
-							for(i=0;i<numInputDigital;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "-1"); 
-							}
-							for(i=0;i<numInputAnalogue;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "-1"); 
-							}
-							
-							fprintf(file_pointer3,"%s\n", strTemp2); //writing on the file the line of the inputs
-								
-							//second line with outputs
-							for(i=0;i<numOutputDigital;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "Digital"); 
-							}
-							for(i=0;i<numOutputAnalogue;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "Analogue"); 
-							}
-							for(i=0;i<numOutputDigital;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "-1"); 
-							}
-							for(i=0;i<numOutputAnalogue;i++){ //writing all name
-								strcat(strTemp2, " "); 
-								strcat(strTemp2, "-1"); 
-							}
-							fprintf(file_pointer3,"%s\n", strTemp2); //writing on the file the line of the inputs
-
-							
-							fclose(file_pointer3);
-							file_pointer3 = fopen(strPathFile,"r"); //opening the file descriptor just created
-							
-							*/
-							
+							file_pointer3 = fopen(strPathFile,"r"); //opening the file descriptor just created							
 							
 						}
 						if(!feof(file_pointer3)){//file descriptor blank?
@@ -1138,8 +878,6 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 											contK=0;
 											
 											//reserve area of memory for the type
-											//currentPeripheralDataNameInput->NameInput=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
-											//strcpy(currentPeripheralDataNameInput->NameInput,strMessage);
 											currentPeripheralDataNameInput->Type=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
 											strcpy(currentPeripheralDataNameInput->Type,strMessage);
 											
@@ -1235,9 +973,7 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 											contK=0;
 											
 											//reserve area of memory for the name
-											//currentPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
 											currentPeripheralDataNameOutput->Type=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
-											//strcpy(currentPeripheralDataNameOutput->NameOutput,strMessage);
 											strcpy(currentPeripheralDataNameOutput->Type,strMessage);
 											
 											currentPeripheralDataNameOutput->StatusOutput=-1;
@@ -1289,9 +1025,7 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 								}else{
 									//if there are no name output
 									strcpy(strMessage, "No output.");
-									//currentPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
 									currentPeripheralDataNameOutput->Type=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
-									//strcpy(currentPeripheralDataNameOutput->NameOutput, strMessage);
 									strcpy(currentPeripheralDataNameOutput->Type, strMessage);
 									currentPeripheralData->NumOutput=0;
 								}
@@ -1319,9 +1053,7 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 									}
 								}
 								strNum[lastCont]='\0'; 
-								
-								//currentPeripheralData->NumInput=atoi(strNum);
-								
+
 								if(currentPeripheralData->NumInput>0){
 									//get all name of the input
 									contJ=lastCont+1;
@@ -1336,20 +1068,7 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 											//reserve area of memory for the type
 											currentPeripheralDataNameInput->NameInput=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
 											strcpy(currentPeripheralDataNameInput->NameInput,strMessage);
-											
-											//currentPeripheralDataNameInput->StatusInput=-1;
-											//currentPeripheralDataNameInput->StatusCommunication=-1;
-											
-											//reserve area of memory for the next struct of name
-											//nextPeripheralDataNameInput = (peripheraldatanameinput*)malloc(sizeof(peripheraldatanameinput));
-											//nextPeripheralDataNameInput->next=0;
-											
-											//keep track of the previous in oprder to delete the last malloc not used when exit from the loop
-											//previousPeripheralDataNameInput=currentPeripheralDataNameInput;
-											
-											//set the pointer to point to the new area of memory not yet utilised
-											//currentPeripheralDataNameInput->next=nextPeripheralDataNameInput;
-											//currentPeripheralDataNameInput=nextPeripheralDataNameInput;
+
 											currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
 										}else{
 											strMessage[contK]=strLineFile[contJ];
@@ -1358,16 +1077,11 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 										contJ++;
 									}
 									
-									//delete the last malloc, because when it exit from the loop the last struct is not used
-									//free(currentPeripheralDataNameInput);
-									//previousPeripheralDataNameInput->next=0; 
-									
 								}else{
 									//if there are no name input
 									strcpy(strMessage, "NO_NAME");
 									currentPeripheralDataNameInput->NameInput=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
 									strcpy(currentPeripheralDataNameInput->NameInput, strMessage);
-									//currentPeripheralData->NumInput=0;
 								}
 
 							}
@@ -1392,8 +1106,6 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 									}
 								}
 								strNum[lastCont]='\0'; 
-							
-								//currentPeripheralData->NumOutput=atoi(strNum);
 								
 								if(currentPeripheralData->NumOutput>0){
 									//get all name of the outputs
@@ -1409,20 +1121,7 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 											//reserve area of memory for the name
 											currentPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
 											strcpy(currentPeripheralDataNameOutput->NameOutput,strMessage);
-											
-											//currentPeripheralDataNameOutput->StatusOutput=-1;
-											//currentPeripheralDataNameOutput->StatusCommunication=-1;
-											
-											//reserve area of memory for the next struct of name
-											//nextPeripheralDataNameOutput = (peripheraldatanameoutput*)malloc(sizeof(peripheraldatanameoutput));
-											//nextPeripheralDataNameOutput->next=0;
-											
-											//keep track of the previous in oprder to delete the last malloc not used when exit from the loop
-											//previousPeripheralDataNameOutput=currentPeripheralDataNameOutput;
-											
-											//set the pointer to point to the new area of memory not yet utilised
-											//currentPeripheralDataNameOutput->next=nextPeripheralDataNameOutput;
-											//currentPeripheralDataNameOutput=nextPeripheralDataNameOutput;
+
 											currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
 										}else{
 											strMessage[contK]=strLineFile[contJ];
@@ -1431,16 +1130,11 @@ peripheraldata *loadLinkedPeripheral(int *handleUART){
 										contJ++;
 									}
 									
-									//delete the last malloc, because when it exit from the loop the last struct is not used
-									//free(currentPeripheralDataNameOutput);
-									//previousPeripheralDataNameOutput->next=0; 
-									
 								}else{
 									//if there are no name output
 									strcpy(strMessage, "NO_NAME");
 									currentPeripheralDataNameOutput->NameOutput=(char*)malloc((strlen(strMessage)+1)*sizeof(char));
 									strcpy(currentPeripheralDataNameOutput->NameOutput, strMessage);
-									//currentPeripheralData->NumOutput=0;
 								}
 
 							}
@@ -1492,18 +1186,16 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 	peripheraldatanameoutput *currentPeripheralDataNameOutput=NULL; 
 	
 	//int handleFIFO; 
-	char data[MAX_LEN_LINE_FILE];
-	char strNum[10];
-	int i;
-	FILE *file_pointer;
-	
-	//create the fifo to give the status of the peripheral to the GUI
-	//mkfifo(FIFO_RFPI_PERIPHERAL, 0666); 
-	//handleFIFO = open(FIFO_RFPI_PERIPHERAL, O_RDWR);  
+	char data[MAX_LEN_LINE_FILE]; data[0]='\0';
+	char strNum[10]; strNum[0]='\0';
+	int i=0;
+	FILE *file_pointer=0;
 	
 	file_pointer  = fopen(FIFO_RFPI_PERIPHERAL,  "w+");
 	if(file_pointer == NULL){
+		#if DEBUG_LEVEL>0
 		printf("Impossible to write into FIFO: %s\n",FIFO_RFPI_PERIPHERAL); fflush(stdout);
+		#endif
 	}else{
 
 		currentPeripheralData=rootPeripheralData;
@@ -1516,37 +1208,12 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			intToStr (i,strNum); strcat(data,strNum); strcat(data," ");
 			intToStr(currentPeripheralData->IDtype, strNum); strcat(data,strNum); strcat(data," ");
 			strcat(data,currentPeripheralData->Name);strcat(data," ");
-			/*if(currentPeripheralData->Name != 0){
-				int varExitTemp=0;
-				int sem_copy=0;
-				int l=0;
-				for(int j=0; j<MAX_LEN_LINE_FILE && varExitTemp==0;j++){
-					if(data[j]=='\0'){
-						sem_copy = 1;	
-					}
-					if(sem_copy == 1 && currentPeripheralData->Name[l]!='\0' && l<MAX_LEN_NAME){
-						data[j]=currentPeripheralData->Name[l];
-						l++;						
-					}else{
-						if(l==0){
-							strcat(data,"NO_NAME"); 
-						}else{
-							data[j]='\0';
-						}
-						varExitTemp=1;
-					}
-				}				 
-			}else{
-				strcat(data,"NO_NAME"); 
-			}*/
-		
-			
+
 			strcat(data,currentPeripheralData->PeriAddress); strcat(data," ");
 			intToStr(currentPeripheralData->numSpecialFunction, strNum); strcat(data,strNum); strcat(data," ");
 			intToStr(currentPeripheralData->fwVersion, strNum); strcat(data,strNum); strcat(data,"\n");
 			
 			//write on the FIFO
-			//write(handleFIFO, data, (strlen(data))); 
 			fprintf(file_pointer, "%s", data);
 			
 			//write second line
@@ -1557,25 +1224,6 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
 				if(currentPeripheralDataNameInput->NameInput!=0){
 					strcat(data,currentPeripheralDataNameInput->NameInput); strcat(data," ");
-					/*int varExitTemp=0;
-					int sem_copy=0;
-					int l=0;
-					for(int j=0; j<MAX_LEN_LINE_FILE && varExitTemp==0;j++){
-						if(data[j]=='\0'){
-							sem_copy = 1;	
-						}
-						if(sem_copy == 1 && currentPeripheralDataNameInput->NameInput[l]!='\0' && l<MAX_LEN_NAME){
-							data[j]=currentPeripheralDataNameInput->NameInput[l];
-							l++;						
-						}else{
-							if(l==0){
-								strcat(data,"NO_NAME"); 
-							}else{
-								data[j]='\0';
-							}
-							varExitTemp=1;
-						}
-					}*/
 				}else{
 					strcat(data,"NO_NAME"); strcat(data," ");
 				}
@@ -1593,8 +1241,7 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
 			}
 			strcat(data,"\n");
-			//write on the FIFO
-			//write(handleFIFO, data, (strlen(data))); 
+			//write on the FIFO 
 			fprintf(file_pointer, "%s", data);
 			
 			//write third line
@@ -1621,15 +1268,13 @@ void writeFifoPeripheralLinked(peripheraldata *rootPeripheralData){
 			}
 			strcat(data,"\n");
 			//write on the FIFO
-			//write(handleFIFO, data, (strlen(data))); 
 			fprintf(file_pointer, "%s", data);
 			
 			i++;
 			currentPeripheralData=currentPeripheralData->next;
 		}
 		
-	}
-	//close(handleFIFO); 
+	} 
 	fclose(file_pointer);
 }
 
@@ -1657,9 +1302,9 @@ char* intToStr(int i, char *b){
 
 //read from file the network name, if the network name is not set it will return '\0' 
 int readNetworkNameFromFile(char *networkName){
-	char strNameTemp[MAX_LEN_NET_NAME], strNameTemp2[MAX_LEN_NET_NAME];
-	FILE *file_pointer;
-	int i;
+	char strNameTemp[MAX_LEN_NET_NAME], strNameTemp2[MAX_LEN_NET_NAME]; strNameTemp[0]=strNameTemp2[0]='\0';
+	FILE *file_pointer=0;
+	int i=0;
 	
 	strNameTemp[0]='\0'; //if is not set, strNameTemp will remain '\0' 
 	if( access( FILE_NETWORK_NAME, F_OK ) == -1 ) {
@@ -1678,7 +1323,6 @@ int readNetworkNameFromFile(char *networkName){
 				if (fscanf(file_pointer, "%s", strNameTemp2) != 1){
 					break; 
 				}
-				//strcpy(strNameTemp, strNameTemp2); 
 				i=0;
 				while(i<MAX_LEN_NET_NAME && strNameTemp2[i]!='\0'){
 					strNameTemp[i]=strNameTemp2[i];
@@ -1706,7 +1350,7 @@ int readNetworkNameFromFile(char *networkName){
 //it will send the command to the RFberry module 
 void initRFberryNetwork(int *handleUART){
 
-    char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
+    char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0';
 	
 	//it will set the address for the current network
 	setCurrentNetwork(handleUART);
@@ -1728,7 +1372,7 @@ void initRFberryNetwork(int *handleUART){
 //it will set the default network used to search a new peripheral
 void setProgramModeNetwork(int *handleUART){
 
-	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
+	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0';
 	
 	SerialCmdRFPi(handleUART, "C01FFFC", answerRFPI, CMD_WAIT1); //set network address
 	SerialCmdRFPi(handleUART, "C02FFFC", answerRFPI, CMD_WAIT1); //set address of this device
@@ -1744,10 +1388,10 @@ void setProgramModeNetwork(int *handleUART){
 //it will set the address for the current network
 void setCurrentNetwork(int *handleUART){
 
-	char strCmd[30];
-	char networkAddress[5];
-	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	char networkName[MAX_LEN_NET_NAME];
+	char strCmd[30]; strCmd[0]='\0';
+	char networkAddress[5]; networkAddress[0]='\0';
+	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0';
+	char networkName[MAX_LEN_NET_NAME]; networkName[0]='\0';
 	
 	if(!readNetworkNameFromFile(networkName)){
 		addressFromName(networkName, networkAddress);
@@ -1776,59 +1420,60 @@ void setCurrentNetwork(int *handleUART){
 extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peripheraldata *rootPeripheralData){
 
 
-	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
-	char networkAddress[5];
-	char peripheralAddress[5];
-	char peripheralAddressTemp[5];
-	char AddressRFPI[5];
-	char AddressInt[10];
-	char networkName[MAX_LEN_NET_NAME];
-	char strHex[10];
-	char NamePeripheral[MAX_LEN_NAME];
-	char NameFileDescriptor[MAX_LEN_NAME];
+	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0';
+	unsigned char strCmd[30]; strCmd[0]='\0';
+	char networkAddress[5]; networkAddress[0]='\0';
+	char peripheralAddress[5]; peripheralAddress[0]='\0';
+	char peripheralAddressTemp[5]; peripheralAddressTemp[0]='\0';
+	char AddressRFPI[5]; AddressRFPI[0]='\0';
+	char AddressInt[10]; AddressInt[0]='\0';
+	char networkName[MAX_LEN_NET_NAME]; networkName[0]='\0';
+	char strHex[10]; strHex[0]='\0';
+	char NamePeripheral[MAX_LEN_NAME]; NamePeripheral[0]='\0';
+	char NameFileDescriptor[MAX_LEN_NAME]; NameFileDescriptor[0]='\0';
 	
-	char strTemp[MAX_LEN_LINE_FILE];
-	char strTemp2[MAX_LEN_LINE_FILE];
+	char strTemp[MAX_LEN_LINE_FILE]; strTemp[0]='\0';
+	char strTemp2[MAX_LEN_LINE_FILE]; strTemp2[0]='\0';
 	
-	FILE *file_pointer; //generic file pointer, used to update the file
+	FILE *file_pointer=0; //generic file pointer, used to update the file
 	
-	unsigned int numPeripheral; //number of peripherals into the struct data
-	unsigned int intPeripheralAddress; //contain the integer number of the address of the peripheral
-	unsigned int NumInput; //number of inputs on the peripheral
-	unsigned int NumOutput; //number of outputs on the peripheral
-	unsigned int IDtype;
-	unsigned int numInputAnalogue; 
-	unsigned int numInputDigital;
-	unsigned int numOutputAnalogue;
-	unsigned int numOutputDigital;
-	unsigned int numSpecialFunction;
-	unsigned int fwVersion;
+	unsigned int numPeripheral=0; //number of peripherals into the struct data
+	unsigned int intPeripheralAddress=0; //contain the integer number of the address of the peripheral
+	unsigned int NumInput=0; //number of inputs on the peripheral
+	unsigned int NumOutput=0; //number of outputs on the peripheral
+	unsigned int IDtype=0;
+	unsigned int numInputAnalogue=0; 
+	unsigned int numInputDigital=0;
+	unsigned int numOutputAnalogue=0;
+	unsigned int numOutputDigital=0;
+	unsigned int numSpecialFunction=0;
+	unsigned int fwVersion=0;
 
-	char strPathFile[MAX_LEN_PATH];
+	char strPathFile[MAX_LEN_PATH]; strPathFile[0]='\0';
 	
-	unsigned char byteH, byteL;
+	unsigned char byteH=0;
+	unsigned char byteL=0;
+
+	int i=0;
 	
-	int i;
-	
-	unsigned char array_status[20];
+	unsigned char array_status[20]; array_status[0]='\0';
 	
 	
 	//pointers used to manage the data of all linked peripheral
-	peripheraldata *currentPeripheralData;
-	peripheraldata *nextPeripheralData;
+	peripheraldata *currentPeripheralData=0;
+	peripheraldata *nextPeripheralData=0;
 	
 	//pointers used to manage the struct with the name of input
-	peripheraldatanameinput *rootPeripheralDataNameInput; 
-	peripheraldatanameinput *currentPeripheralDataNameInput; 
-	peripheraldatanameinput *nextPeripheralDataNameInput; 
-	peripheraldatanameinput *previousPeripheralDataNameInput; 
+	peripheraldatanameinput *rootPeripheralDataNameInput=0; 
+	peripheraldatanameinput *currentPeripheralDataNameInput=0; 
+	peripheraldatanameinput *nextPeripheralDataNameInput=0; 
+	peripheraldatanameinput *previousPeripheralDataNameInput=0; 
 	
 	//pointers used to manage the struct with the name of output
-	peripheraldatanameoutput *rootPeripheralDataNameOutput; 
-	peripheraldatanameoutput *currentPeripheralDataNameOutput; 
-	peripheraldatanameoutput *nextPeripheralDataNameOutput; 
-	peripheraldatanameoutput *previousPeripheralDataNameOutput; 
+	peripheraldatanameoutput *rootPeripheralDataNameOutput=0; 
+	peripheraldatanameoutput *currentPeripheralDataNameOutput=0; 
+	peripheraldatanameoutput *nextPeripheralDataNameOutput=0; 
+	peripheraldatanameoutput *previousPeripheralDataNameOutput=0; 
 	
 	
 	setProgramModeNetwork(handleUART);
@@ -1847,12 +1492,9 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	if(!readNetworkNameFromFile(networkName)){
 		addressFromName(networkName, networkAddress);
 		sscanf(networkAddress,"%X",&i); //convert string hex in integer
-		//printf("Network Address: %s   INT: %d", networkAddress, i);
-
 	}else{
 		//address C733
 		sscanf("C733","%X",&i); //convert string hex in integer
-		//printf("Network Address: C733   INT: %d", networkAddress, i);
 	}
 	#if DEBUG_LEVEL>0
 		printf("Network Address to assign: %s \n", networkAddress); fflush(stdout);
@@ -1865,32 +1507,6 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	byteL=0;
 	byteL=byteL | i;
 	strCmd[7]=byteL;
-		
-	//printf("    BYTE H: %d   BYTE L: %d\n", byteH, byteL);
-	
-	
-	//assigning the address to the peripheral
-	//original 1.0
-/*	numPeripheral=0;
-	intPeripheralAddress=0;
-	i=0;
-	if(!(rootPeripheralData==0)){
-		currentPeripheralData=rootPeripheralData;
-		while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
-			numPeripheral++;
-			//check the first address free to assign to the new peripheral
-			sscanf(currentPeripheralData->PeriAddress,"%X",&i); //convert string hex in integer
-			
-			if(i!=numPeripheral && i!=43775) //43775 is the address of the master (Transceiver)
-				intPeripheralAddress=i;
-				
-			currentPeripheralData=currentPeripheralData->next;
-		}
-	} 
-	if(intPeripheralAddress==0)  //if no address are free, will assign the consecutive address of the last one
-		intPeripheralAddress=i+1; 
-	itoaRFPI(intPeripheralAddress,peripheralAddress,16); //convert integer to hexadecimal in ASCII
-*/
 
 	//assigning the address to the peripheral
 	//solved bug in 1.1
@@ -1899,14 +1515,10 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	i=0;
 	if(!(rootPeripheralData==0)){
 		currentPeripheralData=rootPeripheralData;
-		//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
 		while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 			i++;
 			
 			sscanf(currentPeripheralData->PeriAddress,"%X",&numPeripheral); //convert string hex in integer
-			
-			//printf("PeriAddress=%s, Int=%d\n",currentPeripheralData->PeriAddress,numPeripheral); fflush(stdout);
-			//delay_ms(2000);
 			
 			//check the first address free to assign to the new peripheral
 			if(intPeripheralAddress==numPeripheral && i!=43775){ //43775 is the address of the master (Transceiver)
@@ -1918,10 +1530,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 			}
 		}
 	} 
-	//if(intPeripheralAddress==0)  //if no address are free, will assign the consecutive address of the last one
-	//	intPeripheralAddress=i+1; 
 	itoaRFPI(intPeripheralAddress,peripheralAddress,16); //convert integer to hexadecimal in ASCII
-	
 	
 	//adding the 0 if the itoaRFPI does not return 4 characters. 
 	i=0;
@@ -1940,7 +1549,6 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	strcpy(peripheralAddress,peripheralAddressTemp);
 	
 	#if DEBUG_LEVEL>0
-		//printf("Peri Address: %s   INT: %d", peripheralAddress, intPeripheralAddress); fflush(stdout);
 		printf("Peri Address to assign: %s \n", peripheralAddress); fflush(stdout);
 	#endif
 	
@@ -1951,15 +1559,13 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	byteL=0;
 	byteL=byteL | intPeripheralAddress;
 	strCmd[9]=byteL;
-	
-	//printf("    BYTE H: %d   BYTE L: %d\n", byteH, byteL); fflush(stdout);
+
 	
 	//giving the address of the master
 	strcpy(AddressRFPI, ADDRESS_RFPI); //copying the address of the Transceiver
 	AddressRFPI[4]='\0';
 	sscanf(AddressRFPI,"%X",&i); //convert string hex in integer
 	#if DEBUG_LEVEL>0
-		//printf("Master Address: %s   INT: %d", AddressRFPI, i); fflush(stdout);
 		printf("Master Address: %s \n", AddressRFPI); fflush(stdout);
 	#endif
 	
@@ -1970,10 +1576,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	byteL=0;
 	byteL=byteL | i;
 	strCmd[11]=byteL;
-	
-	//printf("    BYTE H: %d   BYTE L: %d\n", byteH, byteL); fflush(stdout);
-		
-		
+
 	//########### v1.0 ###########
 	//SerialCmdRFPI(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
 	//SendCmdRFPIDelay("C31", handleUART, answerRFPI, CMD_WAIT2); //send data, loaded before, to the new peripheral
@@ -1984,7 +1587,6 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 		
 		
 	//updating the status if needed
-	//if(!(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K')){
 	if(!(answerRFPI[0]=='O' && answerRFPI[1]=='K')){
 		strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NOPERI); 
 		#if DEBUG_LEVEL>0
@@ -2013,26 +1615,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 		}else{
 			strcpy(networkAddress,"C733");
 		}
-		
-		/*numPeripheral=0;
-		if(rootPeripheralData==0){
-			nextPeripheralData=(peripheraldata*)malloc(sizeof(peripheraldata));
-			nextPeripheralData->next=0; 
-			rootPeripheralData=nextPeripheralData;
-		}else{
-			currentPeripheralData=rootPeripheralData;
-			while(currentPeripheralData->next!=0){
-				numPeripheral++;
-				currentPeripheralData=currentPeripheralData->next;
-			}
-			numPeripheral++; 
-			nextPeripheralData=(peripheraldata*)malloc(sizeof(peripheraldata));
-			nextPeripheralData->next=0; 
-			currentPeripheralData->next=nextPeripheralData;
-		} 
-		currentPeripheralData=nextPeripheralData;
-		*/
-		
+				
 		delay_ms(50); //gives the time to the peri to set on the new network
 		
 		strcpy(strCmd,"C03"); //cmd to set address of this new peripheral
@@ -2200,17 +1783,6 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 						//rootPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameInput->id_shield_input, &rootPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
 						rootPeripheralDataNameInput->StatusInput = get_IO_Peri_Status(handleUART, currentPeripheralData, i, (char)'i', array_status);
 						
-						/*if(rootPeripheralDataNameInput->StatusInput == -1){
-							rootPeripheralDataNameInput->StatusCommunication=-1;
-							//rootPeripheralDataNameInput->id_shield_input=-1;
-							//rootPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
-						}else{
-							rootPeripheralDataNameInput->StatusCommunication=1;
-						}*/
-						
-						
-						//rootPeripheralDataNameInput->StatusInput=askInputResolutionPeri(handleUART, peripheralAddress, i); //ask to the peripheral for the status of the input
-						
 						currentPeripheralDataNameInput=rootPeripheralDataNameInput;
 					}else{
 						nextPeripheralDataNameInput = (peripheraldatanameinput*)malloc(sizeof(peripheraldatanameinput));
@@ -2222,19 +1794,8 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 						
 						currentPeripheralDataNameInput->next=nextPeripheralDataNameInput;
 						
-						//nextPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameInput->id_shield_input, &nextPeripheralDataNameInput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the input
 						nextPeripheralDataNameInput->StatusInput = get_IO_Peri_Status(handleUART, currentPeripheralData, i, (char)'i', array_status);
-						
-						
-						/*if(nextPeripheralDataNameInput->StatusInput == -1){
-							nextPeripheralDataNameInput->StatusCommunication=-1;
-							//nextPeripheralDataNameInput->id_shield_input=-1;
-							//nextPeripheralDataNameInput->num_pin_used_on_the_peri=-1;
-						}else{
-							nextPeripheralDataNameInput->StatusCommunication=1;
-						}*/
-						
-						
+
 						currentPeripheralDataNameInput=nextPeripheralDataNameInput;
 					}
 				}
@@ -2261,17 +1822,8 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 						//assigning to the main peripheral data struct the roots pointers of the inputs and outputs structs
 						currentPeripheralData->rootNameOutput=rootPeripheralDataNameOutput;
 			
-						//rootPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &rootPeripheralDataNameOutput->id_shield_output, &rootPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
 						rootPeripheralDataNameOutput->StatusOutput = get_IO_Peri_Status(handleUART, currentPeripheralData, i, (char)'p', array_status);
-						
-						/*if(rootPeripheralDataNameOutput->StatusOutput == -1){
-							rootPeripheralDataNameOutput->StatusCommunication=-1;
-							//rootPeripheralDataNameOutput->id_shield_output=-1;
-							//rootPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
-						}else{
-							rootPeripheralDataNameOutput->StatusCommunication=1;
-						}*/
-						
+
 						currentPeripheralDataNameOutput=rootPeripheralDataNameOutput;
 					}else{
 						nextPeripheralDataNameOutput = (peripheraldatanameoutput*)malloc(sizeof(peripheraldatanameoutput));
@@ -2283,26 +1835,12 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 						
 						currentPeripheralDataNameOutput->next=nextPeripheralDataNameOutput;
 						
-						//nextPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, peripheralAddress, i, &nextPeripheralDataNameOutput->id_shield_output, &nextPeripheralDataNameOutput->num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
 						nextPeripheralDataNameOutput->StatusOutput = get_IO_Peri_Status(handleUART, currentPeripheralData, i, (char)'p', array_status);
-						
-						/*if(nextPeripheralDataNameOutput->StatusOutput == -1){
-							nextPeripheralDataNameOutput->StatusCommunication=-1;
-							//nextPeripheralDataNameOutput->id_shield_output=-1;
-							//nextPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
-						}else{
-							nextPeripheralDataNameOutput->StatusCommunication=1;
-						}*/
 
 						currentPeripheralDataNameOutput=nextPeripheralDataNameOutput;
 					}
 				}
 			}
-			
-
-			//assigning to the main peripheral data struct the roots pointers of the inputs and outputs structs
-			//currentPeripheralData->rootNameInput=rootPeripheralDataNameInput;
-			//currentPeripheralData->rootNameOutput=rootPeripheralDataNameOutput;
 			
 			//creates file descriptor 
 			strcpy(NameFileDescriptor,"desc_");
@@ -2310,7 +1848,6 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 			strcat(NameFileDescriptor, peripheralAddress);
 			strcat(NameFileDescriptor, ".txt"); 
 
-printf("            OK0  \n"); fflush(stdout);
 
 			//if exist, delete the file descriptor
 			strcpy(strPathFile,PATH_CONFIG_FILE);
@@ -2327,7 +1864,7 @@ printf("            OK0  \n"); fflush(stdout);
 						perror("Error");
 					}
 			}
-printf("            OK1  \n"); fflush(stdout);
+
 				
 			//saving into the struct the name of the file descriptor
 			currentPeripheralData->NameFileDescriptor=(char*)malloc((strlen(NameFileDescriptor)+1)*sizeof(char));
@@ -2337,51 +1874,47 @@ printf("            OK1  \n"); fflush(stdout);
 			strcpy(strPathFile,PATH_CONFIG_FILE);
 			strcat(strPathFile,currentPeripheralData->NameFileDescriptor);
 			file_pointer = fopen(strPathFile,"w+"); //creating the file descriptor
-printf("            OK2  \n"); fflush(stdout);			
+		
 			//first line with inputs
 			currentPeripheralDataNameInput=rootPeripheralDataNameInput; //currentPeripheralData->rootNameInput;
 			sprintf(strTemp, "%d", NumInput); //convert int to string
 			strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
 			while(currentPeripheralDataNameInput!=0){ //writing all name
 				strcat(strTemp2, " "); 
-				//strcat(strTemp2, currentPeripheralDataNameInput->NameInput); 
 				strcat(strTemp2, currentPeripheralDataNameInput->Type); 
 				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
 			}
-printf("            OK2 b  \n"); fflush(stdout);
+
 			currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 			while(currentPeripheralDataNameInput!=0){ //writing all name
 				strcat(strTemp2, " "); 
-				//sprintf(strTemp, "%d", currentPeripheralDataNameInput->StatusInput); //convert int to string
 				sprintf(strTemp, "%d", currentPeripheralDataNameInput->BitResolution); //convert int to string
 				strcat(strTemp2, strTemp); 
 				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
 			}
 			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the inputs
-printf("            OK3  \n"); fflush(stdout);			
+			
 			//second line with outputs
 			currentPeripheralDataNameOutput=rootPeripheralDataNameOutput; //currentPeripheralData->rootNameOutput;
 			sprintf(strTemp, "%d", NumOutput); //convert int to string
 			strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
 			while(currentPeripheralDataNameOutput!=0){ //writing all name
 				strcat(strTemp2, " "); 
-				//strcat(strTemp2, currentPeripheralDataNameOutput->NameOutput); 
 				strcat(strTemp2, currentPeripheralDataNameOutput->Type);
 				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
 			}
 			currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 			while(currentPeripheralDataNameOutput!=0){ //writing all name
 				strcat(strTemp2, " "); 
-				//sprintf(strTemp, "%d", currentPeripheralDataNameOutput->StatusOutput); //convert int to string
 				sprintf(strTemp, "%d", currentPeripheralDataNameOutput->BitResolution); //convert int to string
 				strcat(strTemp2, strTemp); 
 				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
 			}
 			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the outputs
 			
-printf("            OK4  \n"); fflush(stdout);		
+	
 			//third line with name of the input
-			currentPeripheralDataNameInput=rootPeripheralDataNameInput; //currentPeripheralData->rootNameInput;
+			currentPeripheralDataNameInput=rootPeripheralDataNameInput; 
 			sprintf(strTemp, "%d", NumInput); //convert int to string
 			strcpy(strTemp2, strTemp); //first part of the line: the number of inputs
 			while(currentPeripheralDataNameInput!=0){ //writing all name
@@ -2389,7 +1922,6 @@ printf("            OK4  \n"); fflush(stdout);
 				strcat(strTemp2, currentPeripheralDataNameInput->NameInput); 
 				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
 			}
-			//currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the inputs
 			
 			
@@ -2402,12 +1934,9 @@ printf("            OK4  \n"); fflush(stdout);
 				strcat(strTemp2, currentPeripheralDataNameOutput->NameOutput); 
 				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
 			}
-			//currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 			fprintf(file_pointer,"%s\n", strTemp2); //writing on the file the line of the outputs
 
-			
 			fclose(file_pointer); 
-printf("            OK5  \n"); fflush(stdout);
 
 			file_pointer = fopen(FILE_LIST_PERIPHERAL,"a+"); //opening the list of peripherals 
 			if( file_pointer == NULL){
@@ -2418,7 +1947,7 @@ printf("            OK5  \n"); fflush(stdout);
 			}
 			fclose(file_pointer);  
 			
-printf("            OK6  \n"); fflush(stdout);
+
 		} //end of the if where it check the correct reply from pery with all its characteristics
 	}
 	
@@ -2432,84 +1961,14 @@ printf("            OK6  \n"); fflush(stdout);
 
 }
 
-
-//it update the status into the struct data of the peripheral linked
-/*void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput, int *id_shield_connected, int *num_pin_used_on_the_peri){
-	peripheraldata *currentPeripheralData;
-	peripheraldatanameoutput *currentPeripheralDataNameOutput;
-	
-	int i,l;
-	int varExit=0;
-	currentPeripheralData=rootPeripheralData;
-	
-	i=0; l=0;
-	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ 
-	while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
-		currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
-		if(i==*IDposition){
-			while(currentPeripheralDataNameOutput!=0  && varExit==0){
-				if(l==*IDoutput){
-					currentPeripheralDataNameOutput->StatusOutput=*valueOutput;
-					if(currentPeripheralDataNameOutput->StatusOutput==-1){
-						currentPeripheralDataNameOutput->StatusCommunication=-1;
-						currentPeripheralDataNameOutput->id_shield_connected=-1;
-						currentPeripheralDataNameOutput->num_pin_used_on_the_peri=-1;
-					}else{
-						currentPeripheralDataNameOutput->StatusCommunication=1;
-						currentPeripheralDataNameOutput->id_shield_connected=*id_shield_connected;
-						currentPeripheralDataNameOutput->num_pin_used_on_the_peri=*num_pin_used_on_the_peri;
-					}
-					varExit=1;
-				}
-				l++;
-				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-			}
-		}
-		i++;
-		currentPeripheralData=currentPeripheralData->next;
-	}
-}*/
-
-//it update the status into the struct data of the peripheral linked
-/*void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput){
-	peripheraldata *currentPeripheralData;
-	peripheraldatanameoutput *currentPeripheralDataNameOutput;
-	
-	int i,l;
-	int varExit=0;
-	currentPeripheralData=rootPeripheralData;
-	
-	i=0; l=0;
-	//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ 
-	while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
-		currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
-		if(i==*IDposition){
-			while(currentPeripheralDataNameOutput!=0  && varExit==0){
-				if(l==*IDoutput){
-					currentPeripheralDataNameOutput->StatusOutput=*valueOutput;
-					if(currentPeripheralDataNameOutput->StatusOutput==-1){
-						currentPeripheralDataNameOutput->StatusCommunication=-1;
-					}else{
-						currentPeripheralDataNameOutput->StatusCommunication=1;
-					}
-					varExit=1;
-				}
-				l++;
-				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-			}
-		}
-		i++;
-		currentPeripheralData=currentPeripheralData->next;
-	}
-}*/
-
 //it calculate and return the address for the network. 
 extern void addressFromName(char *name, char *address){
 	
-	int i;
-	unsigned int intAddress;
-	char strHex[3];
-	unsigned char byteH, byteL;
+	int i=0;
+	unsigned int intAddress=0;
+	char strHex[3]; strHex[0]='\0';
+	unsigned char byteH=0;
+	unsigned char byteL=0;
 	
 	int lenName=strlen(name); //get the length of the name
 	
@@ -2547,14 +2006,11 @@ peripheraldata *deletePeripheralByAddress(char *addressPeri, peripheraldata *roo
 	int positionId=0;
 	
 	//pointers used to manage the data of all linked peripheral
-	peripheraldata *currentPeripheralData;
-	//peripheraldata *PeripheralDataToFree;
-	
-	
+	peripheraldata *currentPeripheralData=0;
+
 	int varExit=0;
 	if(rootPeripheralData!=0){
 		currentPeripheralData=rootPeripheralData;
-		//while(varExit==0 && currentPeripheralData!=0 && ((int)currentPeripheralData)>0){
 		while(varExit==0 && currentPeripheralData!=0 && (currentPeripheralData)>0){//for LINUX_MINT
 			//check if the address it is same
 			if(addressPeri[0]==currentPeripheralData->PeriAddress[0] 
@@ -2563,7 +2019,6 @@ peripheraldata *deletePeripheralByAddress(char *addressPeri, peripheraldata *roo
 			&& addressPeri[3]==currentPeripheralData->PeriAddress[3]){
 				varExit=1;
 			}else{
-				//PeripheralDataToFree = currentPeripheralData;
 				currentPeripheralData=currentPeripheralData->next;
 				//free(PeripheralDataToFree);
 				positionId++;
@@ -2582,53 +2037,40 @@ peripheraldata *deletePeripheralByAddress(char *addressPeri, peripheraldata *roo
 //it delete the peripheral in the position positionId, the file descriptor will remain
 peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralData){
 
-	FILE *file_pointer; //generic file pointer, used to update the file
+	FILE *file_pointer=0; //generic file pointer, used to update the file
 	
-	char strPathFile[MAX_LEN_PATH]; //used to keep the path of the file
-	char strPathFile2[MAX_LEN_PATH]; //used to keep the path of the file
-	int status;
-	int i,l;
+	char strPathFile[MAX_LEN_PATH]; strPathFile[0]='\0'; //used to keep the path of the file
+	char strPathFile2[MAX_LEN_PATH]; strPathFile2[0]='\0'; //used to keep the path of the file
+	int status=0;
+	int i=0;
+	int l=0;
 	
 	//pointers used to manage the data of all linked peripheral
-	peripheraldata *currentPeripheralData;
-	peripheraldata *nextPeripheralData;
-	peripheraldata *previoustPeripheralData;
+	peripheraldata *currentPeripheralData=0;
+	peripheraldata *nextPeripheralData=0;
+	peripheraldata *previoustPeripheralData=0;
 	
 	//v1.1.1 searching into the struct the position of the peripheral to delete
-	//numPeripheral=0;
-	//intPeripheralAddress=1; //assigning the first address, in case after it will find is used it will change
 	i=0;
 	if(!(rootPeripheralData==0)){
 		currentPeripheralData=rootPeripheralData;
-		//while(i!=positionId && currentPeripheralData!=0 && ((int)currentPeripheralData)>0){
 		while(i!=positionId && currentPeripheralData!=0 && (currentPeripheralData)>0){//for LINUX_MINT
 			currentPeripheralData=currentPeripheralData->next;
 			i++;
-			
-			//sscanf(currentPeripheralData->PeriAddress,"%X",&numPeripheral); //convert string hex in integer
-			
-			//printf("PeriAddress=%s, Int=%d\n",currentPeripheralData->PeriAddress,numPeripheral); fflush(stdout);
-			//delay_ms(2000);
-			
-			//check the first address free to assign to the new peripheral
-			/*if(intPeripheralAddress==numPeripheral && i!=43775){ //43775 is the address of the master (Transceiver)
-				//if the address is used then has to change the address (adding 1) and restart the checking
-				intPeripheralAddress++;
-				currentPeripheralData=rootPeripheralData;
-			}else{
-				currentPeripheralData=currentPeripheralData->next;
-			}*/
-			
 		}
 		//delete the file descriptor
 		strcpy(strPathFile,PATH_CONFIG_FILE);
 		strcat(strPathFile,currentPeripheralData->NameFileDescriptor);
 		status = remove(strPathFile);
 		if( status == 0 ){
+			#if DEBUG_LEVEL>0
 			printf("%s file deleted successfully.\n",currentPeripheralData->NameFileDescriptor);
+			#endif
 		}else{
+			#if DEBUG_LEVEL>0
 			printf("Unable to delete the file %s\n", currentPeripheralData->NameFileDescriptor);
-			perror("Error");
+			#endif
+			perror("Error deleting peripheral!");
 		}
 		
 		//delete the file JSON
@@ -2637,30 +2079,24 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 		strcat(strPathFile,".json");
 		status = remove(strPathFile);
 		if( status == 0 ){
+			#if DEBUG_LEVEL>0
 			printf("%s file deleted successfully.\n",strPathFile);
+			#endif
 		}else{
+			#if DEBUG_LEVEL>0
 			printf("Unable to delete the file %s\n", strPathFile);
-			perror("Error");
+			#endif
+			perror("Error deleting peripheral!");
 		}
 	} 
-	
-	//delete the file descriptor
-	/*strcpy(strPathFile,PATH_CONFIG_FILE);
-	strcat(strPathFile,rootPeripheralData->NameFileDescriptor);
-	status = remove(strPathFile);
-	if( status == 0 ){
-		printf("%s file deleted successfully.\n",rootPeripheralData->NameFileDescriptor);
-	}else{
-		printf("Unable to delete the file %s\n", rootPeripheralData->NameFileDescriptor);
-		perror("Error");
-	}
-	*/
-   
-   
+
 	strcpy(strPathFile,PATH_CONFIG_FILE);
 	strcat(strPathFile,"list_peripheral2.txt");
 	file_pointer = fopen(strPathFile,"w+"); //opening the list of peripherals 
 	if(file_pointer == NULL){
+		#if DEBUG_LEVEL>0
+		printf("Error while opening the file list_peripheral.txt.\n");
+		#endif
 		perror("Error while opening the file list_peripheral.txt.\n");
 		exit(EXIT_FAILURE);
 	}else{ 
@@ -2669,7 +2105,6 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 		currentPeripheralData=rootPeripheralData;
 		previoustPeripheralData=rootPeripheralData;
 		//will rewrite the whole file
-		//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
 		while((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 			if(i==positionId){
 				if(i==0){
@@ -2719,14 +2154,22 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 	
 	//need delete the file otherwise inside there will be the data of the old peripheral
 	if(remove(FIFO_RFPI_PERIPHERAL)==0){
+		#if DEBUG_LEVEL>0
 		printf("FIFO_RFPI_PERIPHERAL removed!");
+		#endif
 	}else{
+		#if DEBUG_LEVEL>0
 		printf("Impossible to remove FIFO_RFPI_PERIPHERAL!");
+		#endif
 	}
 	if(remove(FIFO_RFPI_PERIPHERAL_JSON)==0){
+		#if DEBUG_LEVEL>0
 		printf("FIFO_RFPI_PERIPHERAL_JSON removed!");
+		#endif
 	}else{
+		#if DEBUG_LEVEL>0
 		printf("Impossible to remove FIFO_RFPI_PERIPHERAL_JSON!");
+		#endif
 	}
 	//create the fifo to give the status of the peripheral to the GUI
 	writeFifoPeripheralLinked(rootPeripheralData); 
@@ -2740,59 +2183,10 @@ peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralD
 }
 
 
-//################################ V1.0 ############################################
-//send trough the serial port a specified number of characters to the Transceiver module.
-/*void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, unsigned char *answerRFPI, int delayMs){
-			
-			int i, numC;
-			
-			//emptying serial buffer
-			numC=serialDataAvail (*handleUART) ;
-			while(numC>0){
-				i = serialGetchar (*handleUART);
-				numC--;
-			}
-			
-			
-			printf(" Serial data: ");
-			//for(i=0;i<numCharacters;i++){
-			//	serialPutchar(*handleUART, strCmd[i]);
-			//	printf("%c", strCmd[i]);
-			//}
-			write (*handleUART, strCmd, numCharacters) ;
-			printf("%s", strCmd);
-			
-			
-			printf(" -> ");
-			
-			delay_ms(delayMs); //delay to wait for the execution of the command by the Transceiver
-
-			numC=serialDataAvail (*handleUART) ;
-			
-			i=0;
-			answerRFPI[i]='\0';
-			if(numC>0){
-				printf(" Answer from the Radio: ");
-				for(i=0;i<numC && i<(MAX_LEN_BUFFER_ANSWER_RF-1);i++){
-					answerRFPI[i]=serialGetchar(*handleUART);
-					printf("%c", answerRFPI[i] );
-				}
-				//i--;
-				printf("\n");
-			}else{
-				printf(" NO ANSWER FROM THE RADIO! \n"); fflush(stdout);
-			}
-			//answerRFPI[i+1]='\0';
-			answerRFPI[i]='\0';
-			
-			fflush(stdout); // Prints immediately to screen 
-			
-}*/
-
-
 //send trough the serial port a specified number of characters to the Transceiver module and then send the command C31 and wait the answer from the peipheral.
 extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arrayData, int numCharacters, char *answerRFPI, int maxTimeOutMs, unsigned char mustReply){
 			int i,last_i, numC, contMs;
+			i = last_i = numC = contMs = 0;
 			unsigned char varExit=0;
 			unsigned char MaxNumRetry=MAX_NUM_RETRY;
 			unsigned char contRetry = 1;
@@ -2811,20 +2205,20 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 					i = serialGetchar (*handleUART);
 					numC--;
 				}
-				/*do{
-					numC=serialGetchar (*handleUART); delay_ms(1); numC=serialDataAvail (*handleUART);
-				}while(numC>0);
-				//erase the data, thus will not parse again the previous data
-				for(i=0;i<16;i++){ answerRFPI[i]='\0'; }*/
-			
+				
+				#if DEBUG_LEVEL>0
 				printf(" Try %d of %d sending wireless Data: ",contRetry,MaxNumRetry);
+				#endif
 				for(i=0;i<strlen(strCmdC31);i++){
 					serialPutchar(*handleUART, strCmdC31[i]);
+					#if DEBUG_LEVEL>0
 					printf("%c", strCmdC31[i]);
+					#endif
 				}
+				#if DEBUG_LEVEL>0
 				printf(" -> ");
-				
 				fflush(stdout); // Prints immediately to screen
+				#endif
 				
 				//delay_ms(100);
 				
@@ -2840,10 +2234,6 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 				do{
 					delay_ms(1);
 
-					//numC=serialDataAvail (*handleUART) ;
-					
-					//i=0;
-					//answerRFPI[i]='\0';
 					do{
 						
 						for(i=0;i<numC && (i+last_i+1)<(MAX_LEN_BUFFER_ANSWER_RF);i++){
@@ -2851,6 +2241,7 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 							answerRFPI[(i+last_i)]=serialGetchar (*handleUART);
 							answerRFPI[(i+last_i+1)]='\0';
 							
+							#if DEBUG_LEVEL>0
 							//this check if the character is inside the ASCII table and then print
 							if(answerRFPI[(i+last_i)]<32 || answerRFPI[(i+last_i)] > 126){
 								if(answerRFPI[(i+last_i)]<10)
@@ -2860,14 +2251,12 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 							}else{
 								printf("%c", answerRFPI[(i+last_i)]);
 							}
+							#endif
 						}
 						last_i += i;
-						//i--;
-						//printf("\n");
 						numC=serialDataAvail (*handleUART) ;
 					}while(numC>0);
-					
-					//answerRFPI[i+1]='\0';
+
 					fflush(stdout); // Prints immediately to screen 
 					
 					if(contMs>maxTimeOutMs){
@@ -2879,7 +2268,7 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 							#endif
 						}
 						if(contRetry < (MaxNumRetry+1)){
-							random_delay = random_num(25, 100);
+							random_delay = random_num(MIN_RANDOM_DELAY_RETRY_TX_RF, MAX_RANDOM_DELAY_RETRY_TX_RF);
 							#if DEBUG_LEVEL>1
 								printf("\n  random-delay=%dmS",random_delay);fflush(stdout);
 							#endif
@@ -2907,12 +2296,16 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 					
 					contMs++;
 				}while(varExit==0);
+				#if DEBUG_LEVEL>0
 				printf("\n");
+				#endif
 				contRetry++;
 				
 				fflush(stdout); // Prints immediately to screen
 			}while(varExit==1 && contRetry < (MaxNumRetry+1) );
+			#if DEBUG_LEVEL>1
 			printf("\n");
+			#endif
 			
 }
 
@@ -2928,15 +2321,12 @@ extern void loadRadioData(int *handleUART, unsigned char *arrayData, int numChar
 				i = serialGetchar (*handleUART);
 				numC--;
 			}
-			/*do{
-				numC=serialGetchar (*handleUART); delay_ms(1); numC=serialDataAvail (*handleUART);
-			}while(numC>0);
-			//erase the data, thus will not parse again the previous data
-			for(i=0;i<16;i++){ answerRFPI[i]='\0'; }*/
-			
+			#if DEBUG_LEVEL>0
 			printf(" Loading Data on the Radio: ");
+			#endif
 			for(i=0;i<numCharacters;i++){
 				serialPutchar(*handleUART, arrayData[i]);
+				#if DEBUG_LEVEL>0
 				if(arrayData[i]<32 || arrayData[i] > 126){
 					if(arrayData[i]<10)
 						printf("%d", arrayData[i]);
@@ -2944,9 +2334,11 @@ extern void loadRadioData(int *handleUART, unsigned char *arrayData, int numChar
 						printf("X");
 				}else
 					printf("%c", arrayData[i]);
+				#endif
 			}
+			#if DEBUG_LEVEL>0
 			printf(" -> ");
-			
+			#endif
 			contMs = 0;
 			
 			do{
@@ -2955,19 +2347,18 @@ extern void loadRadioData(int *handleUART, unsigned char *arrayData, int numChar
 				numC=serialDataAvail (*handleUART) ;
 				
 				i=0;
-				//answerRFPI[i]='\0';
 				if(numC>0){
 					for(i=0;i<numC && i<(MAX_LEN_BUFFER_ANSWER_RF-1);i++){
 						answerRFPI[i]=serialGetchar (*handleUART);
+						#if DEBUG_LEVEL>0
 						printf("%c", answerRFPI[i] );
+						#endif
 					}
-					//i--;
+					#if DEBUG_LEVEL>0
 					printf("\n");
+					#endif
 				}
 				answerRFPI[i]='\0';
-				
-				//answerRFPI[i+1]='\0';
-				//fflush(stdout); // Prints immediately to screen 
 				
 				if(contMs>=maxTimeOutMs)
 					varExit=1;
@@ -2978,9 +2369,10 @@ extern void loadRadioData(int *handleUART, unsigned char *arrayData, int numChar
 					
 				contMs++;
 			}while(varExit==0);
+			#if DEBUG_LEVEL>0
 			printf("\n");
-			
 			fflush(stdout); // Prints immediately to screen
+			#endif
 }
 
 
@@ -2988,59 +2380,44 @@ extern void loadRadioData(int *handleUART, unsigned char *arrayData, int numChar
 //it will exit from the function when receive the "*" or receive "OK*" from the Transceiver module or when reach the maxTimeOutMs
 extern void SerialCmdRFPi(int *handleUART, unsigned char *strCmd, char *answerRFPI, int maxTimeOutMs){
 			int i, numC, numCharacters, contMs;
+			i = numC = numCharacters = contMs = 0;
 			unsigned char varExit=0;
-			
-			
-			
+
 			//emptying serial buffer
 			numC=serialDataAvail (*handleUART) ;
 			while(numC>0){
 					i = serialGetchar (*handleUART);
 					numC--;
 			}
-			/*do{
-				numC=serialGetchar (*handleUART); delay_ms(1); numC=serialDataAvail (*handleUART);
-			}while(numC>0);
-			//erase the data, thus will not parse again the previous data
-			for(i=0;i<16;i++){ answerRFPI[i]='\0'; }*/
-			
-			
 			
 			numCharacters = strlen(strCmd);
-			
+			#if DEBUG_LEVEL>0
 			printf("\n CMD to the Radio: ");
-			/*for(i=0;i<numCharacters;i++){
-				serialPutchar(*handleUART, strCmd[i]);
-				printf("%c", strCmd[i]);
-			}*/
-			write (*handleUART, strCmd, numCharacters) ;
 			printf("%s", strCmd);
-			
 			printf(" -> ");
-			
-			//delay_ms(CMD_WAIT1);
-			
-			//write (*handleUART, strCmd, numCharacters) ;
+			#endif
+
+			write (*handleUART, strCmd, numCharacters) ;
 			
 			contMs = 0;
-			
 			do{
 				delay_ms(1);
 
 				numC=serialDataAvail (*handleUART) ;
 				
 				i=0;
-				//answerRFPI[i]='\0';
 				if(numC>0){
 					for(i=0;i<numC && i<(MAX_LEN_BUFFER_ANSWER_RF-1);i++){
 						answerRFPI[i]=serialGetchar (*handleUART);
+						#if DEBUG_LEVEL>0
 						printf("%c", answerRFPI[i] );
+						#endif
 					}
-					//i--;
+					#if DEBUG_LEVEL>0
 					printf("\n");
+					#endif
 				}
 				
-				//answerRFPI[i+1]='\0';
 				answerRFPI[i]='\0';
 				fflush(stdout); // Prints immediately to screen 
 				
@@ -3053,7 +2430,6 @@ extern void SerialCmdRFPi(int *handleUART, unsigned char *strCmd, char *answerRF
 					
 				contMs++;
 			}while(varExit==0);
-			//printf("\n");
 }
 
 
@@ -3061,44 +2437,47 @@ extern void SerialCmdRFPi(int *handleUART, unsigned char *strCmd, char *answerRF
 peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheralData, int *cmd_executed){
 	
 	//pointers used to manage the data of all linked peripheral
-	peripheraldata *currentPeripheralData;
-	peripheraldata *nextPeripheralData;
+	peripheraldata *currentPeripheralData=0;
+	peripheraldata *nextPeripheralData=0;
 	
-	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; //used to get the answer from the Transceiver
-	char strCmd[40]; //used to give command to the Transceiver
+	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0'; //used to get the answer from the Transceiver
+	char strCmd[40]; strCmd[0]='\0'; //used to give command to the Transceiver
 	
 	//variables used to elaborate FIFO written by the WEB
-	char data[(MAX_BUF_FIFO_GUI_CMD*2)+20]; //MAX_BUF_FIFO_GUI_CMD is declared inro librfpi.h
+	char data[(MAX_BUF_FIFO_GUI_CMD*2)+20]; data[0]='\0'; //MAX_BUF_FIFO_GUI_CMD is declared inro librfpi.h
 	char tag[10], type[10], value1[MAX_BUF_FIFO_GUI_CMD], value2[MAX_BUF_FIFO_GUI_CMD];
-	char peripheral_name[10];
-	int  peri_id_position, output_id, positionId;
-	int output_value;
+	tag[0] = type[0] = value1[0] = value2[0]='\0';
+	char peripheral_name[10]; peripheral_name[0]='\0';
+	int  peri_id_position, output_id, positionId, output_value;
+	peri_id_position = output_id = positionId = output_value = 0;
 	int	 num_bytes_to_get, num_bytes_to_send, num_function;
-	char strTemp[MAX_LEN_PATH];
+	num_bytes_to_get = num_bytes_to_send = num_function = 0;
+	char strTemp[MAX_LEN_PATH]; strTemp[0]='\0';
 	
-	char strPathFile[MAX_LEN_PATH]; //used to keep the path of the file
-	char strPathFile2[MAX_LEN_PATH]; //used to keep the path of the file
-	int status;
-	unsigned char stop_by_user;
+	char strPathFile[MAX_LEN_PATH]; strPathFile[0]='\0';//used to keep the path of the file
+	char strPathFile2[MAX_LEN_PATH]; strPathFile2[0]='\0';//used to keep the path of the file
+	int status=0;
+	unsigned char stop_by_user=0;
 	
-	int i,pos,j,cont_packet;
-	int num_time_the_peri_did_not_reply;
-	unsigned char sem_1;
+	int i,pos,j,cont_packet,num_time_the_peri_did_not_reply;
+	i = pos = j = cont_packet = num_time_the_peri_did_not_reply = 0;
+	unsigned char sem_1 = 0;
 		
 	//unsigned char array10BytesToSend[10]; //globaly declared otherwise it does not keep the value
-	unsigned char byte_to_send;
+	unsigned char byte_to_send = 0;
 	unsigned int t,cont_packet_sent, sem1_exit;
+	t = cont_packet_sent = sem1_exit = 0;
 	
 		
-	FILE *file_pointer; //generic pointer to file, used in multiple places
-	FILE *file_pointer_error; //used for the file of the error history
+	FILE *file_pointer=0; //generic pointer to file, used in multiple places
+	FILE *file_pointer_error=0; //used for the file of the error history
 
-	int id_shield_connected; //used to know which shield is connectted to the io
-	int num_pin_used_on_the_peri; //used to know which is the number of the pin used on the peripheral
+	int id_shield_connected=0; //used to know which shield is connectted to the io
+	int num_pin_used_on_the_peri=0; //used to know which is the number of the pin used on the peripheral
 	
-	char strMsgTemp[20];
+	char strMsgTemp[20]; strMsgTemp[0]='\0';
 	
-	unsigned char array_status[20];
+	unsigned char array_status[20]; array_status[0]='\0';
 				
 	
 	if(contStatusMsg>(TIME_HOLD_MSG_FIFO_RFPI_STATUS+1) || contStatusMsg<0) //contStatusMsg global variable
@@ -3112,16 +2491,14 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 	}else if(contStatusMsg<TIME_HOLD_MSG_FIFO_RFPI_STATUS){
 		contStatusMsg++;
 	}
-			
 
-	//*cmd_executed=1; //I assume the command would be executed, otherwise at the end this variable is set to 0
-	
 	//it check data from the GUI
 	if(fifoReader(data, FIFO_GUI_CMD)) {
 				
 			sscanf(data,"%s %s %s %s ",tag, type, value1, value2);
+			#if DEBUG_LEVEL>0
 			printf("From FIFO_GUI_CMD received: %s %s %s %s\n", tag, type, value1, value2);
-			
+			#endif
 			
 			if(strcmp(tag,"FIND")==0 && strcmp(type,"NEW")==0 && strcmp(value1,"PERI")==0){ 
 			//it start the procedure to find a new peripheral that is waitng to be installed into the network
@@ -3194,9 +2571,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						i++;
 						currentPeripheralData=currentPeripheralData->next;
 					}
-					
+					#if DEBUG_LEVEL>0
 					printf("PERIOUT | id_position = %d | id_output = %d | value_output = %d\n", peri_id_position, output_id,output_value);
-
+					#endif
 					strcpy(strCmd,"C03"); //cmd to set address of peripheral
 					strcat(strCmd,currentPeripheralData->PeriAddress);
 					SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1);
@@ -3233,14 +2610,19 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					}
 					
 				}
-				
+				#if DEBUG_LEVEL>0
 				printf(" status= %s\n",answerRFPI);
+				#endif
 				if(answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 					strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK); 
+					#if DEBUG_LEVEL>0
 					printf("Status=OK\n");
+					#endif
 				}else{
 					strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NOTX); 
+					#if DEBUG_LEVEL>0
 					printf("Status=NOTX\n");
+					#endif
 				} 
 
 				
@@ -3272,8 +2654,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					}
 					peri_id_position=i;
 					if(strcmp(currentPeripheralData->PeriAddress,address_peri)==0){
+						#if DEBUG_LEVEL>0
 						printf("SETOUT | address_peri = %s | id_output = %d | value_output = %d\n", address_peri, output_id, output_value);
-
+						#endif
 						strcpy(strCmd,"C03"); //cmd to set address of peripheral
 						strcat(strCmd,currentPeripheralData->PeriAddress);
 						SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1);
@@ -3299,13 +2682,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 0);
 						
 						if(strcmp(statusRFPI,MSG_FIFO_RFPI_STATUS_OK)==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K'){
-							
-							//output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id, &id_shield_connected, &num_pin_used_on_the_peri); //ask to the peripheral for the status of the output
-							//output_value = 
 							get_IO_Peri_Status(handleUART, currentPeripheralData, output_id, (char)'p', array_status);
-							
-							//updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value, &id_shield_connected, &num_pin_used_on_the_peri);
-							//updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value);
 						}
 					}else{
 						varError = 1;
@@ -3318,14 +2695,19 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					//if te address given is not 4 characters then it is not a valid address 
 					answerRFPI[0]='K'; answerRFPI[1]='O';
 				}
-				
+				#if DEBUG_LEVEL>0
 				printf(" status= %s\n",answerRFPI);
+				#endif
 				if(answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 					strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK); 
+					#if DEBUG_LEVEL>0
 					printf("Status=OK\n");
+					#endif
 				}else{
 					strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NOTX); 
+					#if DEBUG_LEVEL>0
 					printf("Status=NOTX\n");
+					#endif
 				} 
 
 
@@ -3340,13 +2722,6 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			//	NAME 	NET 	xxx... 	NULL		//it save the network name and create a numerical address. Name of the network is xxx...
 				contStatusMsg=0; //reset the counter to give the time to be read the status by the GUI, after the status return to OK
 				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
-				
-				//the GUI will wait for the data updated
-				/*strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
-				fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
-				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
-				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
-				*/
 				
 				//copying the first 128 (MAX_LEN_NET_NAME) characters
 				for(i=0;i<strlen(value1) && i<MAX_LEN_NET_NAME;i++){
@@ -3367,18 +2742,20 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					}else{
 						//convert the network name in an address for the Transceiver module
 						addressFromName(networkName, networkAddress);
+						#if DEBUG_LEVEL>0
 						//just to see the output
 						printf("NETWORK NAME: %s\n", networkName);
 						printf("NETWORK ADDRESS: %s\n", networkAddress);
-						
 						printf("\nReinit RFPI Network...\n"); 
+						#endif
+						
 						//init the Transceiver module
 						initRFberryNetwork(handleUART);
-						//it will set the address for the current network
-						//setCurrentNetwork(handleUART);
+						
+						#if DEBUG_LEVEL>0
 						printf("\n\nDone!\n");
-							
-						//if(strcmp(statusInit,"ERROR003")==0){
+						#endif
+						
 						if(statusInit[0]=='E' && statusInit[5]=='0' && statusInit[6]=='0' && statusInit[7]=='3'){
 							strcpy(statusInit, "TRUE");
 						}
@@ -3392,10 +2769,14 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 								strcat(strPathFile,currentPeripheralData->NameFileDescriptor);
 								status = remove(strPathFile);
 								if( status == 0 ){
+									#if DEBUG_LEVEL>0
 									printf("%s file deleted successfully.\n",currentPeripheralData->NameFileDescriptor);
+									#endif
 								}else{
+									#if DEBUG_LEVEL>0
 									printf("Unable to delete the file %s\n", currentPeripheralData->NameFileDescriptor);
-									perror("Error");
+									#endif
+									perror("Unable to delete the file in saving the NET NAME");
 								}
 																
 								nextPeripheralData=currentPeripheralData->next;
@@ -3412,11 +2793,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 							strcpy(strPathFile2,PATH_CONFIG_FILE);
 							strcat(strPathFile2,"list_peripheral.backup");
 							status= rename(strPathFile, strPathFile2); //( oldname , newname );
-							if ( status == 0 )
-								puts ( "File successfully renamed" );
-							else
-								perror( "Error renaming file" );
-								
+							if ( status == 0 ){
+								//puts ( "File successfully renamed" );
+							}else{
+								perror( "Error renaming file list_peripheral" );
+							}	
 							//creating a blank list_peripheral.txt 
 							file_pointer = fopen(strPathFile,"w+"); 
 							fclose(file_pointer);
@@ -3426,9 +2807,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					}
 					
 				}
-				
-				//strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
-				//strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);
+
 			
 			}else if(strcmp(tag,"NAME")==0 && strcmp(type,"PERI")==0){ //it will change the name of the peripheral
 			//	NAME 	PERI 	xxx...	xxxx  		//it save the name of aperipheral given by xxx... with address given by xxxx
@@ -3492,25 +2871,12 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
 				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
 				strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
-				
-				//unlink all FIFO, thus the GUI will wait for the data updated
-				//unlink(FIFO_RFPI_RUN);
-				//unlink(FIFO_RFPI_STATUS);
-				
-		
-				//ask to All peripherals the status of all inputs and outputs and update the status into the struct data
-				//askAndUpdateAllIOStatusPeri(handleUART, rootPeripheralData);
-				
 				 
 				//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 				askAndUpdateIOStatusPeri(handleUART, value2, rootPeripheralData);
-			
-				
-				//fifoWriter(FIFO_RFPI_STATUS, statusRFPI);
-				//fifoWriter(FIFO_RFPI_RUN, statusInit);
-				
-				
-			
+
+
+
 			}else if(strcmp(tag,"REFRESH")==0 && strcmp(type,"PERI")==0 && strcmp(value1,"STATUS")==0 && strlen(value2)==4){ //it will update the status of all inputs and outputs of the peripherals with address contained into value2
 			//	REFRESH	PERI STATUS	xxxx  		//it refressh all input/output status only for the peripheral with address xxxx
 				contStatusMsg=0; //reset the counter to give the time to be read the status by the GUI, after the status return to OK
@@ -3522,13 +2888,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
 				fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
 				strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
-				
-				
-				//unlink all FIFO, thus the GUI will wait for the data updated
-				//unlink(FIFO_RFPI_RUN);
-				//unlink(FIFO_RFPI_STATUS);
-				
-				
+
 				//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 				askAndUpdateIOStatusPeri(handleUART, value2, rootPeripheralData);
 				
@@ -3537,26 +2897,17 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			//	DATA	RF 	xxxx	strHex16bytes  		//it send the 16bytes to a peripheral with address xxxx. Example of strHex16bytes: 524275010000000300002E2E2E2E2E2E
 				contStatusMsg=0; //reset the counter to give the time to be read the status by the GUI, after the status return to OK
 				*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
-				/*strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY); 
-				fifoWriter(FIFO_RFPI_RUN, strMsgTemp); 		//this tell to the gui that is busy thus the GUI should not read the FIFO files
-				strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);	//when it rewrite the FIFO INIT (into main loop wehn cmd_executed=1) then tell to the GUI that can reads again the FIFO files
-				*/
-				
-				//sscanf(value1,"%d", &peri_id_position);
-							
+		
 				if(rootPeripheralData!=0){ 
 					i=0; //used as var exit
 					currentPeripheralData=rootPeripheralData; 
-					//while(i<peri_id_position && currentPeripheralData!=0){
-					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && i==0){
 					while((currentPeripheralData)>0 && currentPeripheralData!=0 && i==0){//for LINUX_MINT
 						if(strcmp(currentPeripheralData->PeriAddress,value1)!=0){
 							currentPeripheralData=currentPeripheralData->next;
 						}else{
 							i=1; //used as var exit
 						}
-					} //printf(" CIAO \n"); fflush(stdout); // Prints immediately to screen
-					//if(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+					}
 					if((currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 
 						//converting lower case in upper case. value2 is the hex data to send to the transceiver
@@ -3570,9 +2921,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 			
 						}
 						
-						//printf("DATA RF | id_position = %d | 16byte_hexadecimal_ascii = %s\n", peri_id_position, value2);
+						#if DEBUG_LEVEL>0
 						printf("DATA RF | Address = %s | 16byte_hexadecimal_ascii = %s\n", value1, value2);
-
+						#endif
 						strcpy(strCmd,"C03"); //cmd to set address of peripheral
 						strcat(strCmd,currentPeripheralData->PeriAddress);
 						SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1);
@@ -3593,60 +2944,44 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						if(strCmd[5]=='p' || strCmd[5]=='i' || strCmd[5]=='n' || strCmd[5]=='t' || strCmd[5]=='u') 
 							i=1; else i=0; //if it is the command 'i' or similar by the protocol means has to reply
 						SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, i);
-							
-						//if(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K'){
-								
-							//output_value=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, output_id, &id_shield_connected); //ask to the peripheral for the status of the output
-								
-							//updateStructPeriOut(rootPeripheralData, &peri_id_position, &output_id, &output_value, &id_shield_connected);
-						//}
+					
+					#if DEBUG_LEVEL>0
 					}else{
 						printf("ERROR there is not address like this %s into the list!\n", value1);
+					#endif
 					}
 				
 				}
 				
 				if( (answerRFPI[0]=='O' && answerRFPI[1]=='K') || (answerRFPI[2]=='*' && answerRFPI[7]=='R' && answerRFPI[8]=='B') ){
 					if(strlen(answerRFPI) > 6){ //OK*AAAARBxxxxxxxxxxxxxx -> where AAAA is the address and RBxxxxxxxxxxxxxxx are the 16bytes
-					//if(answerRFPI[2]=='*' && answerRFPI[7]=='R' && answerRFPI[8]=='B'){
-					
-						
-						/*unsigned int addressPeri = 0;
-						addressPeri |= convert_2ChrHex_to_byte(&answerRFPI[3]);
-						addressPeri = addressPeri << 8;
-						addressPeri |= convert_2ChrHex_to_byte(&answerRFPI[5]);
-						
-						unsigned char str_addressPeri[20];
-						char strHexData[]="00000000000000000000000000000000 ";
-						
-						itoaRFPI( (addressPeri-1), &str_addressPeri[0], 10);
-					
-						strcpy(statusRFPI, &str_addressPeri[0]); //writing into FIFO RFPISTATUS the id_position of the peripheral 
-						*/
 						char strHexData[]="00000000000000000000000000000000 ";
 						
 						for(i=0;i<4;i++)
 							statusRFPI[i] = answerRFPI[(i+3)]; //copying the address
 								
 						statusRFPI[i]='\0';
-						
-						//printf("first= %c | second= %c\n",answerRFPI[7],answerRFPI[8]);
+
 						for(i=0,pos=0; i<16; i++, pos+=2){
 							convert_byte_to_2ChrHex(answerRFPI[7+i], &strHexData[pos]);
 						}
 						
 						strcat(statusRFPI, " ");
 						strcat(statusRFPI, strHexData);
-						
+						#if DEBUG_LEVEL>0
 						printf("Status=OK %s\n",statusRFPI);
-											
+						#endif					
 					}else{
-						strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK); 
+						strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_OK);
+						#if DEBUG_LEVEL>0
 						printf("Status=OK\n");
+						#endif
 					}
 				}else{
 					strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NOPERI); 
+					#if DEBUG_LEVEL>0
 					printf("Status=NOTX\n");
+					#endif
 				} 
 
 
@@ -3684,20 +3019,13 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				if(rootPeripheralData!=0){
 					i=0;
 					currentPeripheralData=rootPeripheralData;
-					//while(i<peri_id_position && ((int)currentPeripheralData)>0 && currentPeripheralData!=0){
 					while(i<peri_id_position && (currentPeripheralData)>0 && currentPeripheralData!=0){//for LINUX_MINT
 						i++;
 						currentPeripheralData=currentPeripheralData->next;
 					}
-					
+					#if DEBUG_LEVEL>0
 					printf("GET_BYTES_U | id_position = %d | num_function = %d | num_bytes_to_get = %d\n", peri_id_position, num_function,num_bytes_to_get);
-
-					//if(access(FIFO_GET_BYTES_U, F_OK) == 0){
-						//FIFO Exist!
-						// remove the old FIFO 
-						
-					//}
-
+					#endif
 					stop_by_user = 0;
 
 					i=0; //this is the counter to get the number of bytes
@@ -3708,7 +3036,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						//reset the counter to give the time to be read the status by the GUI, after the status return to OK
 						contStatusMsg=0;
 						strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_READING); 
+						#if DEBUG_LEVEL>0
 						printf("GET_BYTES_U READING PACKET %d: \n", cont_packet);
+						#endif
 						//tell to the GUI the various status
 						fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
 						
@@ -3739,7 +3069,9 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						//here read the fifo again just to know if the user stopped the process of reading
 						if(fifoReader(data, FIFO_GUI_CMD)) {
 							sscanf(data,"%s %s %s %s ",tag, type, value1, value2);
+							#if DEBUG_LEVEL>0
 							printf("From FIFO_GUI_CMD received: %s %s %s %s\n", tag, type, value1, value2);
+							#endif
 							if(strcmp(tag,"STOP")==0 && strcmp(type,"CMD")==0){
 								//the user stopped the process	
 								stop_by_user = 1;
@@ -3747,35 +3079,24 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						}
 						
 					}
-
+					#if DEBUG_LEVEL>0
 					printf(" status= %s\n",answerRFPI);
-					
+					#endif
 					if(stop_by_user==1){
 						strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_STOPPED); 
+						#if DEBUG_LEVEL>0
 						printf("Status=STOPPED\n");
+						#endif
 					}else if(num_time_the_peri_did_not_reply>=MAX_NUM_RETRY){
 						strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NOTX); 
+						#if DEBUG_LEVEL>0
 						printf("Status=NOTX\n");
+						#endif
 					}else if(sem_1 == 1){	//there were not error and the peri replied
-
-						//create the fifo with all data
-						/*int fd;
-						char str_number[] = "64000";
-						
-						mkfifo(FIFO_GET_BYTES_U, 0666); 
-						fd = open(FIFO_GET_BYTES_U, O_RDWR); 
-						
-						for(i=0; i<num_bytes_to_get ;i++){
-							//itoaRFPI(arrayBytesFunctionU[i], str_number, 10);
-							snprintf(str_number, sizeof(str_number), "%d\n", arrayBytesFunctionU[i]);
-							write(fd, str_number, (strlen(str_number))); 
-						}
-						close(fd); */
 						
 						//create a file with all data		
 						char str_number[] = "64000n";
 						char str_currentPeripheralAddress[] = "0000n";
-						//snprintf(str_currentPeripheralAddress, sizeof(str_currentPeripheralAddress), "%d\n", currentPeripheralData->PeriAddress);
 						
 						strcpy(str_currentPeripheralAddress,currentPeripheralData->PeriAddress); 
 						
@@ -3792,19 +3113,22 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 							strcat(statusRFPI, str_currentPeripheralAddress);
 							strcat(statusRFPI, " ");
 							strcat(statusRFPI, FIFO_GET_BYTES_U);
+							#if DEBUG_LEVEL>0
 							printf("Status=GET_BYTES_U %s %s\n", str_currentPeripheralAddress, FIFO_GET_BYTES_U); //printing address and path of the data file
-							
-							//strcpy(statusRFPI,ERROR006); 
-							//printf("Status=");printf(ERROR006);printf("\n");
+							#endif
 						}else{
 							strcpy(statusRFPI,ERROR006); 
+							#if DEBUG_LEVEL>0
 							printf("Status=");printf(ERROR006);printf("\n");
+							#endif
 						}
 					
 						
 					}else{
 						strcpy(statusRFPI,ERROR005); 
+						#if DEBUG_LEVEL>0
 						printf("Status=");printf(ERROR005);printf("\n");
+						#endif
 
 						file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
 						fprintf(file_pointer_error,"%s\n", statusInit); //writing on the file the line of the inputs
@@ -3837,18 +3161,13 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						i++;
 						currentPeripheralData=currentPeripheralData->next;
 					}
-					
+					#if DEBUG_LEVEL>0
 					printf("SEND_BYTES_F | id_position = %d | num_function = %d | num_bytes_to_send = %d\n", peri_id_position, num_function, num_bytes_to_send);
-
+					#endif
 					if(access(FIFO_SEND_BYTES_F, F_OK) == 0){
 						//FIFO Exist!
 						// remove the old FIFO 
-						
-						
-						//delay_ms(1);
-						
 						file_pointer = fopen (FIFO_SEND_BYTES_F,"r");
-					
 
 						stop_by_user = 0;
 
@@ -3861,7 +3180,6 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 							//reset the counter to give the time to be read the status by the GUI, after the status return to OK
 							contStatusMsg=0;
 							strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_SENDING); 
-							//printf("SEND_BYTES_F SENDING PACKET %d: \n", cont_packet);
 							//tell to the GUI the various status
 							fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
 							
@@ -3869,19 +3187,15 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 								array10BytesToSend[t]=0;
 							}
 							
-							//printf(" 10 BYTES: \n"); 
 							for(t=0; t<10 && (!feof(file_pointer)); t++){ //here get 10 bytes from the file
 								if (fscanf(file_pointer, "%d", (int *)(&byte_to_send))){ //if the byte is readable into the file
-									array10BytesToSend[t]=byte_to_send; 
-									//printf("\n t=%d byte_to_send=%d\n", t,byte_to_send);								
+									array10BytesToSend[t]=byte_to_send; 						
 								}
 								cont_packet_sent++; //increase the counter for the bytes to send
 							}
+							#if DEBUG_LEVEL>0
 							printf("\n");fflush(stdout);
-							
-							//if((!feof(file_pointer)) && cont_packet_sent<num_bytes_to_send){
-							//	cont_packet_sent=num_bytes_to_send; //just tu exit
-							//}
+							#endif
 							
 							num_time_the_peri_did_not_reply = 0;
 							sem1_exit = 0;
@@ -3893,22 +3207,20 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 								}else if(status == -1){
 									//the peri did not reply
 									num_time_the_peri_did_not_reply++;
+									#if DEBUG_LEVEL>0
 									printf(" Retry %d for SEND_BYTES_F \n", num_time_the_peri_did_not_reply);
+									#endif
 									//cont_packet_sent=cont_packet_sent-t;
 									sem_1 = 0; 
 								}
-								//printf("\nPACKET=%d | STATUS=%d | NUM FUNCTION=%d\n", cont_packet, status,num_function); fflush(stdout);
 							}while(num_time_the_peri_did_not_reply<MAX_NUM_RETRY && sem1_exit == 0);
-							
-							
-							
-							//delay_ms(50); //just to leave the time to the peri 
-							
-							
+
 							//here read the fifo again just to know if the user stopped the process of reading
 							if(fifoReader(data, FIFO_GUI_CMD)) {
 								sscanf(data,"%s %s %s %s ",tag, type, value1, value2);
+								#if DEBUG_LEVEL>0
 								printf("From FIFO_GUI_CMD received: %s %s %s %s\n", tag, type, value1, value2);
+								#endif
 								if(strcmp(tag,"STOP")==0 && strcmp(tag,"CMD")==0){
 									//the user stopped the process	
 									stop_by_user = 1;
@@ -3921,27 +3233,28 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					
 						if(stop_by_user==1){
 							strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_STOPPED); 
+							#if DEBUG_LEVEL>0
 							printf("Status=STOPPED\n");
+							#endif
 						}else if(num_time_the_peri_did_not_reply>=MAX_NUM_RETRY){
 							strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NOTX); 
+							#if DEBUG_LEVEL>0
 							printf("Status=NOTX\n");
-							
+							#endif
 						}else if(cont_packet_sent<num_bytes_to_send && (!feof(file_pointer))){	
 							strcpy(statusRFPI,ERROR009); 
+							#if DEBUG_LEVEL>0
 							printf("Status=");printf(ERROR009);printf("\n");
-
+							#endif
 							file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
 							fprintf(file_pointer_error,"%s\n", statusInit); //writing on the file the line of the inputs
 							fclose(file_pointer_error);
 							
 						}else if(sem_1 == 1){	//there were not error and the peri replied
 
-		
-							
 							//create a file with all data		
 							char str_number[] = "64000n";
 							char str_currentPeripheralAddress[] = "0000n";
-							//snprintf(str_currentPeripheralAddress, sizeof(str_currentPeripheralAddress), "%d\n", currentPeripheralData->PeriAddress);
 							
 							strcpy(str_currentPeripheralAddress,currentPeripheralData->PeriAddress); 
 		
@@ -3950,29 +3263,26 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 							strcat(statusRFPI, str_currentPeripheralAddress);
 							strcat(statusRFPI, " ");
 							strcat(statusRFPI, "OK");
+							#if DEBUG_LEVEL>0
 							printf("Status=SEND_BYTES_F %s OK\n", str_currentPeripheralAddress); //printing address and OK to say all was ok
-
+							#endif
 						}else{
 							strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NOTX); 
+							#if DEBUG_LEVEL>0
 							printf("Status=NOTX\n");
-							/*
-							strcpy(statusRFPI,ERROR007); 
-							printf("Status=");printf(ERROR007);printf("\n");
-
-							file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
-							fprintf(file_pointer_error,"%s\n", statusInit); //writing on the file the line of the inputs
-							fclose(file_pointer_error);
-							*/
+							#endif
 						} 
-						
+						#if DEBUG_LEVEL>0
 						printf(" Status for SEND_BYTES_F=%s | Num byte sent=%d | Num packet sent=%d\n",statusRFPI,cont_packet_sent,cont_packet); fflush(stdout);
-						
+						#endif
 						fclose(file_pointer);
 					
 					
 					}else{
 						strcpy(statusRFPI,ERROR008); 
+						#if DEBUG_LEVEL>0
 						printf("Status=");printf(ERROR008);printf("\n");
+						#endif
 
 						file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
 						fprintf(file_pointer_error,"%s\n", statusInit); //writing on the file the line of the inputs
@@ -4005,12 +3315,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				char address_peri[10];
 				char varError = 0;
 				strcpy(address_peri, type);
-				
-				
-				/*rootJsonSettings=(struct_json_settings*)malloc(sizeof(struct_json_settings));
-				rootJsonSettings->next=0;
-				rootJsonSettings->cont=0;
-				*/
+
 				//this function build and send command to the transceiver, this is the radio command:
 				//	R	B	s	EEPROM_POS	H_ID_shield	L_ID_shield	PIN_used	PIN_mask	PULL-UP_resistor	ID_function0	ID_function1	ID_function2	ID_function3	ID_function4	ID_function5	ID_function6
 				//send_to_transceiver_json_settings(rootJsonSettings, address_peri, value1, handleUART);
@@ -4036,58 +3341,22 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 //it check the data into the buffer of the UART, return the data on the string given
 int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lenght_buffer_dataRFPI){
 	
-	int i;
+	int i=0;
 	int numCharacters=serialDataAvail (*handleUART) ;
-	//char *tmp;
-	
-	//############## 1.1 #############
-	/*if(sizeof(dataRFPI) <= numCharacters){
-		//tmp = (char*)realloc(dataRFPI, (1 + numCharacters) *sizeof(char));
 
-		dataRFPI = (char*)realloc(dataRFPI, (1 + numCharacters) );
-		
-		if (dataRFPI == NULL) { 
-			// handle failed realloc, temp_struct is unchanged
-			numCharacters = 0;
-			
-		} else {
-			// everything went ok, update the original pointer (dataRFPI)
-			//dataRFPI = tmp; 
-		}
-	}*/
-	
-	//erase the data, thus will not parse again the previous data
-	/*for(i=0;i<16;i++){
-		dataRFPI[i]='\0';
-	}*/
-	
 	if(numCharacters>0){
-	//if(numCharacters>19){	
 		if (numCharacters > lenght_buffer_dataRFPI ) numCharacters = lenght_buffer_dataRFPI-1;
 		printf(" Data (%d bytes) from the Transceiver: ",numCharacters);
 		for(i=0;i<numCharacters;i++){
 			dataRFPI[i]=serialGetchar (*handleUART);
 			printf("%c", dataRFPI[i]);
-			/*if(dataRFPI[i]=='R' || dataRFPI[i]=='B' || dataRFPI[i]=='i' || dataRFPI[i]=='p'){
-				printf("%c", dataRFPI[i]);
-			}else{
-				if(dataRFPI[i]>0){
-					printf("1");
-				}else{
-					printf("0");
-				}
-			}*/
 		}
-
-		//i--;
 		dataRFPI[i]='\0';
 		printf("\n");
 	}else{
 		//erase the data, thus will not parse again the previous data
 		dataRFPI[0]='\0';
 	}
-	
-	//*numBytesDataRFPI = 
 	
 	return numCharacters;
 	
@@ -4097,27 +3366,22 @@ int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lenght_buffe
 //it parse the data given. In case of data from peripheral, it will update the struct data
 peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI, peripheraldata *rootPeripheralData, int *cmd_executed){
 
-	peripheraldata *currentPeripheralData;
-	peripheraldatanameinput *currentPeripheralDataNameInput;
-	peripheraldatanameoutput *currentPeripheralDataNameOutput;
+	peripheraldata *currentPeripheralData=0;
+	peripheraldatanameinput *currentPeripheralDataNameInput=0;
+	peripheraldatanameoutput *currentPeripheralDataNameOutput=0;
 	
 	unsigned int IDinput, statusInput, IDoutput, statusOutput,IDfunction,statusFunction;
-	int id_shield_connected,num_pin_used_on_the_peri;
+	IDinput =  statusInput =  IDoutput =  statusOutput = IDfunction = statusFunction = 0;
+	int id_shield_connected=0;
+	int num_pin_used_on_the_peri=0;
 	
 	unsigned char addressPeri[5], str_buffer1[6], str_buffer2[6];
+	addressPeri[0] =  str_buffer1[0] =  str_buffer2[0] = '\0';
 	
-	int i,l, cont_pos;
-	int varExit=0;
-	
-	cont_pos = 0;
-	
-	
-	
+	int i,l, cont_pos, varExit;
+	i = l = cont_pos = varExit = 0;
+
 	while(cont_pos < (*numBytesDataRFPI)){ 
-		//if (cont_pos==0){ printf(" Parsing %d bytes of comand ...... \n ", *numBytesDataRFPI); fflush(stdout); }
-		
-		//if(dataRFPI[cont_pos+6]=='i' || dataRFPI[cont_pos+6]=='p') printf(" FOUND p OR i\n");
-		
 		//data must be address, filter RB and tag. example: AA00RBi01
 		//check if the data come from RFberry Pi peripheral
 		if(dataRFPI[cont_pos]!='\0' && dataRFPI[cont_pos+4]=='R' && dataRFPI[cont_pos+5]=='B'){
@@ -4147,11 +3411,11 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					
 					
 					itoaRFPI(IDinput,str_buffer1,10); itoaRFPI(statusInput,str_buffer2,10);
+					#if DEBUG_LEVEL>0
 					printf("  ADDRESS: %s,  CMD: i,  ID=%s,  IN=%s\n",addressPeri,str_buffer1,str_buffer2); fflush(stdout);
-
+					#endif
 					i=0; l=0; varExit=0;
 					currentPeripheralData=rootPeripheralData;
-					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
 					while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){//for LINUX_MINT
 						currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
 						if(strcmp(addressPeri,currentPeripheralData->PeriAddress)==0){
@@ -4161,8 +3425,6 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 									
 									if(currentPeripheralDataNameInput->StatusInput == -1){
 										currentPeripheralDataNameInput->StatusCommunication=-1;
-										//currentPeripheralDataNameInput->id_shield_connected = -1;
-										//currentPeripheralDataNameInput->num_pin_used_on_the_peri = -1;
 									}else{
 										currentPeripheralDataNameInput->StatusCommunication=1;
 										currentPeripheralDataNameInput->id_shield_connected = id_shield_connected;
@@ -4203,11 +3465,12 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					num_pin_used_on_the_peri = dataRFPI[cont_pos+4+POS_IO_NUM_PIN];
 					
 					itoaRFPI(IDoutput,str_buffer1,10); itoaRFPI(statusOutput,str_buffer2,10);
+					#if DEBUG_LEVEL>0
 					printf("  ADDRESS: %s,  CMD: p,  ID=%s,  OUT=%s\n",addressPeri,str_buffer1,str_buffer2); fflush(stdout);
+					#endif
 					
 					i=0; l=0; varExit=0;
 					currentPeripheralData=rootPeripheralData;
-					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
 					while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){//for LINUX_MINT
 						currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
 						if(strcmp(addressPeri,currentPeripheralData->PeriAddress)==0){
@@ -4250,14 +3513,18 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 					statusFunction = dataRFPI[cont_pos+8];
 					
 					itoaRFPI(IDfunction,str_buffer1,10); itoaRFPI(statusFunction,str_buffer2,10);
+					#if DEBUG_LEVEL>0
 					printf("  ADDRESS: %s,  CMD: u,  ID=%s,  STATUS=%s\n",addressPeri,str_buffer1,str_buffer2); fflush(stdout);
+					#endif
 
 					i=0; varExit=0;
 					currentPeripheralData=rootPeripheralData; 
 					//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ 
 					while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
 						if(strcmp(addressPeri,currentPeripheralData->PeriAddress)==0){ 
+							#if DEBUG_LEVEL>0
 							printf("  ID Peri Type: %d\n",currentPeripheralData->IDtype); fflush(stdout); 
+							#endif
 							if(currentPeripheralData->IDtype==9){
 								if(IDfunction==1){ 
 									//save data of the Peri9 into a file 
@@ -4288,16 +3555,11 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 		cont_pos++;
 		varExit=0;
 		while(varExit==0){
-			/*if(dataRFPI[cont_pos]=='\0'){
-				varExit=1;
-				printf("End of data\n");
-			}else*/ if( (cont_pos+18) >= *numBytesDataRFPI){
+			if( (cont_pos+18) >= *numBytesDataRFPI){
 				cont_pos += 18;
 				varExit=1;
-				//printf("Out from the array. Pos= %d\n", cont_pos); fflush(stdout);
 			}else if(dataRFPI[cont_pos+4]=='R' && dataRFPI[cont_pos+5]=='B'){
 				varExit=1;
-				//printf("Found new RB. Pos= %d\n", cont_pos); fflush(stdout);
 			}else{
 				cont_pos++;
 			}
@@ -4309,84 +3571,24 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 }
 
 
-//asks to All peripherals the status of all inputs and outputs and update the status into the struct data
-/*void askAndUpdateAllIOStatusPeri(int *handleUART, peripheraldata *rootPeripheralData){
-
-	peripheraldata *currentPeripheralData;
-	peripheraldatanameinput *currentPeripheralDataNameInput;
-	peripheraldatanameoutput *currentPeripheralDataNameOutput;
-	
-	unsigned int i,l;
-	unsigned int contInOutOFFline, contTotalNumInOut;
-		
-		
-			i=0; 
-			currentPeripheralData = rootPeripheralData;
-			
-			if(((int)currentPeripheralData)>0){
-				
-				while(currentPeripheralData != 0){
-
-						//gets the inputs status
-						currentPeripheralDataNameInput = currentPeripheralData->rootNameInput;
-						l=0;
-						contInOutOFFline=0;
-						contTotalNumInOut=0;
-						while(currentPeripheralDataNameInput!=0){
-							currentPeripheralDataNameInput->StatusInput = askInputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
-							if(currentPeripheralDataNameInput->StatusInput==-1){
-								contInOutOFFline++;
-								currentPeripheralDataNameInput->StatusCommunication=-1;
-							}else{
-								currentPeripheralDataNameInput->StatusCommunication=1;
-							}
-							contTotalNumInOut++;
-							l++;
-							currentPeripheralDataNameInput = currentPeripheralDataNameInput->next;
-						}
-						
-						//gets the outputs status
-						currentPeripheralDataNameOutput = currentPeripheralData->rootNameOutput;
-						l=0;
-						while(currentPeripheralDataNameOutput != 0){
-							currentPeripheralDataNameOutput->StatusOutput = askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
-							if(currentPeripheralDataNameOutput->StatusOutput==-1){
-								contInOutOFFline++;
-								currentPeripheralDataNameOutput->StatusCommunication=-1;
-							}else{
-								currentPeripheralDataNameOutput->StatusCommunication=1;
-							}
-							contTotalNumInOut++;
-							l++;
-							currentPeripheralDataNameOutput = currentPeripheralDataNameOutput->next;
-						}
-						
-						//Now I am going to calculate the percentage of the strength of the link
-						currentPeripheralData->strengthLink = (int)((100 / (float)contTotalNumInOut) * ((float)(contTotalNumInOut - contInOutOFFline)));
-					
-					i++;
-					currentPeripheralData = currentPeripheralData->next;
-				}
-		}	
-}
-*/
 
 //asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, peripheraldata *rootPeripheralData){
 
-	peripheraldata *currentPeripheralData;
-	peripheraldatanameinput *currentPeripheralDataNameInput;
-	peripheraldatanameoutput *currentPeripheralDataNameOutput;
+	peripheraldata *currentPeripheralData=0;
+	peripheraldatanameinput *currentPeripheralDataNameInput=0;
+	peripheraldatanameoutput *currentPeripheralDataNameOutput=0;
 	
 	unsigned int i,l,j;
+	i=l=j=0;
 	unsigned int varExit=0;
 	unsigned int contInOutOFFline, contTotalNumInOut;
-	unsigned char array_status[12];
+	contInOutOFFline = contTotalNumInOut = 0;
+	unsigned char array_status[12]; array_status[0]='\0';
 	unsigned int numBytesToGetValueStatus=0;
 
 				i=0; 
 				currentPeripheralData=rootPeripheralData;
-				//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){
 				while((currentPeripheralData)>0 && currentPeripheralData!=0 && varExit==0){ //for LINUX_MINT
 					
 					
@@ -4405,54 +3607,11 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 						while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
 							//currentPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
 							//get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
-							//currentPeripheralDataNameInput->StatusInput = (signed long)getIOStatusPeri(handleUART, currentPeripheralData->PeriAddress, l, (char)'i', array_status);
 							currentPeripheralDataNameInput->StatusInput = get_IO_Peri_Status(handleUART, currentPeripheralData, l, (char)'i', array_status);
 							
 							if(currentPeripheralDataNameInput->StatusInput == -1){
 								contInOutOFFline++;
-								//currentPeripheralDataNameInput->StatusCommunication = -1;
-								//currentPeripheralDataNameInput->id_shield_input = -1;
-								//currentPeripheralDataNameInput->num_pin_used_on_the_peri = -1;
-								
-								//currentPeripheralDataNameInput->BitResolution = 0;
-							}/*else{
-								printf(" RESOLUTION: %d\n",array_status[1]);
-								currentPeripheralDataNameInput->StatusInput = (signed long)array_status[0];
-								if(array_status[1]>64){
-									if(array_status[1]==68) //this mean it is 'D' that in old FW means 'Digital' thus resolution is 1
-										currentPeripheralDataNameInput->BitResolution = 1;
-									else if(array_status[1]==65) //this mean it is 'A' that in old FW means 'Analogue' thus resolution is 8
-										currentPeripheralDataNameInput->BitResolution = 8;
-									else
-										currentPeripheralDataNameInput->BitResolution = 1;
-								}else{
-									currentPeripheralDataNameInput->BitResolution = (int)array_status[1];
-								}
-								//currentPeripheralDataNameInput->StatusCommunication=1;
-								if(currentPeripheralDataNameInput->BitResolution > 8 && currentPeripheralData->fwVersion > 1){ //this means I have to get the value from the following bytes
-									if(currentPeripheralDataNameInput->BitResolution > 64){
-										currentPeripheralDataNameInput->BitResolution = 64;
-									}
-									//now I determine on how many byte to get the value
-									numBytesToGetValueStatus = (unsigned int)(currentPeripheralDataNameInput->BitResolution / 8);
-									if( (currentPeripheralDataNameInput->BitResolution - (numBytesToGetValueStatus*8))>0 ){ //calcolo se vi sono dei bit in piu' oltre a quelli divisibili per 8
-										numBytesToGetValueStatus++;
-									}
-									currentPeripheralDataNameInput->StatusInput = 0;
-									for(j=1; j<numBytesToGetValueStatus; j++){
-										currentPeripheralDataNameInput->StatusInput |= (signed long) (  array_status[1+j] << (8 * (numBytesToGetValueStatus - (j)))  );
-									}
-									//if( (currentPeripheralDataNameInput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
-										//this means I have to add still one byte
-										//this for the lowest byte:
-										currentPeripheralDataNameInput->StatusInput |= (signed long) (array_status[1+j]);
-									//}
-									
-								}
-								//currentPeripheralDataNameInput->num_pin_used_on_the_peri = array_status[10];
-								//currentPeripheralDataNameInput->id_shield_input = array_status[9];
-							}*/
-							//printf(" STATUS INPUT-%d GOT = %d\n",l,currentPeripheralDataNameInput->StatusInput);
+							}
 							contTotalNumInOut++;
 							l++;
 							currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
@@ -4464,53 +3623,11 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 						while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
 							//currentPeripheralDataNameOutput->StatusOutput=askOutputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
 							//get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
-							//currentPeripheralDataNameOutput->StatusOutput = (signed long)getIOStatusPeri(handleUART, currentPeripheralData->PeriAddress, l, (char)'p', array_status);
 							currentPeripheralDataNameOutput->StatusOutput = get_IO_Peri_Status(handleUART, currentPeripheralData, l, (char)'p', array_status);
 							
 							if(currentPeripheralDataNameOutput->StatusOutput == -1){
 								contInOutOFFline++;
-								//currentPeripheralDataNameOutput->StatusCommunication=-1;
-								//currentPeripheralDataNameOutput->id_shield_connected = -1;
-								//currentPeripheralDataNameOutput->num_pin_used_on_the_peri = -1;
-								//currentPeripheralDataNameOutput->BitResolution = 0;
-							}/*else{
-								//currentPeripheralDataNameOutput->StatusCommunication=1;
-								currentPeripheralDataNameOutput->StatusOutput = (signed long)array_status[0];
-								if(array_status[1]>64){
-									if(array_status[1]==68) //this mean it is 'D' that in old FW means 'Digital' thus resolution is 1
-										currentPeripheralDataNameOutput->BitResolution = 1;
-									else if(array_status[1]==65) //this mean it is 'A' that in old FW means 'Analogue' thus resolution is 8
-										currentPeripheralDataNameOutput->BitResolution = 8;
-									else
-										currentPeripheralDataNameOutput->BitResolution = 1;
-								}else{
-									currentPeripheralDataNameOutput->BitResolution = (int)array_status[1];
-								}
-								//currentPeripheralDataNameOutput->StatusCommunication=1;
-								if(currentPeripheralDataNameOutput->BitResolution > 8 && currentPeripheralData->fwVersion > 1){ //this means I have to get the value from the following bytes
-									if(currentPeripheralDataNameOutput->BitResolution > 64){
-										currentPeripheralDataNameOutput->BitResolution = 64;
-									}
-									//now I determine on how many byte to get the value
-									numBytesToGetValueStatus = (unsigned int)(currentPeripheralDataNameOutput->BitResolution / 8);
-									if( (currentPeripheralDataNameOutput->BitResolution - (numBytesToGetValueStatus*8))>0 ){ //calcolo se vi sono dei bit in piu' oltre a quelli divisibili per 8
-										numBytesToGetValueStatus++;
-									}
-									currentPeripheralDataNameOutput->StatusOutput = 0;
-									for(j=1; j<numBytesToGetValueStatus; j++){
-										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (  array_status[1+j] << (8 * (numBytesToGetValueStatus - (j)))  );
-									}
-									//if( (currentPeripheralDataNameOutput->BitResolution - (numBytesToGetValueStatus * 8)) != 0){
-										//this means I have to add still one byte
-										//this for the lowest byte:
-										currentPeripheralDataNameOutput->StatusOutput |= (signed long) (array_status[1+j]);
-									//}
-									
-								}
-								//currentPeripheralDataNameOutput->num_pin_used_on_the_peri = array_status[10];
-								//currentPeripheralDataNameOutput->id_shield_connected = array_status[9];
-							}*/
-							//printf(" STATUS OUTPUT-%d GOT = %d\n",l,currentPeripheralDataNameOutput->StatusOutput);
+							}
 							contTotalNumInOut++;
 							l++;
 							currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
@@ -4527,80 +3644,24 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 }
 
 
-//get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
-/*int getIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int ID_IO, char type_IO, unsigned char *array_status){
-	
-	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
-	
-	int var_return;
-	
-	unsigned int i;
-	
-	if(ID_IO<256){ //max number of inputs is 255
-	
-		strcpy(strCmd,"C03"); //cmd to set address of peripheral
-		strcat(strCmd,peripheralAddress);
-		SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1);
-		
-		strcpy(strCmd,"C30RBi"); //cmd to load data
-		strCmd[5]=type_IO; //this can be 'i' or 'p'
-		strCmd[6]=ID_IO;//giving the ID of the input to get the status
-		strCmd[7]='V';//when the peripheral will reply will change the character in this position with the value of the input
-		for(i=8;i<19;i++){
-			strCmd[i]='.';
-		}
-		strCmd[20]='\0';
-		
-		//########### v1.1 ###########
-		SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 1);
-		
-		//checking the address, the tags and if the id input is equal to the one wanted
-		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] && answerRFPI[7]=='R' && answerRFPI[8]=='B' && answerRFPI[9]==type_IO && answerRFPI[10]==ID_IO){
-			array_status[0]=answerRFPI[11]; //status input
-			array_status[1]=answerRFPI[12]; //bit resolution
-			array_status[2]=answerRFPI[13]; //byte H
-			array_status[3]=answerRFPI[14]; //
-			array_status[4]=answerRFPI[15]; //
-			array_status[5]=answerRFPI[16]; //
-			array_status[6]=answerRFPI[17]; //
-			array_status[7]=answerRFPI[18]; //
-			array_status[8]=answerRFPI[19]; //
-			array_status[9]=answerRFPI[20]; //
-			array_status[10]=answerRFPI[21]; //
-			array_status[11]=answerRFPI[22]; // byte L
-			var_return=0;
-		}else{
-			var_return=-1;
-			array_status[0]=0; //status input
-			array_status[1]=0; //bit resolution
-		}
-		
-	}else{
-		var_return=-1;
-	}
-	
-	return var_return;
-
-}
-*/
 
 //get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
 extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPeripheralData, unsigned int ID_IO, char type_IO, unsigned char *array_status){
 	//output_value = get_IO_Peri_Status(handleUART, currentPeripheralData, output_id, (char)'p', array_status);
-	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
-	signed long var_return;
+	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0';
+	unsigned char strCmd[30]; strCmd[0]='\0';
+	signed long var_return=0;
 	unsigned int i,j;
-	unsigned int cont_ID_IO;
+	i=j=0;
+	unsigned int cont_ID_IO=0;
 	unsigned char varchecksum=0;
 	int BitResolution=0;
 	unsigned int numBytesToGetValueStatus=0;
 	
-	signed long Status_IO;
+	signed long Status_IO=0;
 	
-	struct peripheralnameinput *currentPeripheralDataNameInput; //it is like an array containing all name of the inputs
-	struct peripheralnameoutput *currentPeripheralDataNameOutput; //it is like an array containing all name of the outputs
+	struct peripheralnameinput *currentPeripheralDataNameInput=0; //it is like an array containing all name of the inputs
+	struct peripheralnameoutput *currentPeripheralDataNameOutput=0; //it is like an array containing all name of the outputs
 	
 	for(i=0;i<12;i++) array_status[i] = 0;
 	
@@ -4620,13 +3681,11 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 		if(currentPeripheralDataNameInput==0 && cont_ID_IO>=currentPeripheralData->NumInput){
 			//the ID_IO is wrong! thus 
 			#if DEBUG_LEVEL>0
-				printf("ID Input to get the status is wrong!!! ID INPUT = %d, NUM_INPUT = %d\n",ID_IO,currentPeripheralData->NumInput);fflush(stdout);
+			printf("ID Input to get the status is wrong!!! ID INPUT = %d, NUM_INPUT = %d\n",ID_IO,currentPeripheralData->NumInput);fflush(stdout);
 			#endif
 			type_IO = '?'; //this make to jump to the end of this function
 		}
 		currentPeripheralDataNameInput->StatusInput = -1;
-		//currentPeripheralDataNameInput->num_pin_used_on_the_peri = -1;
-		//currentPeripheralDataNameInput->id_shield_connected = -1;
 		currentPeripheralDataNameInput->StatusCommunication=-1;
 	}else if(type_IO == 'p'){ //it is an output to get
 		//here get the address of the struct data of the output to then update the variables
@@ -4639,13 +3698,11 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 		if(currentPeripheralDataNameOutput==0 && cont_ID_IO>=currentPeripheralData->NumOutput){
 			//the ID_IO is wrong! thus 
 			#if DEBUG_LEVEL>0
-				printf("ID Output to get the status is wrong!!! ID OUTPUT = %d, NUM_OUTPUT = %d\n",ID_IO,currentPeripheralData->NumOutput);fflush(stdout);
+			printf("ID Output to get the status is wrong!!! ID OUTPUT = %d, NUM_OUTPUT = %d\n",ID_IO,currentPeripheralData->NumOutput);fflush(stdout);
 			#endif
 			type_IO = '?'; //this make to jump to the end of this function
 		}
 		currentPeripheralDataNameOutput->StatusOutput = -1;
-		//currentPeripheralDataNameOutput->num_pin_used_on_the_peri = -1;
-		//currentPeripheralDataNameOutput->id_shield_connected = -1;
 		currentPeripheralDataNameOutput->StatusCommunication=-1;
 	}
 	
@@ -4672,9 +3729,9 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 		#ifdef ENABLE_RADIO_DATA_CHECKSUM
 			varchecksum = checksum( &answerRFPI[7], 16);
 			#if DEBUG_LEVEL>0
-				if(varchecksum!=0){
-					printf(" CHECKSUM ERROR!!! CHECKSUM = %d, ID_IO = %d\n",varchecksum,ID_IO);fflush(stdout);
-				}
+			if(varchecksum!=0){
+				printf(" CHECKSUM ERROR!!! CHECKSUM = %d, ID_IO = %d\n",varchecksum,ID_IO);fflush(stdout);
+			}
 			#endif
 		#endif
 		//checking the address, the tags, if the id input is equal to the one wanted, and eventually the checksum on last byte 
@@ -4745,12 +3802,12 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 			var_return = Status_IO;
 			
 			#if DEBUG_LEVEL>0
-				printf(" RESOLUTION: %d\n",BitResolution);fflush(stdout);
-				fflush(stdout);
+			printf(" RESOLUTION: %d\n",BitResolution);fflush(stdout);
+			fflush(stdout);
 			#endif	
 			if(type_IO == 'i'){ //it is an input to get
 				#if DEBUG_LEVEL>0
-					printf(" INPUT-%d STATUS GOT = %ld\n",ID_IO,Status_IO);fflush(stdout);
+				printf(" INPUT-%d STATUS GOT = %ld\n",ID_IO,Status_IO);fflush(stdout);
 				#endif
 				
 				currentPeripheralDataNameInput->StatusCommunication = 1;
@@ -4761,7 +3818,7 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 				
 			}else if(type_IO == 'p'){ //it is an output to get
 				#if DEBUG_LEVEL>0
-					printf(" OUTPUT-%d STATUS GOT = %ld\n",ID_IO,Status_IO);fflush(stdout);
+				printf(" OUTPUT-%d STATUS GOT = %ld\n",ID_IO,Status_IO);fflush(stdout);
 				#endif
 				
 				currentPeripheralDataNameOutput->StatusCommunication = 1;
@@ -4783,125 +3840,13 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 }
 
 
-//asks to the peripheral the status of the input
-/*int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput, int *id_shield_connected, int *num_pin_used_on_the_peri){
-	
-	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
-	
-	int statusInput;
-	
-	unsigned int i;
-	
-
-	if(IDinput<256){ //max number of inputs is 255
-	
-		strcpy(strCmd,"C03"); //cmd to set address of peripheral
-		strcat(strCmd,peripheralAddress);
-		SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1);
-		
-		strcpy(strCmd,"C30RBi"); //cmd to load data
-		strCmd[6]=IDinput;//giving the ID of the input to get the status
-		strCmd[7]='V';//when the peripheral will reply will change the character in this position with the value of the input
-		for(i=8;i<19;i++){
-			strCmd[i]='.';
-		}
-		strCmd[20]='\0';
-		
-		//########### v1.0 ###########
-		//SerialCmdRFPI(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
-		//erase the data, thus will not parse again the previous data
-		//for(i=0;i<16;i++){ answerRFPI[i]='\0'; }
-		//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2); //send data, loaded before, to the peripheral
-					
-		//########### v1.1 ###########
-		SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 1);
-		
-		//checking the address, the tags and if the id input is equal to the one wanted
-		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] && answerRFPI[7]=='R' && answerRFPI[8]=='B' && answerRFPI[9]=='i' && answerRFPI[10]==IDinput){
-			statusInput=answerRFPI[11];
-			*num_pin_used_on_the_peri = answerRFPI[18];
-			*id_shield_connected = answerRFPI[17];
-		}else{
-			statusInput=-1;
-			*num_pin_used_on_the_peri = -1;
-			*id_shield_connected = -1;
-		}
-		
-	}else{
-		statusInput=-1;
-		*num_pin_used_on_the_peri = -1;
-		*id_shield_connected = -1;
-	}
-	
-	return statusInput;
-
-}*/
-
-
-//asks to the peripheral the status of the output
-/*int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput, int *id_shield_connected, int *num_pin_used_on_the_peri){
-	
-	unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
-	
-	int statusOutput;
-	
-	unsigned int i;
-	
-	if(IDoutput<256){ //max number of outputs is 255
-	
-		strcpy(strCmd,"C03"); //cmd to set address of peripheral
-		strcat(strCmd,peripheralAddress);
-		SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1); //set the address of the peripheral
-		
-		strcpy(strCmd,"C30RBp"); //cmd to load data
-		strCmd[6]=IDoutput;//giving the ID of the input to get the status
-		strCmd[7]='V';//when the peripheral will reply will change the character in this position with the value of the input
-		for(i=8;i<19;i++){
-			strCmd[i]='.';
-		}
-		strCmd[20]='\0';
-		
-		//########### v1.0 ###########
-		//SerialCmdRFPI(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
-		//erase the data, thus will not parse again the previous data
-		//for(i=0;i<16;i++){ answerRFPI[i]='\0'; }
-		//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2); //send data, loaded before, to the peripheral
-		
-		//########### v1.1 ###########
-		SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2,1);
-		
-		
-		//checking the address, the tags and if the id input is equal to the one wanted
-		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] && answerRFPI[7]=='R' && answerRFPI[8]=='B' && answerRFPI[9]=='p' && answerRFPI[10]==IDoutput){
-			statusOutput=answerRFPI[11];
-			*num_pin_used_on_the_peri = answerRFPI[18];
-			*id_shield_connected = answerRFPI[17];
-		}else{
-			statusOutput=-1;
-			*num_pin_used_on_the_peri = -1;
-			*id_shield_connected = -1;
-		}
-		
-	}else{
-		statusOutput=-1;
-		*num_pin_used_on_the_peri = -1;
-		*id_shield_connected = -1;
-	}
-	
-	return statusOutput;
-
-}*/
-
-
 // Implementation of itoa()
 char* itoaRFPI(int num, char* str, int base){
     int i = 0;
     unsigned char isNegative = 0;
-	char strTemp[100];
+	char strTemp[100]; strTemp[0]='\0';
  
-    /* Handle 0 explicitely, otherwise empty string is printed for 0 */
+    // Handle 0 explicitely, otherwise empty string is printed for 0 
     if (num == 0)
     {
         str[i++] = '0';
@@ -4948,7 +3893,7 @@ char* itoaRFPI(int num, char* str, int base){
 unsigned char convert_2ChrHex_to_byte(unsigned char *chr){
 	unsigned char pos_last_chr = 2;
 	unsigned char byte = 0;
-	unsigned char i;
+	unsigned char i=0;
 	
 	for(i=0;i<pos_last_chr;i++){
 		if(chr[i] >= 0x30 && chr[i] <= 0x39){ //check if it is between '0' and '9'
@@ -4967,7 +3912,7 @@ unsigned char convert_2ChrHex_to_byte(unsigned char *chr){
 
 //convert a byte in 2 Character ASCII in hexadecimal format. Example 0xFF become "FF"
 char* convert_byte_to_2ChrHex(unsigned char byte, char *str2chr){
-	unsigned byteTemp;
+	unsigned byteTemp=0;
 	
 	byteTemp = byte >> 4;
 	if(byteTemp > 0x09){
@@ -4987,9 +3932,6 @@ char* convert_byte_to_2ChrHex(unsigned char byte, char *str2chr){
 	if( byteTemp > 0x0F)
 		*(str2chr+1) = '?'; 
 
-	//printf("byte = %c ", byte); printf(" | str0 = %c",*str2chr); printf(" | str1 = %c\n",*(str2chr+1));
-	
-
 	return str2chr;
 }
 
@@ -4997,21 +3939,12 @@ char* convert_byte_to_2ChrHex(unsigned char byte, char *str2chr){
 //it init the RFPI
 peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_path){
 
-	FILE *file_pointer; 				//generic pointer to file, used in multiple places
-	FILE *file_pointer_error; 			//used for the file of the error history
+	FILE *file_pointer=0; 				//generic pointer to file, used in multiple places
+	FILE *file_pointer_error=0; 		//used for the file of the error history
 	
-	char strMsgTemp[20];
-	//unlink all FIFO, thus there will be no conflicts
-	//unlink(FIFO_RFPI_RUN);
-	//strcpy(strMsgTemp, MSG_FIFO_RFPI_RUN_BUSY);
-	//fifoWriter(FIFO_RFPI_RUN, strMsgTemp);
-	//unlink(FIFO_RFPI_STATUS);
-	//strcpy(strMsgTemp, MSG_FIFO_RFPI_STATUS_EXECUTING);
-	//fifoWriter(FIFO_RFPI_STATUS, strMsgTemp);
-	
-	
+	char strMsgTemp[20]; strMsgTemp[0]='\0';
+
 	//if an error happen then it will be rewritten
-	//strcpy(statusInit,"TRUE");
 	strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);
 	
 	sem_init_gpio_rpi_ok=0;
@@ -5021,7 +3954,9 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 		#if PLATFORM == PLATFORM_RPI
 			if (!bcm2835_init()){
 				sem_init_gpio_rpi_ok=1;
+				#if DEBUG_LEVEL>0
 				printf(ERROR001);printf("\n");
+				#endif
 				strcpy(statusInit,ERROR001);
 				file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
 				fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
@@ -5049,7 +3984,9 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 
 	//Initialisation of the serial communication with the Transceiver
 	if(!InitSerialCommunication(&handleUART, serial_port_path)){
+		#if DEBUG_LEVEL>0
 		printf("\n"); printf(ERROR002); printf("\n");
+		#endif
 		strcpy(statusInit,ERROR002);
 		file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
 		fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
@@ -5060,7 +3997,9 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 	
 	//if is not set, networkName[0] will be equal at '\0' and then follows an error message
 	if(readNetworkNameFromFile(networkName)){ 
+		#if DEBUG_LEVEL>0
 		printf("\n"); printf(ERROR003); printf("\n");
+		#endif
 		strcpy(statusInit,ERROR003);
 		file_pointer_error = fopen(FILE_ERROR_HISTORY,"w+");
 		fprintf(file_pointer_error,"%s\n",statusInit); //writing on the file the line of the inputs
@@ -5072,16 +4011,18 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 			//if the file with the list of the peripheral does not exist it will create
 			file_pointer = fopen(FILE_LIST_PERIPHERAL,"w");
 			fclose(file_pointer);
+			#if DEBUG_LEVEL>0
 			printf("WARNING: No peripheral linked! Or missing files. \n");
+			#endif
 		}else{
 		
 			//load in memory the struct data of all linked peripheral 
 			rootPeripheralData=loadLinkedPeripheral(&handleUART);
-			
+			#if DEBUG_LEVEL>0
 			if(rootPeripheralData==0){
 				printf("WARNING: No linked peripherals! Or missing files. \n");
 			}
-			
+			#endif
 			
 		}
 	
@@ -5091,12 +4032,11 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 		//convert the network name in an address for the Transceiver module
 		addressFromName(networkName, networkAddress);
 		
+		#if DEBUG_LEVEL>0
 		//just to see the output
 		printf("NETWORK NAME: %s\n", networkName);
 		printf("NETWORK ADDRESS: %s\n", networkAddress); 
-		
-		//ask to All peripherals the status of all inputs and outputs and update the status into the struct data
-		//askAndUpdateAllIOStatusPeri(&handleUART, rootPeripheralData);
+		#endif
 		
 		//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 		char tag_all[] = "ALL";
@@ -5107,10 +4047,11 @@ peripheraldata *InitRFPI(peripheraldata *rootPeripheralData, char *serial_port_p
 		#endif
 		
 	}	
-
+	
+	#if DEBUG_LEVEL>0
 	printf("RFPI.C is running! \nPress CTRL+Z to exit\n\n");
 	fflush(stdout); // Prints immediately to screen 
-	
+	#endif
 	
 	return rootPeripheralData;
 }
@@ -5184,7 +4125,7 @@ unsigned char read_RTC(){
 	char fifobuf[64];
 	strcpy(fifobuf, "NO RTC");
 	
-	unsigned char res;
+	unsigned char res=0;
 
 	unsigned char I2CBus = 0; 		 //channel where is connected the RTC
 	unsigned char I2CAddress = 0x34; //address of the RTC
@@ -5203,8 +4144,8 @@ unsigned char read_RTC(){
 	hour = minute = second = 0;
 	date = month = year = 0;
 	
-	char namebuf[64];
-	int file;
+	char namebuf[64]; namebuf[0]='\0';
+	int file=0;
 	
 	if(PLATFORM == PLATFORM_BBB){
 	
@@ -5424,7 +4365,7 @@ unsigned char set_RTC(unsigned char *str_time, unsigned char *str_data){
 
 	unsigned var_return = -1;
 	
-	unsigned char res;
+	unsigned char res=0;
 			
 	unsigned char I2CBus = 1; //channel where is connected the RTC
 	unsigned char I2CAddress = 0x68; //address of the RTC
@@ -5441,8 +4382,8 @@ unsigned char set_RTC(unsigned char *str_time, unsigned char *str_data){
 	unsigned char date, month, year;
 
 			
-	char namebuf[64];
-	int file;
+	char namebuf[64]; namebuf[0]='\0';
+	int file=0;
 			
 	if( PLATFORM == PLATFORM_BBB){
 	
@@ -5596,13 +4537,12 @@ unsigned char set_RTC(unsigned char *str_time, unsigned char *str_data){
 
 //get the bytes for the function u. Will write into answerRFPI the reply from the peri 
 int get_bytes_u_Peri(int *handleUART, unsigned char *peripheralAddress, unsigned int num_function, unsigned int num_packet_to_get, unsigned char *answerRFPI){
+
+	unsigned char strCmd[30]; strCmd[0]='\0';
 	
-	//unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
+	int statusReply=0;
 	
-	int statusReply;
-	
-	unsigned int i;
+	unsigned int i=0;
 	
 	if(num_function<256){ //max number of functions is 255
 	
@@ -5642,14 +4582,14 @@ int get_bytes_u_Peri(int *handleUART, unsigned char *peripheralAddress, unsigned
 
 //send the bytes for the function u. Will write into answerRFPI the reply from the peri 
 int send_bytes_f_Peri(int *handleUART, unsigned char *peripheralAddress, unsigned int num_function, unsigned int num_packet_to_write, unsigned char *array10BytesToSend, unsigned char *answerRFPI){
-	
-	//unsigned char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	unsigned char strCmd[30];
+
+	unsigned char strCmd[30]; strCmd[0]='\0';
 	unsigned char strCmdC31[]="C31";
 	
-	int statusReply;
+	int statusReply=0;
 	
 	unsigned int i,j;
+	i = j = 0;
 	
 	if(num_function<256){ //max number of functions is 255
 	
@@ -5687,9 +4627,6 @@ int send_bytes_f_Peri(int *handleUART, unsigned char *peripheralAddress, unsigne
 			printf("\n");
 			fflush(stdout); // Prints immediately to screen 
 		#endif
-		
-
-		//SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2,1);
 		
 		//load the data on the Transceiver. This data then will be ready to be sended with the command C31
 		loadRadioData(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
@@ -5758,9 +4695,7 @@ int send_bytes_f_Peri(int *handleUART, unsigned char *peripheralAddress, unsigne
 			printf("\n STATUS %d \n", statusReply);
 		#endif
 		//printf("\n STATUS %d REPLY U = %s\n", statusReply,answerRFPI); fflush(stdout); // Prints immediately to screen 
-		
-		//while(1);
-		
+				
 	}else{
 		statusReply=-1;
 	}
@@ -5778,7 +4713,7 @@ void start_DS1307_if_new(void){
 	
 	unsigned var_return = -1;
 	
-	unsigned char res;
+	unsigned char res=0;
 			
 	unsigned char I2CBus = 1; //channel where is connected the RTC
 	unsigned char I2CAddress = 0x68; //address of the RTC
@@ -5795,8 +4730,8 @@ void start_DS1307_if_new(void){
 	unsigned char date, month, year;
 
 			
-	char namebuf[64];
-	int file;
+	char namebuf[64]; namebuf[0]='\0';
+	int file=0;
 	
 	
 	//the RTC is the DS1307
@@ -5955,27 +4890,27 @@ void writeTagIntoFIFOJson(char *tag, FILE *file_pointer){
 void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 
 	//pointers used to manage the data of all linked peripheral
-	peripheraldata *currentPeripheralData;
+	peripheraldata *currentPeripheralData=0;
 	
 	//pointers used to manage the struct with the name of input
-	peripheraldatanameinput *currentPeripheralDataNameInput; 
+	peripheraldatanameinput *currentPeripheralDataNameInput=0; 
 	
 	//pointers used to manage the struct with the name of output
-	peripheraldatanameoutput *currentPeripheralDataNameOutput; 
+	peripheraldatanameoutput *currentPeripheralDataNameOutput=0; 
 	
-	FILE *handleFIFO;//int handleFIFO; 
+	FILE *handleFIFO=0;//int handleFIFO; 
 	//char data[MAX_LEN_LINE_FILE];
-	char tag[50];
-	char st_temp1[30];
-	char strNum[10];
-	int i;
-	int cont_status_link_input;
-	int cont_status_link_output;
-	int cont_input;
-	int cont_output;
+	char tag[50]; tag[0]='\0';
+	char st_temp1[30]; st_temp1[0]='\0';
+	char strNum[10]; strNum[0]='\0';
+	int i=0;
+	int cont_status_link_input=0;
+	int cont_status_link_output=0;
+	int cont_input=0;
+	int cont_output=0;
 	char value[]="KO";
-	char mpn[30];
-	FILE *file_pointer;
+	char mpn[30]; mpn[0]='\0';
+	FILE *file_pointer=0;
 	
 	//create the fifo to give the status of the peripheral to the GUI
 	//mkfifo(FIFO_RFPI_PERIPHERAL_JSON, 0666); 
@@ -5995,23 +4930,9 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 		fprintf(file_pointer, "%s", "{\n");//write(handleFIFO, "{\n", 2);
 		tag[0]='\0'; strcat(tag,"linked_peri_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
 		fprintf(file_pointer, "%s", "\n {\n");//write(handleFIFO, "\n {\n", 4);
-		
-		//char str_double_apex[] = { asc(34), '\0' };
-		char str_temp[20];
-		//while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
+
 		while( (currentPeripheralData)>0 && currentPeripheralData!=0 ){ //for LINUX_MINT
-			
-				
-				
-				/*char apex_ascii=34; 
-				char str_apex[2];// = { "a", '\0' };
-				str_apex[0]='\0';
-				sprintf(str_apex,"%c",apex_ascii);
-				*/
-				
-				//sprintf(data,"%c\n",apex_ascii); write(handleFIFO, data,(strlen(data))); //this print the apex "
-				
-				
+
 				//here start to write the json
 				
 				//write the first block the data of the peri
@@ -6038,6 +4959,14 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 				
 				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
 				strcpy(tag,"hex_address");writeTagAndValueIntoFIFOJson(tag, currentPeripheralData->PeriAddress, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"num_input"); intToStr(currentPeripheralData->NumInput, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);
+				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
+				
+				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
+				strcpy(tag,"num_output"); intToStr(currentPeripheralData->NumOutput, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);
 				fprintf(file_pointer, "%s", ",\n");//write(handleFIFO, ",\n", 2);
 				
 				fprintf(file_pointer, "%s", " ");//write(handleFIFO, " ", 1); 
@@ -6068,8 +4997,7 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 					strcpy(tag,"in_0"); writeTagIntoFIFOJson(tag, handleFIFO); 
 					fprintf(file_pointer, "%s", "\n     {\n");//write(handleFIFO, "\n     {\n", 8);
 					while(currentPeripheralDataNameInput!=0){
-						//printf("ID=%d\n",currentPeripheralDataNameInput->id_shield_connected);
-						
+
 						if(cont_input==0){
 							//write(handleFIFO, "{\n   ", 5);
 						}else{
@@ -6242,167 +5170,6 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData){
 	fclose(file_pointer);
 
 }
-/*
-//write the FIFO in format Json (one line each peripheral) in order to give all data to the GUI
-void writeFifoJsonOneLinePeripheralLinked(peripheraldata *rootPeripheralData){
-
-	//pointers used to manage the data of all linked peripheral
-	peripheraldata *currentPeripheralData;
-	
-	//pointers used to manage the struct with the name of input
-	peripheraldatanameinput *currentPeripheralDataNameInput; 
-	
-	//pointers used to manage the struct with the name of output
-	peripheraldatanameoutput *currentPeripheralDataNameOutput; 
-	
-	int handleFIFO; 
-	//char data[MAX_LEN_LINE_FILE];
-	char tag[50];
-	char strNum[10];
-	int i;
-	
-	//create the fifo to give the status of the peripheral to the GUI
-	mkfifo(FIFO_RFPI_PERIPHERAL_JSON, 0666); 
-	handleFIFO = open(FIFO_RFPI_PERIPHERAL_JSON, O_RDWR);  
-		
-	currentPeripheralData=rootPeripheralData;
-		
-	i=0;
-	
-	//char str_double_apex[] = { asc(34), '\0' };
-	char str_temp[20];
-	while(((int)currentPeripheralData)>0 && currentPeripheralData!=0){
-		
-			
-			
-			//char apex_ascii=34; 
-			//char str_apex[2];// = { "a", '\0' };
-			//str_apex[0]='\0';
-			//sprintf(str_apex,"%c",apex_ascii);
-			
-			
-			//sprintf(data,"%c\n",apex_ascii); write(handleFIFO, data,(strlen(data))); //this print the apex "
-			
-			
-			//here start to write the json
-			
-			//write the first block the data of the peri
-			if(i==0){
-				write(handleFIFO, "{", 1);
-			}else{
-				write(handleFIFO, "},\n", 3);
-				write(handleFIFO, "{", 1);
-			}
-				
-			
-			
-			tag[0]='\0'; strcat(tag,"name");writeTagAndValueIntoFIFOJson(tag, currentPeripheralData->Name, handleFIFO);write(handleFIFO, ",", 1);
-			
-			tag[0]='\0'; strcat(tag,"id_peri"); intToStr(currentPeripheralData->IDtype, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",", 1);
-			
-			tag[0]='\0'; strcat(tag,"id_position"); intToStr(i, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",", 1);
-			
-			tag[0]='\0'; strcat(tag,"hex_address");writeTagAndValueIntoFIFOJson(tag, currentPeripheralData->PeriAddress, handleFIFO);write(handleFIFO, ",", 1);
-			
-			tag[0]='\0'; strcat(tag,"num_embedded_functions"); intToStr(currentPeripheralData->numSpecialFunction, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",", 1);
-			
-			tag[0]='\0'; strcat(tag,"fw_version"); intToStr(currentPeripheralData->fwVersion, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO);write(handleFIFO, ",", 1);
-			
-	
-
-			//write second block the inputs
-			tag[0]='\0'; strcat(tag,"inputs"); writeTagIntoFIFOJson(tag, handleFIFO); write(handleFIFO, "[", 1);
-			
-			tag[0]='\0';
-			//intToStr(currentPeripheralData->NumInput, strNum); strcat(tag,strNum); strcat(tag," ");
-			currentPeripheralDataNameInput=currentPeripheralData->rootNameInput;
-			int j=0;
-			
-			while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
-				
-				if(j==0){
-					write(handleFIFO, "{", 1);
-				}else{
-					write(handleFIFO, "},", 2);
-					write(handleFIFO, "{", 1);
-				}
-			
-				tag[0]='\0'; strcat(tag,"id"); intToStr(j, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",", 1);
-			
-				tag[0]='\0'; strcat(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->NameInput, handleFIFO); write(handleFIFO, ",", 1);
-				
-				tag[0]='\0'; strcat(tag,"raw_value"); intToStr(currentPeripheralDataNameInput->StatusInput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",", 1);
-						
-						
-				tag[0]='\0'; strcat(tag,"bit_resolution"); intToStr(currentPeripheralDataNameInput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",", 1);
-				
-				char value[]="KO";
-				if(currentPeripheralDataNameInput->StatusCommunication != -1) strcpy(value ,"OK");
-				tag[0]='\0'; strcat(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); write(handleFIFO, ",", 1);
-				
-				
-				tag[0]='\0'; strcat(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameInput->NameInput, handleFIFO); //write(handleFIFO, "\n   ", 4);
-				
-				currentPeripheralDataNameInput=currentPeripheralDataNameInput->next;
-				
-				j++;
-			}
-			write(handleFIFO, "}", 1);
-			write(handleFIFO, "],", 2);
-			
-			
-			//write third block with the outputs
-			tag[0]='\0'; strcat(tag,"outputs"); writeTagIntoFIFOJson(tag, handleFIFO); write(handleFIFO, "[", 1);
-			
-			tag[0]='\0';
-			//intToStr(currentPeripheralData->NumOutput, strNum); strcat(tag,strNum); strcat(tag," ");
-			currentPeripheralDataNameOutput=currentPeripheralData->rootNameOutput;
-			j=0;
-			while(currentPeripheralDataNameOutput!=0 && currentPeripheralData->NumOutput!=0){
-				
-				if(j==0){
-					write(handleFIFO, "{", 1);
-				}else{
-					write(handleFIFO, "},", 2);
-					write(handleFIFO, "{", 1);
-				}
-			
-				tag[0]='\0'; strcat(tag,"id"); intToStr(j, strNum); writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",", 1);
-			
-				tag[0]='\0'; strcat(tag,"type"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->NameOutput, handleFIFO); write(handleFIFO, ",", 1);
-				
-				tag[0]='\0'; strcat(tag,"raw_value"); intToStr(currentPeripheralDataNameOutput->StatusOutput, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",", 1);
-			
-				tag[0]='\0'; strcat(tag,"bit_resolution"); intToStr(currentPeripheralDataNameInput->BitResolution, strNum);  writeTagAndValueIntoFIFOJson(tag, strNum, handleFIFO); write(handleFIFO, ",", 1);
-				
-				char value[]="KO";
-				if(currentPeripheralDataNameInput->StatusCommunication != -1) strcpy(value ,"OK");
-				tag[0]='\0'; strcat(tag,"status_communication"); writeTagAndValueIntoFIFOJson(tag, value, handleFIFO); write(handleFIFO, ",", 1);
-				
-				
-				tag[0]='\0'; strcat(tag,"name"); writeTagAndValueIntoFIFOJson(tag, currentPeripheralDataNameOutput->NameOutput, handleFIFO); //write(handleFIFO, "\n   ", 4);
-				
-				currentPeripheralDataNameOutput=currentPeripheralDataNameOutput->next;
-				
-				j++;
-			}
-			write(handleFIFO, "}", 1);
-			write(handleFIFO, "]", 1);
-			
-			
-
-			
-			i++;
-			currentPeripheralData=currentPeripheralData->next;
-	}
-	
-	write(handleFIFO, "}\n", 2);
-	
-	
-	close(handleFIFO); 
-
-}
-*/
 
 
 
@@ -6415,14 +5182,15 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 	sem_serial_port_USB = 0;
 	
 	#ifdef ENABLE_SEARCH_SERIAL_PORT_PATH
-	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
+	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0';
 	unsigned int i,j,cont1;
-	int numCharacters;
+	i=j=cont1=0;
+	int numCharacters=0;
 	unsigned int baud=9600;
 	unsigned int varTmpExit=0;
 	
 	char port_path[12][10]={"ttyAMA0", "ttyS0", "ttyS1", "serial0", "ttyUSB0", "ttyUSB1", "ttyUSB2", "ttyUSB3", "ttyO0", "ttyO1", "ttyO2", "ttyO3"};
-	char temp_path_serial_port[50];
+	char temp_path_serial_port[50]; temp_path_serial_port[0]='\0';
 
 	
 	
@@ -6485,8 +5253,6 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 							printf("%c",answerRFPI[i]);
 						#endif
 					}
-					//if(answerRFPI[0]=='*')//this work for command C85
-					//	varTmpExit=1;
 					if( (answerRFPI[0]=='I' && answerRFPI[1]=='O' && answerRFPI[2]=='T') 
 						||  (answerRFPI[0]=='G' && answerRFPI[1]=='3' && answerRFPI[2]=='P')
 						||  (answerRFPI[0]=='*' && answerRFPI[1]=='I' && answerRFPI[2]=='O' && answerRFPI[3]=='T')
@@ -6508,26 +5274,13 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 				}
 					cont1++;
 			}while(baud<=115200 && varTmpExit==0);
-			//}while(cont1<2 && varTmpExit==0);
-			
+
 			if(baud<=115200){
-			//if(varTmpExit==1){
 				#if DEBUG_LEVEL>0
 					printf("\nTRANSCEIVER FOUND!! Baud rate used: %d\n", baud);fflush(stdout); // Prints immediately to screen 
 				#endif
-				//going to set the default baud rate!
-				//*handleUART = serialOpen (temp_path_serial_port, baud) ;
-				
-				//serialClose (*handleUART) ; //closing the serial port
-				
-				
+
 				strcpy(varTmpReturn, temp_path_serial_port); //to return the serial port path
-				
-				/*if(j>3 && j<8){ //4 to 7 are the index of the USB serial port path
-					sem_ctrl_led = 1;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
-				}else{
-					sem_ctrl_led = 0;  //this enable or disable the control of the leds by the gpio. If the transceiver is connected via USB then no led are connected to the gpio
-				}*/
 				
 				if(j>3 && j<8){//4 to 7 are the index of the USB serial port path
 					sem_serial_port_USB = 1;
@@ -6551,28 +5304,3 @@ char* return_serial_port_path(char *path_search, char *serial_port_path, int *ha
 	strcpy(serial_port_path,varTmpReturn);
 	return serial_port_path;
 }
-
-
-//this function return the MPN from the id, this is used for peripheral 100
-/*char* return_mpn(char *mpn, int *id_shield){
-	int id;
-	if(*id_shield>5 || *id_shield<0){
-		*id_shield = 0;
-	}
-	id = *id_shield;
-	if(id==1){
-		strcpy(mpn,"LED");
-	}else if(id==2){
-		strcpy(mpn,"SWITCH");
-	}else if(id==3){
-		strcpy(mpn,"MCP9701A");
-	}else if(id==4){
-		strcpy(mpn,"00172");
-	}else if(id==5){
-		strcpy(mpn,"DHT11");
-	}else{
-		strcpy(mpn,"NULL");
-	}
-	
-	return mpn;
-}*/

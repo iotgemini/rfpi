@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					01/05/2020
+Last Update: 					18/05/2020
 
 
 Description: library for the RFPI
@@ -34,9 +34,6 @@ Description: library for the RFPI
 
 
 ******************************************************************************************/
-
-//for debug:
-//printf("\n\n###### - UP TO HERE OK! - ######\n\n");fflush(stdout); // Prints immediately to screen 
 
 //the platform can have the following vlaues:
 #define PLATFORM_RPI_1_2 						1   			//if the platform is the Raspberry Pi 1 or 2
@@ -85,9 +82,9 @@ Description: library for the RFPI
 	#define PLATFORM_RPI			0
 #elif PLATFORM == 3
 	#ifdef SERIAL_PORT_FTDI_USB
-		#define SERIAL_PORT_PATH		"/dev/ttyUSB0"
+		#define SERIAL_PORT_PATH	"/dev/ttyUSB0"
 	#else
-		#define SERIAL_PORT_PATH		"/dev/ttyS0"
+		#define SERIAL_PORT_PATH	"/dev/ttyS0"
 	#endif
 	#define PLATFORM_RPI			3
 #elif PLATFORM == 4
@@ -114,8 +111,6 @@ Description: library for the RFPI
 //#define 	SEND_COMAND_TO_SET_OPERATING_BAUDRATE 	SerialCmdRFPi(handleUART, "C557", answerRFPI, CMD_WAIT1)	//set a baud rate of 115200 (no compatible with Black Transceiver)
 //#define 	SEND_COMAND_TO_SET_OPERATING_BAUDRATE 	SerialCmdRFPi(handleUART, "C556", answerRFPI, CMD_WAIT1) 	//set a baud rate of 57600
 
-
-#define DEBUG_LEVEL 	2	//enable the debug setting this parameter with a value above 0
 
 #define ENABLE_RADIO_DATA_CHECKSUM	//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
 
@@ -179,6 +174,9 @@ int var_dummy1,var_dummy2;
 
 #define MAX_NUM_RETRY				25//8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 #define MIN_NUM_RETRY				8//8//3	 		//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
+
+#define MAX_RANDOM_DELAY_RETRY_TX_RF	50//100	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
+#define MIN_RANDOM_DELAY_RETRY_TX_RF	25	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
 
 //#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
 //#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
@@ -372,10 +370,6 @@ extern void setCurrentNetwork(int *handleUART);
 //it init a default network and then send the data to set the current network to the new peripheral
 extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peripheraldata *rootPeripheralData);
 
-//it update the status into the struct data of the peripheral linked
-//extern void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
-//extern void updateStructPeriOut(peripheraldata *rootPeripheralData, int *IDposition, int *IDoutput, int *valueOutput);
-
 //it calculate and return the address for the network. Example name="SDS" return="00EA"
 extern void addressFromName(char *name, char *address);
 
@@ -384,9 +378,6 @@ peripheraldata *deletePeripheralByAddress(char *addressPeri, peripheraldata *roo
 	
 //it delete the peripheral in the postion positionId, the file descriptor will remain
 extern peripheraldata *deletePeripheral(int positionId, peripheraldata *rootPeripheralData);
-
-//send trough the serial port a specified number of characters to the Transceiver module.
-//extern void SerialCmdRFPI(int *handleUART, unsigned char *strCmd, int numCharacters, unsigned char *answerRFPI, int delayMs);
 
 //send trough the serial port a specified number of characters to the Transceiver module and then send the command C31 and wait the answer from the peipheral.
 extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arrayData, int numCharacters, char *answerRFPI, int maxTimeOutMs, unsigned char mustReply);
@@ -425,21 +416,12 @@ extern int checkDataIntoUART(int *handleUART, unsigned char *dataRFPI, int lengh
 //it parse the data given. In case of data from peripheral, it will update the struct data
 extern peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI, peripheraldata *rootPeripheralData, int *cmd_executed);
 
-//asks to All peripherals the status of all inputs and outputs and update the status into the struct data
-//extern void askAndUpdateAllIOStatusPeri(int *handleUART, peripheraldata *rootPeripheralData);
-
 //asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 extern void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, peripheraldata *rootPeripheralData);
 
 //get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
 //extern int getIOStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int ID_IO, char type_IO, unsigned char *array_status);
 extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPeripheralData, unsigned int ID_IO, char type_IO, unsigned char *array_status);
-	
-//asks to the peripheral the status of the input
-//extern int askInputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDinput, int *id_shield_connected, int *num_pin_used_on_the_peri);
-
-//asks to the peripheral the status of the output
-//extern int askOutputStatusPeri(int *handleUART, unsigned char *peripheralAddress, unsigned int IDoutput, int *id_shield_connected, int *num_pin_used_on_the_peri);
 
 // Implementation of itoa(). Convert a number into a string
 extern char* itoaRFPI(int num, char* str, int base);
@@ -482,7 +464,3 @@ void writeFifoJsonPeripheralLinked(peripheraldata *rootPeripheralData);
 
 //this function test all serial port under the path given by path_search
 char* return_serial_port_path(char *path_search, char *serial_port_path, int *handleUART);
-
-//this function return the MPN from the id, this is used for peripheral 100
-//char* return_mpn(char *mpn, int *id_shield);
-	

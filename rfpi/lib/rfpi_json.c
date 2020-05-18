@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					20/03/2020
+Last Update: 					18/05/2020
 
 
 Description: library for the RFPI
@@ -47,13 +47,14 @@ Description: library for the RFPI
 peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeripheral,/*struct_json_settings *rootJsonSettings, */char *address_peri, char *json_path, int *handleUART){
 	
 	char strCmd[40]; //used to give command to the Transceiver
-	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF];
-	struct_shields_connected *tempStructShieldConn;
+	char answerRFPI[MAX_LEN_BUFFER_ANSWER_RF]; answerRFPI[0]='\0';
+	struct_shields_connected *tempStructShieldConn=0;
 	int cont=0;
 	struct_json_settings *rootJsonSettings=0;
-	char strPathFile[MAX_LEN_PATH]; //used to keep the path of the file
-	char strPathFile2[MAX_LEN_PATH]; //used to keep the path of the file
+	char strPathFile[MAX_LEN_PATH]; strPathFile[0]='\0'; //used to keep the path of the file
+	char strPathFile2[MAX_LEN_PATH]; strPathFile2[0]='\0'; //used to keep the path of the file
 	unsigned char semAllOK = 1;
+	unsigned char status = 0;
 	
 	rootJsonSettings=(struct_json_settings*)malloc(sizeof(struct_json_settings));
 	rootJsonSettings->next=0;
@@ -61,11 +62,14 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 	rootJsonSettings->semaphores=0;
 	rootJsonSettings->rootShieldsConnected = 0;
 	
+	#if DEBUG_LEVEL>0	
 	printf("SENDJSONSETTINGS | address_peri = %s | json_path = %s \n", address_peri, json_path );
-	
 	printf("\n********************************** JSON PARSED START ****************************************\n");
+	#endif
 	parseJSON(rootJsonSettings, json_path, fill_up_struct_json_settings);
+	#if DEBUG_LEVEL>0	
 	printf("\n********************************** JSON PARSED END ****************************************\n");
+	#endif
 	
 	if(rootJsonSettings->rootShieldsConnected == 0){ //struct to allocate
 		//it is empty, the JSON was bad
@@ -96,23 +100,30 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 			strCmd[17] = (unsigned char)(rootJsonSettings->currentShieldsConnected->IDFUNCTION5); //ID_function5
 			strCmd[18] = (unsigned char)(rootJsonSettings->currentShieldsConnected->IDFUNCTION6); //ID_function6
 			
-			/*printf("\n\n    ID SHIELD = %d\n", (unsigned int)rootJsonSettings->currentShieldsConnected->ID);
+			/*#if DEBUG_LEVEL>0
+			printf("\n\n    ID SHIELD = %d\n", (unsigned int)rootJsonSettings->currentShieldsConnected->ID);
 			printf("        PIN USED = %d\n", (unsigned int)strCmd[9]);
 			printf("        PIN MASK = %d\n", (unsigned int)strCmd[10]);
 			printf("        PULL UP RESISTOR = %d\n", (unsigned int)strCmd[11]);
 			printf("\n\n");
-			*/
+			#endif*/
 			
 			//########### v1.1 ###########
 			SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 0);
-					
+			
+			#if DEBUG_LEVEL>0			
 			printf(" status= %s\n",answerRFPI);
+			#endif
 			if(answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 				strcpy(statusRFPI,"OK"); 
+				#if DEBUG_LEVEL>0
 				printf("Status=OK\n");
+				#endif
 			}else{
 				strcpy(statusRFPI,"NOTX"); 
+				#if DEBUG_LEVEL>0
 				printf("Status=NOTX\n");
+				#endif
 				semAllOK = 0;
 			} 
 			
@@ -148,14 +159,20 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 			strCmd[6] = cont; //EEPROM_POS: position into the Transceiver EEPROM where to save the data
 
 			SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 0);
-					
+			
+			#if DEBUG_LEVEL>0				
 			printf(" status= %s\n",answerRFPI);
+			#endif
 			if(answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 				strcpy(statusRFPI,"OK"); 
+				#if DEBUG_LEVEL>0	
 				printf("Status=OK\n");
+				#endif
 			}else{
 				strcpy(statusRFPI,"NOTX"); 
+				#if DEBUG_LEVEL>0	
 				printf("Status=NOTX\n");
+				#endif
 				semAllOK = 0;
 			} 
 			
@@ -176,14 +193,20 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 		
 		//########### v1.1 ###########
 		SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 0);
-					
+		
+		#if DEBUG_LEVEL>0
 		printf(" status= %s\n",answerRFPI);
+		#endif
 		if(answerRFPI[0]=='O' && answerRFPI[1]=='K'){
 				strcpy(statusRFPI,"OK"); 
+				#if DEBUG_LEVEL>0
 				printf("Status=OK\n");
+				#endif
 		}else{
 				strcpy(statusRFPI,"NOTX"); 
+				#if DEBUG_LEVEL>0
 				printf("Status=NOTX\n");
+				#endif
 				semAllOK = 0;
 		} 
 		//reset the counter to give the time to be read the status by the GUI, after the status return to OK
@@ -220,96 +243,34 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 		
 		//reinstall it with the new configuration
 		rootDataPeripheral=findNewPeripheral(handleUART, statusRFPI, rootDataPeripheral);
-		
-		/*free(rootDataPeripheral);
-		rootDataPeripheral=0;
-		//load in memory the struct data of all linked peripheral 
-		rootDataPeripheral=loadLinkedPeripheral(handleUART);
-			
-		if(rootDataPeripheral==0){
-				printf("WARNING: No linked peripherals! Or missing files. \n");
-		}*/
-			
-			
-		//unlink all FIFO, thus the GUI will wait for the data updated
-				//unlink(FIFO_RFPI_RUN);
-				//unlink(FIFO_GUI_CMD);
-				//unlink(FIFO_RFPI_STATUS);
-		
-				//ask to All peripherals the status of all inputs and outputs and update the status into the struct data
-				//askAndUpdateAllIOStatusPeri(handleUART, rootDataPeripheral);
-				
+						
 		//asks to the peripheral the status of all inputs and outputs and update the status into the struct data
 		//char tag_all[] = "ALL";
 		askAndUpdateIOStatusPeri(handleUART, address_peri, rootDataPeripheral);
 		
-		
-		//init the Transceiver module
-		/*initRFberryNetwork(handleUART);
-	
-		//convert the network name in an address for the Transceiver module
-		addressFromName(networkName, networkAddress);
-		
-		//just to see the output
-		printf("NETWORK NAME: %s\n", networkName);
-		printf("NETWORK ADDRESS: %s\n", networkAddress); 
-		
-		//ask to All peripherals the status of all inputs and outputs and update the status into the struct data
-		askAndUpdateAllIOStatusPeri(handleUART, rootDataPeripheral);
-				
-		printPeripheralStructData(rootDataPeripheral);
-		*/
-		
-		
-		
-		//rename (const char *oldname, const char *newname);
-	/*	char path_json_conf[50];
-		strcpy(path_json_conf,PATH_CONFIG_FILE); //path where all configurations are saved
-		strcat(path_json_conf,address_peri);
-		strcat(path_json_conf,".json");
-		//rename(json_path, path_json_conf);
-		*/
-		
-		
+
 		//moving the json under the config path
-		//strcpy(strPathFile,PATH_CONFIG_FILE);
-		//strcat(strPathFile,"/new.json");
 		strcpy(strPathFile,json_path);
 		
 		strcpy(strPathFile2,PATH_CONFIG_FILE);
 		strcat(strPathFile2,address_peri);
 		strcat(strPathFile2,".json");
 		
+		#if DEBUG_LEVEL>0
 		printf("COPY %s TO %s\n", strPathFile, strPathFile2); fflush(stdout); // Prints immediately to screen 
-		
-		unsigned char status= rename(strPathFile, strPathFile2); //( oldname , newname );
+		#endif
+		status= rename(strPathFile, strPathFile2); //( oldname , newname );
 		if ( status == 0 ){
 			puts ( "File JSON successfully copyed!!" );
 		}else{
+			#if DEBUG_LEVEL>0
 			printf("ERROR: Unable to copy the file %s\n", strPathFile);
+			#endif
 			perror( "Error copying the file JSON" );
 			semAllOK = 0;
 		}
 		fflush(stdout); // Prints immediately to screen 
 		
-	
-		/*
-		char buf[1000];
-		size_t size;
-
-		FILE* source = fopen(json_path, "rb");
-		FILE* dest = fopen(path_json_conf, "wb");
-
-		// clean and more secure
-		// feof(FILE* stream) returns non-zero if the end of file indicator for stream is set
-
-		while (size = fread(buf, 1, BUFSIZ, source)) {
-			fwrite(buf, 1, size, dest);
-		}
-
-		fclose(source);
-		fclose(dest);
-		*/
 		
 		//reset the counter to give the time to be read the status by the GUI, after the status return to OK
 		contStatusMsg=0; 
@@ -321,9 +282,10 @@ peripheraldata *send_to_transceiver_json_settings(peripheraldata *rootDataPeriph
 
 //this function allocate the memory and record all data from json file
 void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *json_key, char* json_value){
-	int l;
+	int l=0;
+	unsigned char numPin=0;
 	
-	struct_shields_connected *tempStructShieldConn;
+	struct_shields_connected *tempStructShieldConn=0;
 
 	if(strcmp(json_key,"MODULE")==0 && rootJsonSettings->cont == 0){
 		rootJsonSettings->cont = 1;
@@ -359,7 +321,9 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 		rootJsonSettings->currentShieldsConnected->IDFUNCTION6=0;
 		rootJsonSettings->currentShieldsConnected->semaphores=0;
 		
+		#if DEBUG_LEVEL>0	
 		printf("  SHIELD_%d:\n", rootJsonSettings->cont-2); fflush(stdout); // Prints immediately to screen 
+		#endif
 		
 	}else if(	(rootJsonSettings->cont >= 2 && rootJsonSettings->cont < 11) &&
 				  (strcmp(json_key,"SHIELD_1")==0 
@@ -394,8 +358,9 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 		rootJsonSettings->currentShieldsConnected = tempStructShieldConn;
 		
 		//free(tempStructShieldConn);
-		
+		#if DEBUG_LEVEL>0	
 		printf("\n  SHIELD_%d:\n", rootJsonSettings->cont-2); fflush(stdout); // Prints immediately to screen 
+		#endif
 		
 	}else if(strcmp(json_key,"SHIELD_8")==0){
 		rootJsonSettings->cont = 11;
@@ -406,25 +371,35 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 			rootJsonSettings->semaphores |= 0x0001;
 			rootJsonSettings->ADDRESS=(char*)malloc((strlen(json_value)+1)*sizeof(char));
 			strcpy(rootJsonSettings->ADDRESS,json_value);
+			#if DEBUG_LEVEL>0	
 			printf("ADDRESS=%s\n",rootJsonSettings->ADDRESS); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"NAME")==0 && (rootJsonSettings->semaphores & 0x0002)==0){
 			rootJsonSettings->semaphores |= 0x0002;
 			rootJsonSettings->NAME=(char*)malloc((strlen(json_value)+1)*sizeof(char));
 			strcpy(rootJsonSettings->NAME,json_value);
+			#if DEBUG_LEVEL>0	
 			printf("NAME=%s\n",rootJsonSettings->NAME); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"FW_VERSION")==0 && (rootJsonSettings->semaphores & 0x0004)==0){
 			rootJsonSettings->semaphores |= 0x0004;
 			rootJsonSettings->FW_VERSION = atoi(json_value);
+			#if DEBUG_LEVEL>0	
 			printf("FW_VERSION=%d\n",rootJsonSettings->FW_VERSION);fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"LINK_TYPE")==0 && (rootJsonSettings->semaphores & 0x0008)==0){
 			rootJsonSettings->semaphores |= 0x0008;
 			rootJsonSettings->LINK_TYPE=(char*)malloc((strlen(json_value)+1)*sizeof(char));
 			strcpy(rootJsonSettings->LINK_TYPE,json_value);
+			#if DEBUG_LEVEL>0	
 			printf("LINK_TYPE=%s\n",rootJsonSettings->LINK_TYPE);fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"NUM_CHANNEL")==0 && (rootJsonSettings->semaphores & 0x0010)==0){
 			rootJsonSettings->semaphores |= 0x0010;
 			rootJsonSettings->NUM_CHANNEL = atoi(json_value);
+			#if DEBUG_LEVEL>0	
 			printf("NUM_CHANNEL=%d\n",rootJsonSettings->NUM_CHANNEL);fflush(stdout); // Prints immediately to screen 
+			#endif
 		}
 		
 	}else if(rootJsonSettings->cont >= 2 && rootJsonSettings->cont <= 10){
@@ -437,15 +412,21 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 			//	rootJsonSettings->currentShieldsConnected->NAME_SHIELD=(char*)realloc(rootJsonSettings->currentShieldsConnected->NAME_SHIELD, (strlen(json_value)+1)*sizeof(char));
 			rootJsonSettings->currentShieldsConnected->NAME_SHIELD=(char*)malloc((strlen(json_value)+1)*sizeof(char));
 			if (rootJsonSettings->currentShieldsConnected->NAME_SHIELD == 0){
+				#if DEBUG_LEVEL>0	
 				printf("ERROR: Out of memory\n");
+				#endif
 			}else{
 				strcpy(rootJsonSettings->currentShieldsConnected->NAME_SHIELD,json_value);
+				#if DEBUG_LEVEL>0	
 				printf("      NAME=%s\n", rootJsonSettings->currentShieldsConnected->NAME_SHIELD); fflush(stdout); // Prints immediately to screen 
+				#endif
 			}
 		}else if(strcmp(json_key,"ID")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0002)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0002;
 			rootJsonSettings->currentShieldsConnected->ID = atoi(json_value);
+			#if DEBUG_LEVEL>0	
 			printf("      ID=%d\n", rootJsonSettings->currentShieldsConnected->ID); fflush(stdout); // Prints immediately to screen 
+			#endif
 		//}else if(strcmp(json_key,"PIN")==0 /*&& (rootJsonSettings->currentShieldsConnected->semaphores & 0x0004)==0*/){
 		//}else if( json_key[0]=='P' && json_key[1]=='I' && json_key[2]=='N' && json_key[3]=='_'){
 		}else if(  strcmp(json_key,"PIN_0")==0 
@@ -458,7 +439,7 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 				|| strcmp(json_key,"PIN_7")==0
 				){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0004;
-			unsigned char numPin = (atoi(json_value));
+			numPin = (atoi(json_value));
 			if(numPin < 3 || numPin > 10){
 				rootJsonSettings->tempLastPin = 0; //this means the input value is wrong! thus it not assigs any PIN!
 			}else{
@@ -468,7 +449,9 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 				}
 			}
 			rootJsonSettings->currentShieldsConnected->PINUSED |= rootJsonSettings->tempLastPin;
+			#if DEBUG_LEVEL>0
 			printf("      PIN%s=", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		//}else if(strcmp(json_key,"MASK")==0 /*&& (rootJsonSettings->currentShieldsConnected->semaphores & 0x0008)==0*/){
 		//}else if( json_key[0]=='M' && json_key[1]=='A' && json_key[2]=='S' && json_key[3]=='K' && json_key[4]=='_' ){
 		}else if(  strcmp(json_key,"MASK_0")==0 
@@ -484,41 +467,67 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 			if(strcmp(json_value,"out")==0){
 				rootJsonSettings->currentShieldsConnected->PINMASK |= rootJsonSettings->tempLastPin;
 			}
+			#if DEBUG_LEVEL>0
 			printf("%s", json_value); fflush(stdout); // Prints immediately to screen 
-		}else if(strcmp(json_key,"PULL_UP_RESISTOR")==0 /*&& (rootJsonSettings->currentShieldsConnected->semaphores & 0x0010)==0*/){
+			#endif
+		}else if(strcmp(json_key,"PULL_UP_RESISTOR_0")==0 //&& (rootJsonSettings->currentShieldsConnected->semaphores & 0x0010)==0){
+				|| strcmp(json_key,"PULL_UP_RESISTOR_1")==0 
+				|| strcmp(json_key,"PULL_UP_RESISTOR_2")==0 
+				|| strcmp(json_key,"PULL_UP_RESISTOR_3")==0 
+				|| strcmp(json_key,"PULL_UP_RESISTOR_4")==0 
+				|| strcmp(json_key,"PULL_UP_RESISTOR_5")==0 
+				|| strcmp(json_key,"PULL_UP_RESISTOR_6")==0
+				|| strcmp(json_key,"PULL_UP_RESISTOR_7")==0
+				){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0010;
 			if(strcmp(json_value,"yes")==0){
 				rootJsonSettings->currentShieldsConnected->PULLUPRESISTOR |= rootJsonSettings->tempLastPin;
+				#if DEBUG_LEVEL>0
 				printf(", Pull-Up=%s", json_value); fflush(stdout); // Prints immediately to screen 
+				#endif
 			}
 		}else if(strcmp(json_key,"ID_FUNCTION_0")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0020)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0020;
 			rootJsonSettings->currentShieldsConnected->IDFUNCTION0 |= atoi(json_value); //
+			#if DEBUG_LEVEL>0
 			printf("\n      ID_FUNCTION_0=%s", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"ID_FUNCTION_1")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0040)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0040;
 			rootJsonSettings->currentShieldsConnected->IDFUNCTION1 |= atoi(json_value); //
+			#if DEBUG_LEVEL>0
 			printf("\n      ID_FUNCTION_1=%s", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"ID_FUNCTION_2")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0080)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0080;
 			rootJsonSettings->currentShieldsConnected->IDFUNCTION2 |= atoi(json_value); //
+			#if DEBUG_LEVEL>0
 			printf("\n      ID_FUNCTION_2=%s", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"ID_FUNCTION_3")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0100)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0100;
 			rootJsonSettings->currentShieldsConnected->IDFUNCTION3 |= atoi(json_value); //
+			#if DEBUG_LEVEL>0
 			printf("\n      ID_FUNCTION_3=%s", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"ID_FUNCTION_4")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0200)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0200;
 			rootJsonSettings->currentShieldsConnected->IDFUNCTION4 |= atoi(json_value); //
+			#if DEBUG_LEVEL>0
 			printf("\n      ID_FUNCTION_4=%s", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"ID_FUNCTION_5")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0400)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0400;
 			rootJsonSettings->currentShieldsConnected->IDFUNCTION5 |= atoi(json_value); //
+			#if DEBUG_LEVEL>0
 			printf("\n      ID_FUNCTION_5=%s", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}else if(strcmp(json_key,"ID_FUNCTION_6")==0 && (rootJsonSettings->currentShieldsConnected->semaphores & 0x0800)==0){
 			rootJsonSettings->currentShieldsConnected->semaphores |= 0x0800;
 			rootJsonSettings->currentShieldsConnected->IDFUNCTION6 |= atoi(json_value); //
+			#if DEBUG_LEVEL>0
 			printf("\n      ID_FUNCTION_6=%s", json_value); fflush(stdout); // Prints immediately to screen 
+			#endif
 		}
 		
 	}
@@ -530,7 +539,7 @@ void fill_up_struct_json_settings(struct_json_settings *rootJsonSettings, char *
 // Read files
 void readfile(char* filepath, char* fileContent)
 {
-    FILE *f;
+    FILE *f=0;
     char c='\0';
     int index=0;
 	
@@ -574,13 +583,17 @@ int parseJSON(struct_json_settings *rootJsonSettings, char *filepath, void callb
    r = jsmn_parse(&p, JSON_STRING, strlen(JSON_STRING), t, sizeof(t)/(sizeof(t[0])));
 
    if (r < 0) {
+	   #if DEBUG_LEVEL>0
        printf("Failed to parse JSON: %d\n", r);
+	   #endif
        return 1;
    }
 
    /* Assume the top-level element is an object */
    if (r < 1 || t[0].type != JSMN_OBJECT) {
+	   #if DEBUG_LEVEL>0
        printf("Object expected\n");
+	   #endif
        return 1;
    }
 
