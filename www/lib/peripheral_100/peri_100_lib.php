@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		24/04/2020
+Last Update: 		18/05/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -30,6 +30,10 @@ Description: it is the library with all useful function to use RFPI
 
 
 //-------------------------------BEGIN FUNCTIONS DESCRIPTIONS----------------------------------//
+
+//	function mcu_volt_peri_100($ADC_10bit_value);								//return the volts of the power supply applied to the MCU
+
+//	function str_mcu_volt_peri_100($ADC_10bit_value);							//return a string that contain the volts of the power supply applied to the MCU
 
 //	function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);			//return the value in Volt
 
@@ -92,17 +96,33 @@ echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css"
 //-------------------------------END INCLUDE CSS----------------------------------//
 
 
-function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value){
-	$voltage = $ADC_10bit_value; 
-	$voltage = (($ADC_10bit_value * 5 ) / 1024); 
+function mcu_volt_peri_100($ADC_10bit_value){
+	$voltage =  (3.3 * 1024) / $ADC_10bit_value; 
 	//$voltage = ceil($voltage);
 	return $voltage;
 }
 
-function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value){
+function str_mcu_volt_peri_100($ADC_10bit_value){
+	$voltage="";
+	$voltage_int = mcu_volt_peri_100($ADC_10bit_value);
+	$voltage_int = $voltage_int * 100;
+	$voltage_int = ceil($voltage_int);
+	$voltage_int = $voltage_int / 100;
+	$voltage = number_format($voltage_int, 2, '.', ''); 
+	return $voltage;
+}
+
+function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value,$MCU_Volts_raw_value){ 
+	$vref_adc = mcu_volt_peri_100($MCU_Volts_raw_value);
+	$voltage = (($ADC_10bit_value * $vref_adc ) / 1024); 
+	//$voltage = ceil($voltage);
+	return $voltage;
+}
+
+function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value,$MCU_Volts_raw_value){
 	$voltage="";
 	//$voltage=number_format((float)strval(voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value)), 0, '.', ''); 
-	$voltage_int = voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);
+	$voltage_int = voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value,$MCU_Volts_raw_value);
 	$voltage_int = $voltage_int * 100;
 	$voltage_int = ceil($voltage_int);
 	$voltage_int = $voltage_int / 100;
@@ -113,63 +133,34 @@ function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value){
 
 function temperature_DHT11_from_raw_value_peri_100($raw_value){
 	$temperature = $raw_value & 0x0000FFFF;
+	$temperature_int = $temperature >> 8;
+	$temperature_dec = $temperature & 0x00FF;
+	return $temperature_int . "." . $temperature_dec;
 
-	/*if( ($temperature & 0x4000) == 0x4000 ){
-		$temperature &= ~0x4000;
-		
-		$temperature_int = $temperature >> 8;
-		$temperature_dec = $temperature & 0x00FF;
-		return "? " . $temperature_int . "." . $temperature_dec;
-	}else{*/
-		$temperature_int = $temperature >> 8;
-		$temperature_dec = $temperature & 0x00FF;
-		return $temperature_int . "." . $temperature_dec;
-	//}
 }
 
 function humidity_DHT11_from_raw_value_peri_100($raw_value){
 	$humidity = $raw_value >> 16;
-
-	/*if( ($humidity & 0x4000) == 0x4000 ){
-		$humidity &= ~0x4000;
-		
-		$humidity_int = $humidity >> 8;
-		$humidity_dec = $humidity & 0x00FF;
-		return "? " . $humidity_int;// . "." . $humidity_dec;
-	}else{*/
-		$humidity_int = $humidity >> 8;
-		$humidity_dec = $humidity & 0x00FF;
-		return $humidity_int;// . "." . $humidity_dec;
-	//}
+	$humidity_int = $humidity >> 8;
+	$humidity_dec = $humidity & 0x00FF;
+	return $humidity_int;// . "." . $humidity_dec;
 }
 
 function temperature_DHT22_from_raw_value_peri_100($raw_value){
 	$temperature = $raw_value & 0x0000FFFF;
-
-	//the bit before the the MSB means the IOTG platfor has encounterd an error in reading the data from the sensor
-	/*if( ($temperature & 0x4000) == 0x4000 ){
-		$temperature &= ~0x4000;
-		return "? " . $temperature/10 ;
-	}else{*/
-		return $temperature/10 ;
-	//}
+	return $temperature/10 ;
 }
 
 function humidity_DHT22_from_raw_value_peri_100($raw_value){
 	$humidity = $raw_value >> 16;
-
-	//the bit before the the MSB means the IOTG platfor has encounterd an error in reading the data from the sensor
-	/*if( ($humidity & 0x4000) == 0x4000 ){
-		$humidity &= ~0x4000;
-		return "? " . $humidity/10 ;
-	}else{*/
-		return $humidity/10 ;
-	//}
+	return $humidity/10 ;
 }
 
 
-function temperature_MCP9701_from_ADC_raw_value_peri_100($ADC_value){
-	$tempearure = (((($ADC_value)*0.0048828125) - 0.4) / 0.0195);
+function temperature_MCP9701_from_ADC_raw_value_peri_100($ADC_value,$MCU_Volts_raw_value){
+	$vref_adc = mcu_volt_peri_100($MCU_Volts_raw_value); //5V
+	$volt_for_one_bit = $vref_adc / 1024;
+	$tempearure = (((($ADC_value)*$volt_for_one_bit) - 0.4) / 0.0195);
 	//$tempearure = ceil($tempearure);
 	//$tempearure = round($tempearure);
 	return $tempearure;

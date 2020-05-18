@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		24/03/2020
+Last Update: 		09/05/2020
 
 Description: this is a panel where to enable/disable the settings of the platform
 
@@ -31,6 +31,9 @@ Description: this is a panel where to enable/disable the settings of the platfor
 //		Specific library for the json file
 		include './lib/json_lib.php';  
 		
+//		Specific library with formulas
+		include './peri_100_lib.php';  
+		
 //----------------------------------END INCLUDE--------------------------------------------//
 
 
@@ -38,52 +41,16 @@ Description: this is a panel where to enable/disable the settings of the platfor
 //		Strings for languages
 
 $lang_title_keep_off_led="Keep OFF status Led:";
-$lang_title_millisecond="Milliseconds";
-$lang_title_second="Second";
-$lang_title_minutes="Minutes";
-$lang_title_hours="Hours";
-$lang_title_enabled="ENABLED";
-$lang_title_output="Output";
-$lang_relay="Relay";
-$lang_decription_function="After the time specified here the output will be turned OFF/ON.";
-$lang_select_output="Select the output:";
-$lang_set_status="Select the status<br>to set:";
+$lang_title_ADC_compensation="ADC Compensation:";
 if($_SESSION["language"]=="IT"){
 	$lang_title_keep_off_led="Mantieni spento il Led di stato:";
-	$lang_title_millisecond="Millisecondi";
-	$lang_title_second="Secondi";
-	$lang_title_minutes="Minuti";
-	$lang_title_hours="Ore";
-	$lang_title_enabled="ABILITATA";
-	$lang_title_output="Uscita";
-	$lang_relay="Rel&egrave;";
-	$lang_decription_function="Dopo il tempo specificato qui l&apos;ustita verr&aacute; accesa/spenta.";
-	$lang_select_output="Seleziona l&apos;uscita:";
-	$lang_set_status="Seleziona lo stato<br>da impostare:";
+	$lang_title_ADC_compensation="ADC Compensazione:";
 }else if($_SESSION["language"]=="FR"){
 	$lang_title_keep_off_led="Gardez le voyant dl&apos;&eacute;tat &eacute;teint:";
-	$lang_title_millisecond="Millisecondes";
-	$lang_title_second="Secondes";
-	$lang_title_minutes="Minutes";
-	$lang_title_hours="Heures";
-	$lang_title_enabled="Acti&eacute;e";
-	$lang_title_output="Sortie";
-	$lang_relay="Rel&egrave;";
-	$lang_decription_function="Apr&egrave;s le temps sp&eacute;cifi&eacute; ici, l&apos;odita sera activ&eacute;/désactiv&eacute;.";
-	$lang_select_output="S&eacute;lectionnez la sortie:";
-	$lang_set_status="S&eacute;lectionnez le statut<br>&agrave; d&eacute;finir:";
+	$lang_title_ADC_compensation="ADC Compenstation:";
 }else if($_SESSION["language"]=="SP"){
 	$lang_title_keep_off_led="Mantenga el LED de estado apagado:";
-	$lang_title_millisecond="Milisegundos";
-	$lang_title_second="Segundos";
-	$lang_title_minutes="Acta";
-	$lang_title_hours="Horas";
-	$lang_title_enabled="ACTIVO";
-	$lang_title_output="Salida";
-	$lang_relay="Rel&eacute;";
-	$lang_decription_function="Despu&eacute;s del tiempo especificado aquí, la odita se encender&aacute;/apagar&aacute;.";
-	$lang_select_output="Seleccione la salida:";
-	$lang_set_status="Seleziona lo stato<br>da impostare:";
+	$lang_title_ADC_compensation="ADC Compensaci&oacute;n:";
 }
 
 //---------------------------------------------------------------------------------------//
@@ -101,112 +68,24 @@ $data_rfpi=$_GET['data_rfpi'];
 
 
 $index = 8;
-//$timer_enabled = intval( $data_rfpi[0+$index] . $data_rfpi[1+$index] , 16); //byte 0
-$sem_Led_TX_keep_OFF = intval( $data_rfpi[0+$index] . $data_rfpi[1+$index] , 16); //byte 0
+$byte0_settings = intval( $data_rfpi[0+$index] . $data_rfpi[1+$index] , 16); //byte 0
 
-$timer_ms = intval( $data_rfpi[2+$index] . $data_rfpi[3+$index] , 16); //byte 1
-$timer_ms = $timer_ms << 8;
-$timer_ms += intval( $data_rfpi[4+$index] . $data_rfpi[5+$index] , 16); //byte 2
-$timer_SS = intval( $data_rfpi[6+$index] . $data_rfpi[7+$index] , 16); //byte 3
-$timer_MM = intval( $data_rfpi[8+$index] . $data_rfpi[9+$index] , 16); //byte 4
-$timer_HH = intval( $data_rfpi[10+$index] . $data_rfpi[11+$index] , 16); //byte 5
+$ADC1_Average = intval( $data_rfpi[18+$index] . $data_rfpi[19+$index] , 16); //byte 9
+$ADC1_Average = $ADC1_Average << 8;
+$ADC1_Average += intval( $data_rfpi[20+$index] . $data_rfpi[21+$index] , 16); //byte 10 MSB
 
 
+$sem_Led_TX_keep_OFF = 0;
+$ADC_compensation = 0;
 
-
-
-
-/************************************* BEGIN: DECODE JSON FILE *************************************/
+if( (intval($byte0_settings, 10) & 0x01)==0)	$sem_Led_TX_keep_OFF = 1;
+if( (intval($byte0_settings, 10) & 0x02)==0)	$ADC_compensation = 1;
 	
-	
-	$count_digital_input_json = 0;
-	$count_digital_output_json = 0;
-	$count_analogue_input_json = 0;
-	$count_analogue_output_json = 0;
-	
-	$sem_RGB_Shield_connected = 0;
-	
-	//$array_pin_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	//$array_pin_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	//$array_pin_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	//$array_pin_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		
-	$array_pin_digital_inputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_pin_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_pin_analogue_inputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_pin_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
-		
-		
-	$array_shield_name_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_name_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_name_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_name_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		
-		
-	$array_shield_mpn_digital_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_mpn_analogue_inputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_mpn_digital_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-	$array_shield_mpn_analogue_outputs_json = ["NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL"];
-		
-			
-	$array_id_digital_outputs_json = [0,0,0,0,0,0,0,0,0];
-	$array_id_analogue_outputs_json = [0,0,0,0,0,0,0,0,0];
-	
-	
-	
-	$path_conf_json = CONF_PATH . $address_peri . ".json";
-	$sem_json_exist=0;
-	
-	$numOutput = 1; //this just to say there is an output thus it will go forward in reading the json file
-	
-	//here the array are filled up with the data taken from the json
-	decode_iotgemini_json(
-									//variables that are filled up
-									$sem_json_exist, 
-									$sem_RGB_Shield_connected,
-									
-									$count_digital_input_json, 
-									$count_digital_output_json, 
-									$count_analogue_input_json, 
-									$count_analogue_output_json, 
-									
-									$array_pin_digital_inputs_json,
-									$array_pin_digital_outputs_json,
-									$array_pin_analogue_inputs_json,
-									$array_pin_analogue_outputs_json,
-									
-									$array_shield_name_digital_inputs_json,
-									$array_shield_name_digital_outputs_json,
-									$array_shield_name_analogue_inputs_json,
-									$array_shield_name_analogue_outputs_json,
-									
-									$array_shield_mpn_digital_inputs_json,
-									$array_shield_mpn_digital_outputs_json,
-									$array_shield_mpn_analogue_inputs_json,
-									$array_shield_mpn_analogue_outputs_json,
-									
-									$array_id_digital_outputs_json,
-									$array_id_analogue_outputs_json,
-									
-									//variables to run the function
-									$address_peri,
-									$path_conf_json,
-									$numInput,
-									$numOutput
-									
-								);
-	
-/************************************* END: DECODE JSON FILE *************************************/
-
-
-
-
 
 echo '<html>';
 echo ' <meta content="width=device-width, initial-scale=1" name="viewport"/>';
 echo '<body>';
 echo '<div class="div_home">';
-
 echo '<br>';
 
 //button HOME
@@ -241,7 +120,25 @@ if(intval($sem_Led_TX_keep_OFF, 10)==1){
 }
 echo '</td>';
 echo '</tr>';
-
+/*
+echo '<tr class="table_line_even">';
+echo '<td class="td_peripheral">'.$lang_title_ADC_compensation.'</td>';  
+echo '<td class="td_peripheral" align=center>';
+if(intval($ADC_compensation, 10)==1){
+	echo '<input type="checkbox" name="ADC_compensation" value="1" onchange="if(this.value==0) this.value=1; else this.value=0;" checked>';
+}else{
+	echo '<input type="checkbox" name="ADC_compensation" value="0" onchange="if(this.value==0) this.value=1; else this.value=0;">';
+}
+echo '</td>';
+echo '</tr>';
+*/
+echo '<tr class="table_line_even">';
+echo '<td class="td_peripheral">MCU Volt:</td>';  
+echo '<td class="td_peripheral" align=center>';
+echo str_mcu_volt_peri_100($ADC1_Average); 
+echo 'V';
+echo '</td>';
+echo '</tr>';
 
 echo '<tr class="table_title_field_line">';
 echo '<td colspan=2 align=center>';
@@ -253,12 +150,7 @@ echo '</table>';
 
 echo '</form>';
 
-
-//echo '<br>';
-//echo $lang_decription_function;
 echo '<br>';
-
-
 
 //button HOME
 echo '<p align=left>';

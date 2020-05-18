@@ -445,7 +445,8 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	
 	
 	
-	
+	//$MCU_Volts_raw_value = $arrayStatusInput[$count_digital_input_json+$count_analogue_input_json];
+	$MCU_Volts_raw_value = $arrayStatusInput[$numInput-1];
 	
 	//echo '<link rel="stylesheet" href="' . DIRECTORY_CSS_PERI_100 . 'peripheral.css" type="text/css" >';
 	
@@ -468,6 +469,14 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	//echo '</td>';
 	//echo '<td>&nbsp';
 	echo $name;
+	
+	echo '<br>';
+	//echo '<br>';
+	
+	//printing the MCU Volts
+	echo 'MCU=' . str_mcu_volt_peri_100($MCU_Volts_raw_value) . 'V';
+	
+	
 	echo '</td>';
 	
 	echo '</tr></table>';
@@ -534,7 +543,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 				//echo ' = ';
 				//echo $array_shield_mpn_analogue_inputs_json[$l];
 				if($array_shield_mpn_analogue_inputs_json[$l]==="MCP9701A" || $array_shield_mpn_analogue_inputs_json[$l]==="mcp9701a"){
-					$temperature = temperature_MCP9701_from_ADC_raw_value_peri_100($arrayStatusInput[$counter]);
+					$temperature = temperature_MCP9701_from_ADC_raw_value_peri_100($arrayStatusInput[$counter],$MCU_Volts_raw_value);
 					echo '<h2>';
 					echo number_format((float)strval($temperature), 1, '.', '');
 					echo '&nbsp&#176C&nbsp'; //°C
@@ -555,7 +564,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					echo '</h2>';
 				}else if($array_shield_mpn_analogue_inputs_json[$l]==="ADC0V5V" || $array_shield_mpn_analogue_inputs_json[$l]==="adc0v5v"){
 					echo '<h2>';
-					echo str_voltage_0to5V_from_10bit_value_peri_100($arrayStatusInput[$counter]);
+					echo str_voltage_0to5V_from_10bit_value_peri_100($arrayStatusInput[$counter],$MCU_Volts_raw_value);
 					echo ' V';
 					echo '</h2>';
 				}else{
@@ -570,13 +579,13 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 			//echo 'ID' . $counter . ')';
 			
 			echo '</div>';
-
 		$l++;
 		$counter++;
 		
 	}
 	}//END json exist
 	
+
 	echo '</td>';
 /**************************************** END: PRINTING INPUS	****************************************/
 

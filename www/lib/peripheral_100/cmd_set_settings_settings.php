@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		24/03/2020
+Last Update: 		09/05/2020
 
 Description: it send the command to set the settings of the TIMER
 
@@ -57,19 +57,24 @@ $redirect_page = $_GET['redirect_page'];
 //GETTING CUSTOM INFORMATIONS
 
 $sem_Led_TX_keep_OFF=$_GET['sem_Led_TX_keep_OFF'];
+$ADC_compensation=$_GET['ADC_compensation'];
 
+$int_sem_Led_TX_keep_OFF = 0xFF;
 if($sem_Led_TX_keep_OFF==="1"){
-	$sem_Led_TX_keep_OFF = "01";
-}else{
-	$sem_Led_TX_keep_OFF = "00";
+	$int_sem_Led_TX_keep_OFF &= ~1;
+}
+if($ADC_compensation==="1"){
+	$int_sem_Led_TX_keep_OFF &= ~2;
 }
 
+$str_hex_Led_TX_keep_OFF = dechex( $int_sem_Led_TX_keep_OFF );
+if(strlen($str_hex_Led_TX_keep_OFF)<2) $str_hex_Led_TX_keep_OFF = "0" . $str_hex_Led_TX_keep_OFF;
 
 //building the string command and writing into fifo command:
 $TAG0="DATA";
 $TAG1="RF";
 $TAG2=$address_peri;
-$TAG3="524266" . $id_hex_special_function . $sem_Led_TX_keep_OFF . "2E2E2E2E2E2E2E2E2E2E2E";
+$TAG3="524266" . $id_hex_special_function . $str_hex_Led_TX_keep_OFF . "2E2E2E2E2E2E2E2E2E2E2E";
 
 $cmd_to_write_into_fifo = $TAG0." ".$TAG1." ".$TAG2." ".$TAG3." "; //the space at the end is important
 
