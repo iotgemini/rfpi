@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					01/05/2020
+Last Update: 					18/05/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -35,6 +35,10 @@ Description: application rfpi.c to run the RFPI network
 
 ******************************************************************************************/
 
+#define DEBUG_LEVEL 			1	//enable the debug setting this parameter with a value above 0
+#define MAX_BUF_DATA_RFPI		47	 //it is the data coming from the uart
+									 //into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -45,23 +49,20 @@ Description: application rfpi.c to run the RFPI network
 #include "lib/librfpi.c"
 #include "lib/iotg.c"
 
-#define MAX_BUF_DATA_RFPI		47	 //it is the data coming from the uart
-									 //into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
-
 
 int main(int argc, char **argv){ 	
 
 	//pointers used to manage the data of all linked peripheral
 	peripheraldata *rootPeripheralData=0;
 
-	unsigned char dataRFPI[MAX_BUF_DATA_RFPI];
+	unsigned char dataRFPI[MAX_BUF_DATA_RFPI]; dataRFPI[0]='\0';
 	int numBytesDataRFPI = 0;
 	char str_net_name_and_address[50];
-	int count1;
-	int cmd_execution;
+	int count1=0;
+	int cmd_execution=0;
 	
 	//initializing the fifo to receive command from the GUI
-	FILE *fp;
+	FILE *fp=0;
 	fp  = fopen (FIFO_GUI_CMD_SYNC, "w+");
 	fclose (fp);
 	chmod(FIFO_GUI_CMD_SYNC, 0777);
@@ -128,63 +129,15 @@ int main(int argc, char **argv){
 	}
 	#endif // RTC_MODEL
 	
-	//send the status to the support
-	//send_status_to_support(FILE_LIST_PERIPHERAL, networkName);
-
 	cmd_execution=1;
     do{// beginning of the infinite loop
-	   	  
-		//tell to the GUI the init status
-		//if(cmd_execution!=0)
-		//fifoWriter(FIFO_RFPI_RUN, statusInit);
 
-		//printf(" statusInit=%s\n",statusInit); fflush(stdout); // Prints immediately to screen
-		
-		/*char tempVar_Semaphore = 0;
-		//if(strcmp(statusInit,"TRUE")!=0){  
-		if(strlen(statusInit)==4){
-			if(strcmp(statusInit,"TRUE")!=0){
-				tempVar_Semaphore = 1;
-			}
-		}
-		
-		if(tempVar_Semaphore==1){
-			delay_ms(ERROR_BLINK_LED_DELAY);
-			#ifdef LED_YES
-			if(sem_serial_port_USB == 0){
-				#if PLATFORM == PLATFORM_RPI
-					if(sem_init_gpio_rpi_ok==1)
-						bcm2835_gpio_write(PIN_LED_DS1, LOW); //led which indicate if an error occurred
-				#elif PLATFORM == PLATFORM_BBB
-					linux_gpio_set_value(BBB_PIN_LED_DS2, LOW_GPIO);
-				#elif PLATFORM == PLATFORM_OPZ
-					linux_gpio_set_value(OPZ_PIN_LED_DS2, LOW_GPIO);
-				#endif
-			}
-			#endif
-		}else{ 
-			#ifdef LED_YES
-			if(sem_serial_port_USB == 0){
-				#if PLATFORM == PLATFORM_RPI
-					if(sem_init_gpio_rpi_ok==1)
-						bcm2835_gpio_write(PIN_LED_DS1, HIGH); //led which indicate if an error occurred
-				#elif PLATFORM == PLATFORM_BBB
-					linux_gpio_set_value(BBB_PIN_LED_DS2, HIGH_GPIO);
-				#elif PLATFORM == PLATFORM_OPZ
-					linux_gpio_set_value(OPZ_PIN_LED_DS2, HIGH_GPIO);
-				#endif
-			}
-			#endif
-			*/
+		//it check the data into the buffer of the UART, return the data on the string given
+		numBytesDataRFPI=checkDataIntoUART(&handleUART, dataRFPI, MAX_BUF_DATA_RFPI);
 			
-			//it check the data into the buffer of the UART, return the data on the string given
-			numBytesDataRFPI=checkDataIntoUART(&handleUART, dataRFPI, MAX_BUF_DATA_RFPI);
-			
-			//it parse the data given. In case of data from peripheral, it will update the struct data
-			rootPeripheralData=parseDataFromUART(dataRFPI, &numBytesDataRFPI, rootPeripheralData, &cmd_execution);
-		//}	
-		
-		
+		//it parse the data given. In case of data from peripheral, it will update the struct data
+		rootPeripheralData=parseDataFromUART(dataRFPI, &numBytesDataRFPI, rootPeripheralData, &cmd_execution);
+
 		if(cmd_execution!=0){
 			#if DEBUG_LEVEL>0
 				printf("\n\nRewriting fifo.....");
@@ -196,27 +149,20 @@ int main(int argc, char **argv){
 			strcat(str_net_name_and_address,"\n");
 			strcat(str_net_name_and_address,networkAddress);
 			fifoWriter(FIFO_RFPI_NET_NAME, str_net_name_and_address);
-			
 
 			//create the fifo to give the status of the peripheral to the GUI
 			writeFifoPeripheralLinked(rootPeripheralData); 
 			writeFifoJsonPeripheralLinked(rootPeripheralData);
-			//writeFifoJsonOneLinePeripheralLinked(rootPeripheralData);
 		
-			fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
-			//printf(" statusInit=%s\n",statusRFPI); fflush(stdout); // Prints immediately to screen
-			
-			fifoWriter(FIFO_RFPI_RUN, statusInit);
 			//tell to the GUI the various status
-			
+			fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
+			fifoWriter(FIFO_RFPI_RUN, statusInit);
+
 			#if DEBUG_LEVEL>0
 				printf("FIFO REWRITTEN!\n\n");
 			#endif
 		}
-		
-		//tell to the GUI the various status
-	//	fifoWriter(FIFO_RFPI_STATUS, statusRFPI); 
-			
+
 		cmd_execution=0;
 		for(count1=0;count1<EXECUTION_DELAY && cmd_execution==0;count1++){
 			//it parse the data coming from the GUI. It will write the FIFO RFPI STATUS. Thus into the FIFO RFPI STATUS there will be written the response after have parsed the data from the GUI.
