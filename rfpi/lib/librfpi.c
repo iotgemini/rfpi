@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					18/05/2020
+Last Update: 					19/05/2020
 
 
 Description: library for the RFPI
@@ -1577,11 +1577,6 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	byteL=byteL | i;
 	strCmd[11]=byteL;
 
-	//########### v1.0 ###########
-	//SerialCmdRFPI(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
-	//SendCmdRFPIDelay("C31", handleUART, answerRFPI, CMD_WAIT2); //send data, loaded before, to the new peripheral
-	//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-					
 	//########### v1.1 ###########
 	SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2,0);
 		
@@ -1621,20 +1616,11 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 		strcpy(strCmd,"C03"); //cmd to set address of this new peripheral
 		strcat(strCmd,peripheralAddress);
 		SerialCmdRFPi(handleUART, strCmd, answerRFPI, CMD_WAIT1);
-		
-		//assigning the values to the struct data
-		
-		//########### v1.0 ###########
-		//ask to the peripheral the type, number of IO
-		//SerialCmdRFPI(handleUART, "C30RBt.............", 19, answerRFPI, CMD_WAIT1);
-		//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-		
+	
 		//########### v1.1 ###########
 		//ask to the peripheral the type, number of IO
-		SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBt.............", 19, answerRFPI, CMD_WAIT2,1); fflush(stdout);
+		SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBt.............", 19, answerRFPI, CMD_WAIT2,1); 
 
-		//if(!(strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K')){
-		//if( !( strcmp(statusRFPI,"OK")==0 && answerRFPI[0]=='O' && answerRFPI[1]=='K' && answerRFPI[2]=='*' && strlen(answerRFPI)>9 ) ){ 
 		if( !( 		answerRFPI[2]=='*' 
 					&& answerRFPI[3]==peripheralAddress[0] 
 					&& answerRFPI[4]==peripheralAddress[1]
@@ -1655,7 +1641,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 		
 		if(strcmp(statusRFPI,MSG_FIFO_RFPI_STATUS_OK)==0){ ////begin of the if where it check the correct reply from pery with all its characteristics
 			
-			
+
 			//################ BEGIN ALLOCATING THE STRUCT DATA OF THIS PERIPHERAL ################
 			numPeripheral=0;
 			if(rootPeripheralData==0){
@@ -1688,7 +1674,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 				fwVersion=0;
 				
 				#if DEBUG_LEVEL>0
-					printf("\nTHE PERIPHERAL DID NOT REPLY WITH ITS IDENTIFICATION CODE!\n\n"); fflush(stdout);
+				printf("\nTHE PERIPHERAL DID NOT REPLY WITH ITS IDENTIFICATION CODE!\n\n"); fflush(stdout);
 				#endif
 			}else{
 				IDtype=0;
@@ -1710,15 +1696,9 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 			if(NumOutput>255) NumOutput=255; //max num output 255
 			
 			currentPeripheralData->IDtype=IDtype;
-			
-			
+
 			delay_ms(50); //gives the time to elaborate the last command
-			
-			//########### v1.0 ###########
-			//ask to the peripheral the name
-			//SerialCmdRFPI(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT1);
-			//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-						
+
 			//########### v1.1 ###########
 			//ask to the peripheral the name
 			SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT2,1);
@@ -1855,11 +1835,11 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 			if( access( strPathFile, F_OK ) == -1) { 
 					if( remove(strPathFile) ){
 						#if DEBUG_LEVEL>0
-							printf("%s file deleted successfully.\n", NameFileDescriptor);
+						printf("%s file deleted successfully.\n", NameFileDescriptor);
 						#endif
 					}else{
 						#if DEBUG_LEVEL>0
-							printf("Unable to delete the file %s\n", NameFileDescriptor);
+						printf("Unable to delete the file %s\n", NameFileDescriptor);
 						#endif
 						perror("Error");
 					}
@@ -2264,13 +2244,13 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 						if(contRetry==1){
 							MaxNumRetry = random_num(MIN_NUM_RETRY,MAX_NUM_RETRY);
 							#if DEBUG_LEVEL>1
-								printf("\n  random-num-retry=%d",random_delay);fflush(stdout);
+							printf("\n  random-num-retry=%d",random_delay);fflush(stdout);
 							#endif
 						}
 						if(contRetry < (MaxNumRetry+1)){
 							random_delay = random_num(MIN_RANDOM_DELAY_RETRY_TX_RF, MAX_RANDOM_DELAY_RETRY_TX_RF);
 							#if DEBUG_LEVEL>1
-								printf("\n  random-delay=%dmS",random_delay);fflush(stdout);
+							printf("\n  random-delay=%dmS",random_delay);fflush(stdout);
 							#endif
 						}
 					//}else if(answerRFPI[0] == 'O' && answerRFPI[1] == 'K' && answerRFPI[2] == '*' && last_i > (7+16-1)) //7 is the OK*XXXX and the 16 are the 16byte protocol
@@ -2282,9 +2262,9 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 							}else{
 								contMs=maxTimeOutMs;
 								#if DEBUG_LEVEL>0
-									if(varchecksum!=0){
-										printf(" CHECKSUM ERROR!!! CHECKSUM = %d\n",varchecksum);fflush(stdout);
-									}
+								if(varchecksum!=0){
+									printf(" CHECKSUM ERROR!!! CHECKSUM = %d\n",varchecksum);fflush(stdout);
+								}
 								#endif
 							}
 						#else
@@ -2298,10 +2278,10 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 				}while(varExit==0);
 				#if DEBUG_LEVEL>0
 				printf("\n");
+				fflush(stdout); // Prints immediately to screen
 				#endif
 				contRetry++;
-				
-				fflush(stdout); // Prints immediately to screen
+
 			}while(varExit==1 && contRetry < (MaxNumRetry+1) );
 			#if DEBUG_LEVEL>1
 			printf("\n");
@@ -2590,11 +2570,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 					if(output_value<0) output_value=0; //the output is limited to a minimum value of 0
 					
 					strCmd[7]=output_value;
-					
-					//########### v1.0 ###########
-					//SerialCmdRFPI(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
-					//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-					
+
 					//########### v1.1 ###########
 					SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 0);
 					
@@ -2673,11 +2649,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						if(output_value<0) output_value=0; //the output is limited to a minimum value of 0
 						
 						strCmd[7]=output_value;
-						
-						//########### v1.0 ###########
-						//SerialCmdRFPI(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
-						//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-						
+
 						//########### v1.1 ###########
 						SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 0);
 						
@@ -2935,11 +2907,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 						for( i=0,pos=0; i<16; i++,pos+=2){
 							strCmd[i+3]=convert_2ChrHex_to_byte(&value2[pos]);
 						}
-						
-						//########### v1.0 ###########
-						//SerialCmdRFPI(handleUART, strCmd, 19, answerRFPI, CMD_WAIT1);
-						//SerialCmdRFPI(handleUART, "C31", 3, answerRFPI, CMD_WAIT2);
-						
+
 						//########### v1.1 ###########
 						if(strCmd[5]=='p' || strCmd[5]=='i' || strCmd[5]=='n' || strCmd[5]=='t' || strCmd[5]=='u') 
 							i=1; else i=0; //if it is the command 'i' or similar by the protocol means has to reply
@@ -3586,6 +3554,7 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 	contInOutOFFline = contTotalNumInOut = 0;
 	unsigned char array_status[12]; array_status[0]='\0';
 	unsigned int numBytesToGetValueStatus=0;
+	signed long last_StatusInput;
 
 				i=0; 
 				currentPeripheralData=rootPeripheralData;
@@ -3593,7 +3562,6 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 					
 					
 					if(strcmp(peripheralAddress,currentPeripheralData->PeriAddress)==0 || strcmp(peripheralAddress,"ALL")==0){
-						//printf("Address struct: %s, Address to refresh: %s\n",currentPeripheralData->PeriAddress,peripheralAddress);
 						
 						if(strcmp(peripheralAddress,"ALL")!=0){
 							varExit=1;
@@ -3605,12 +3573,19 @@ void askAndUpdateIOStatusPeri(int *handleUART, unsigned char *peripheralAddress,
 						contInOutOFFline=0;
 						contTotalNumInOut=0;
 						while(currentPeripheralDataNameInput!=0 && currentPeripheralData->NumInput!=0){
+							last_StatusInput = currentPeripheralDataNameInput->StatusInput;
 							//currentPeripheralDataNameInput->StatusInput=askInputStatusPeri(handleUART, currentPeripheralData->PeriAddress, l); //ask to the peripheral the status
 							//get from the peripheral the status of the input/output and it return also the bit resolution, if the bit resolution is over the 8bit then the value is kept into the bytes after the bit resolution byte
 							currentPeripheralDataNameInput->StatusInput = get_IO_Peri_Status(handleUART, currentPeripheralData, l, (char)'i', array_status);
 							
 							if(currentPeripheralDataNameInput->StatusInput == -1){
 								contInOutOFFline++;
+								if(currentPeripheralData->IDtype == ID_IOTGEMINI_PLATFORM){
+									if((l+1) == currentPeripheralData->NumInput){ //last input that contains the MCU Volt
+										//thus the last input is the MCU Volt which is also the Vref for the ADC then if it is -1 I will not update the data into the FIFO, so the formula fo the others input would be correct
+										currentPeripheralDataNameInput->StatusInput = last_StatusInput;
+									}
+								}
 							}
 							contTotalNumInOut++;
 							l++;

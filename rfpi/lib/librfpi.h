@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					18/05/2020
+Last Update: 					19/05/2020
 
 
 Description: library for the RFPI
@@ -170,13 +170,13 @@ int var_dummy1,var_dummy2;
 #define MAX_LEN_BUFFER_ANSWER_RF	47 		//into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
 
 #define CMD_WAIT1					30//120//420 	//it is a delay needed after each command sent through the uart to the Transceiver
-#define CMD_WAIT2					100//50 //1200 	//it is a longer delay used to wait answer after radio frequency transmission
+#define CMD_WAIT2					50//50 //1200 	//it is a longer delay used to wait answer after radio frequency transmission
 
-#define MAX_NUM_RETRY				25//8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
+#define MAX_NUM_RETRY				10//8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 #define MIN_NUM_RETRY				8//8//3	 		//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 
-#define MAX_RANDOM_DELAY_RETRY_TX_RF	50//100	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
-#define MIN_RANDOM_DELAY_RETRY_TX_RF	25	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
+#define MAX_RANDOM_DELAY_RETRY_TX_RF	30//50	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
+#define MIN_RANDOM_DELAY_RETRY_TX_RF	10//25	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
 
 //#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
 //#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
@@ -236,6 +236,11 @@ int var_dummy1,var_dummy2;
 #define  POS_IO_ID_SHIELD		13	//it is the ID of the shield connected to the pin
 #define  POS_IO_NUM_PIN			14	//it is the number of the pin
 #define  POS_IO_CHECKSUM		15	//it is the byte containing checksum
+
+
+//ID peripherals
+#define	ID_IOTGEMINI_PLATFORM	100		//this is the identification ID of the IOTGEMINI platform
+
 
 //the struct where is kept the list of inputs name and status for each peripheral
 typedef struct peripheralnameinput{
