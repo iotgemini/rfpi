@@ -1,0 +1,107 @@
+﻿<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<title>IoT Gemini configuratore</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+   <link rel="icon" type="./image/png"    href="images/favicon_64x64.png" sizes="64x64">
+   <link rel="icon" type="./image/png"    href="images/favicon_48x48.png" sizes="48x48">
+   <link rel="icon" type="./image/png"    href="images/favicon_32x32.png" sizes="32x32">
+   <link rel="icon" type="./image/png"    href="images/favicon_16x16.png" sizes="16x16">
+
+   <link type="text/css" rel="stylesheet" href="css/aristo/jquery-ui-1.8.16.custom.css" />
+   <link type="text/css" rel="stylesheet" href="css/jquery.layout.css" />
+   <link type="text/css" rel="stylesheet" href="css/application.css" />
+   <link type="text/css" rel="stylesheet" href="css/tooltip.css" />
+
+    <script src="lib/jquery.js"></script>
+    <script src="lib/jquery-ui.js"></script>
+    <script src="lib/jquery.browser.js"></script>
+    <script src="lib/jquery.layout.js"></script>
+    <script src="lib/print.min.js"></script>
+    
+
+    <script src="lib/draw2d.js"></script>
+
+    <script src="gui/Application.js"></script>
+	  <script src="gui/View.js"></script>
+    <script src="gui/Toolbar.js"></script>
+    <script src="gui/HoverConnection.js"></script>
+    <script src="gui/TooltipFigure.js"></script>
+
+    <script src="shapes/transceiver.js"></script>
+    <script src="shapes/led.js"></script>
+    <script src="shapes/rele.js"></script>
+    <script src="shapes/pulsante.js"></script>
+    <script src="shapes/tempSensor.js"></script>
+    <script src="shapes/rgb.js"></script>
+    <script src="shapes/dht11.js"></script>
+    <script src="shapes/dht22.js"></script>
+    <script src="shapes/pir.js"></script>
+    <script src="shapes/adc05.js"></script>
+
+ <script type="text/javascript">
+
+document.addEventListener("DOMContentLoaded",function () {
+
+
+
+     var app  = new example.Application();
+
+     app.view.installEditPolicy(  new draw2d.policy.connection.DragConnectionCreatePolicy({
+        createConnection: function(){
+            return new HoverConnection();
+        }
+      }));
+
+      
+});
+
+function alertRgb(){
+   if(typeof jsonObj !== 'undefined'){
+    var r = confirm("Attenzione il Controller RGB deve necessariamente collegarsi a 3 pin definiti (pin3, pin6 e pin9).\nSe clicchi OK perderai i collegamenti presenti!\nPrima se vuoi salvati uno ScreenShot del progetto.");
+    if (r == true) {
+      window.location = window.location.href+"?sent=1";
+    }
+    else
+      return false;
+   } 
+}
+</script>
+
+</head>
+
+<body id="container">
+
+   <div id="content">
+   		<div id="toolbar"></div>
+   		<div id="canvas" class="" style="width:3000px; height:3000px; background: url('images/grid.gif');"></div>
+   </div>
+
+   <div id="navigation" class="">
+    	<!--<div data-shape="draw2d.shape.node.Start"   class="palette_node_element draw2d_droppable">Start</div>
+    	<div data-shape="draw2d.shape.node.End"     class="palette_node_element draw2d_droppable">End</div>
+      <div data-shape="draw2d.shape.node.Between" class="palette_node_element draw2d_droppable">Between</div>-->
+      <div data-shape="adc05" class="palette_node_element draw2d_droppable"><img src="images/generic.png"><br /><small>ADC 0÷5Volt</small></div>
+      <div data-shape="led" class="palette_node_element draw2d_droppable"><img src="images/led.png"><br /><small>Led</small></div>
+      <div data-shape="rele" class="palette_node_element draw2d_droppable"><img src="images/rele.png"><br /><small>Rele</small></div>
+      <div data-shape="pulsante" class="palette_node_element draw2d_droppable"><img src="images/pulsante.png"><br /><small>Pulsante</small></div>
+      <div data-shape="tempSensor" class="palette_node_element draw2d_droppable"><img src="images/temp-sensor.png"><br /><small>Sensore temperatura MCP9701A</small></div>
+      <div data-shape="rgb" class="palette_node_element draw2d_droppable" ondrag="alertRgb();"><img src="images/rgb.png"><br /><small>Controller RGB</small></div>
+      <div data-shape="dht11" class="palette_node_element draw2d_droppable"><img src="images/dht11.png"><br /><small>DHT11</small></div>
+      <!--div data-shape="dht22" class="palette_node_element draw2d_droppable"><img src="images/dht22.png"><br /><small>DHT22</small></div-->
+      <div data-shape="pir" class="palette_node_element draw2d_droppable"><img src="images/pir.png"><br /><small>PIR HC-SR505</small></div>
+   </div>
+
+   <!-- Global site tag (gtag.js) - Google Analytics -->
+   <!--script async src="https://www.googletagmanager.com/gtag/js?id=UA-141274840-1"></script-->
+   <script>
+   /*window.dataLayer = window.dataLayer || [];
+   function gtag(){dataLayer.push(arguments);}
+   gtag('js', new Date());
+
+   gtag('config', 'UA-141274840-1');*/
+   </script>
+</body>
+</html>

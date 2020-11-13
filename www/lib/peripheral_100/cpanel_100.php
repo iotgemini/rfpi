@@ -765,7 +765,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		echo '</form>';
 		
 		//Button to build json configurations
-		echo '<a href="http://www.iotgemini.com/conf" target="_blank" class="btn_functions">'.$lang_btn_build_json.'</a>';
+		echo '<a href="./lib/peripheral_100/conf/index.html" target="_blank" class="btn_functions">'.$lang_btn_build_json.'</a>';
 		echo '<br><br>';
 		
 		
