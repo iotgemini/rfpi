@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					19/05/2020
+Last Update: 					20/11/2020
 
 
 Description: library for the RFPI
@@ -3748,7 +3748,11 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 			}else{
 									BitResolution = (int)answerRFPI[7+POS_IO_RESOLUTION];
 			}
-							
+			#if DEBUG_LEVEL>1
+			printf("PERIPHERAL FW VERSION: %d\n",currentPeripheralData->fwVersion);
+			fflush(stdout);
+			#endif	
+			#ifndef	ENABLE_OLD_SYSTEM_COMPATIBILITY
 			if(BitResolution > 8 && currentPeripheralData->fwVersion > 1){ //this means I have to get the value from the following bytes
 									if(BitResolution > 64){
 										BitResolution = 64;
@@ -3769,9 +3773,11 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 									//}
 									
 			}else{
+			#endif	
 									Status_IO = (signed long)answerRFPI[7+POS_IO_STATUS_8BIT];
+			#ifndef	ENABLE_OLD_SYSTEM_COMPATIBILITY
 			}
-								
+			#endif						
 								
 								
 			var_return = Status_IO;

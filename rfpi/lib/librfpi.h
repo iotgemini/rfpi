@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					19/05/2020
+Last Update: 					20/11/2020
 
 
 Description: library for the RFPI
@@ -35,6 +35,17 @@ Description: library for the RFPI
 
 ******************************************************************************************/
 
+//#define ENABLE_OLD_SYSTEM_COMPATIBILITY		//uncomment this to enable old system compatibility
+
+
+#ifdef	ENABLE_OLD_SYSTEM_COMPATIBILITY
+	#define PLATFORM 1							//do not touch this, touch the define after the else
+#else
+	#define PLATFORM 3							//choose the platform where this software will be used
+	#define ENABLE_SEARCH_SERIAL_PORT_PATH		//this disable the search of the port where is connected the radio
+#endif
+
+
 //the platform can have the following vlaues:
 #define PLATFORM_RPI_1_2 						1   			//if the platform is the Raspberry Pi 1 or 2
 #define PLATFORM_RPI_3 							3				//the 3 indicate pi3
@@ -49,14 +60,12 @@ Description: library for the RFPI
 #define PLATFORM_PC_DEBIAN						7				//if the platform is the Beaglebone Black
 
 
-#define PLATFORM 3	//choose the platform where this software will be used
 
 
 
-#define ENABLE_SEARCH_SERIAL_PORT_PATH					
 #define PATH_TO_SEARCH_SERIAL_PORT				"/dev"
 
-//#define SERIAL_PORT_FTDI_USB	//deccoment to enable usb communication
+//#define SERIAL_PORT_FTDI_USB	//uncomment to enable usb communication
 
 #define PATH_RFPI_SW	 			"/etc/rfpi"
 //#define PATH_RFPI_SW	 			"/etc/rfpi_usb"
@@ -169,17 +178,22 @@ int var_dummy1,var_dummy2;
 #define MAX_LEN_PATH 				255 	//it is the maximum length in number of characters for the path included the name of the file
 #define MAX_LEN_BUFFER_ANSWER_RF	47 		//into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
 
-#define CMD_WAIT1					30//120//420 	//it is a delay needed after each command sent through the uart to the Transceiver
-#define CMD_WAIT2					50//50 //1200 	//it is a longer delay used to wait answer after radio frequency transmission
-
+#ifdef	ENABLE_OLD_SYSTEM_COMPATIBILITY
+	#define CMD_WAIT1					50 		//it is a delay needed after each command sent through the uart to the Transceiver
+	#define CMD_WAIT2					150 	//it is a longer delay used to wait answer after radio frequency transmission
+#else
+	#define CMD_WAIT1					30 		//it is a delay needed after each command sent through the uart to the Transceiver
+	#define CMD_WAIT2					50 		//it is a longer delay used to wait answer after radio frequency transmission
+#endif
+	
 #define MAX_NUM_RETRY				10//8//3	 	//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 #define MIN_NUM_RETRY				8//8//3	 		//if the peripheral does not answer then the rfpi.c try to get the data for this number of times
 
 #define MAX_RANDOM_DELAY_RETRY_TX_RF	30//50	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
 #define MIN_RANDOM_DELAY_RETRY_TX_RF	10//25	//if the first radio data sent has not been received it generate into SendRadioDataAndGetReplyFromPeri(..) a random delay and then retry to send radio data
 
-//#define BLINK_LED_DELAY				0 //25 //50		//it is the time in ms between the ON and OFF of the LED
-//#define ERROR_BLINK_LED_DELAY		200	//500	//it is the time in ms between the ON and OFF of the LED
+//#define BLINK_LED_DELAY				0		//it is the time in ms between the ON and OFF of the LED
+//#define ERROR_BLINK_LED_DELAY			200		//it is the time in ms between the ON and OFF of the LED
 
 
 #define DELAY_AFTER_PARSED_DATA_GUI		5		//mS. It is then multiplied by EXECUTION_DELAY by a cycle 
