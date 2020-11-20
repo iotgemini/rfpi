@@ -43,6 +43,7 @@ Description: library for the RFPI
 #else
 	#define PLATFORM 3							//choose the platform where this software will be used
 	#define ENABLE_SEARCH_SERIAL_PORT_PATH		//this disable the search of the port where is connected the radio
+	#define ENABLE_RADIO_DATA_CHECKSUM	//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
 #endif
 
 
@@ -119,10 +120,6 @@ Description: library for the RFPI
 
 //#define 	SEND_COMAND_TO_SET_OPERATING_BAUDRATE 	SerialCmdRFPi(handleUART, "C557", answerRFPI, CMD_WAIT1)	//set a baud rate of 115200 (no compatible with Black Transceiver)
 //#define 	SEND_COMAND_TO_SET_OPERATING_BAUDRATE 	SerialCmdRFPi(handleUART, "C556", answerRFPI, CMD_WAIT1) 	//set a baud rate of 57600
-
-
-#define ENABLE_RADIO_DATA_CHECKSUM	//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
-
 
 #define SERVER "http://rfpi/"
 
