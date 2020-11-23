@@ -1,13 +1,18 @@
-1.6.3.3
-20/11/2020
+1.7.0.0
+23/11/2020
 
+v1.7
+	- Added control panel for the 14th peripheral that is a counter
+	
+	
 v1.6
 	- Added function Input Duty that allow to set a trigger for a digital input and when the trigger occur it set the status for a selected output 
 	- Added function Timer to turn ON/OFF (after a delay) a digital output when there is a change
 	- Updated the functions where RFPI get the bit resolution for each IO status of the peripheral
 	- Bug fix about peri with 0 input or 0 output, now does not show a empty record
 	- Added fifocmdsync to sync the commands from the GUI
-	- Added the MCU Volt
+	- Added the MCU Volt into control panel for peripheral 100
+
 
 v1.5
 	- New structure for the config file! Old configuration files are not anymore compatible!
