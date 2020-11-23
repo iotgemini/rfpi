@@ -123,7 +123,7 @@ echo '<input type="text" name="counter" value="'; echo $counter; echo '" size="4
 echo '<br> MAX = 9999';
 echo '</td>';   
 echo '<td class="td_peripheral" align=center>';
-echo '<input type="text" name="preset" value="'; echo $preset; echo '" size="2" maxlength="2">';
+echo '<input type="text" name="preset" value="'; echo $preset; echo '" size="4" maxlength="4">';
 echo '<br> MAX = 9999';
 echo '</td>';  
 
