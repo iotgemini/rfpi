@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		02/04/2019
+Last Update: 		21/11/2020
 
 Description: here is defined where are the controls panels for the peripheral with an official ID number
 
@@ -36,6 +36,7 @@ include './lib/peripheral_9/cpanel_9.php';  	//library with the control panel fo
 include './lib/peripheral_10/cpanel_10.php';  	//library with the control panel for the 10th peripheral. Thermostat with RTC
 include './lib/peripheral_11/cpanel_11.php';  	//library with the control panel for the 11th peripheral. 8 Relay and 8 opto isolated inputs
 include './lib/peripheral_12/cpanel_12.php';  	//library with the control panel for the 12th peripheral. 2 Relay and 4 opto isolated inputs
+include './lib/peripheral_14/cpanel_14.php';  	//library with the control panel for the 14th peripheral. Conta Ancora 00223
 
 include './lib/peripheral_99/cpanel_99.php';  	//library with the control panel that say is not original
 include './lib/peripheral_100/cpanel_100.php';  //library with the control panel with the button to load the configurations from json file
@@ -130,6 +131,11 @@ function checkExistPeripheralFunction($id, $idperipheral, $name, $address_peri, 
 		//peripheral with 2 Relay and 4 opto isolated inputs
 		
 		peripheral_12($id, $idperipheral, $name, $address_peri, $numInput, $numOutput, $arrayNameInput, $arrayStatusInput, $arrayNameOutput, $arrayStatusOutput, $num_special_functions_peri, $fw_version_peri); 
+	
+	}else if($idperipheral==14){
+		//Conta Ancora 00223
+		
+		peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $numOutput, $arrayNameInput, $arrayStatusInput, $arrayNameOutput, $arrayStatusOutput, $num_special_functions_peri, $fw_version_peri); 
 	
 	}else if($idperipheral==99){
 		//says is not original
