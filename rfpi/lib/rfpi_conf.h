@@ -37,12 +37,12 @@ Description: configuration library for the  RFPI
 
 //#define ENABLE_OLD_SYSTEM_COMPATIBILITY		//uncomment this to enable old system compatibility
 
-#ifdef	ENABLE_OLD_SYSTEM_COMPATIBILITY
-	#define PLATFORM 1							//do not touch this, touch the define after the else
-#else
-	#define PLATFORM 3							//choose the platform where this software will be used
+#ifndef	ENABLE_OLD_SYSTEM_COMPATIBILITY
+	#define PLATFORM 7							//choose the platform where this software will be used
 	#define ENABLE_SEARCH_SERIAL_PORT_PATH		//this disable the search of the port where is connected the radio
-	#define ENABLE_RADIO_DATA_CHECKSUM	//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
+	#define ENABLE_RADIO_DATA_CHECKSUM			//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
+#else
+	#define PLATFORM 1							//do not touch this, touch the define after the else
 #endif
 //the platform can have the following vlaues:
 // PLATFORM_RPI_1_2 						1   			//if the platform is the Raspberry Pi 1 or 2
