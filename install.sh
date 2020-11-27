@@ -53,6 +53,8 @@ sudo apt-get update
 
 
 DIRECTORY_RFPI=/etc/rfpi
+DESTINATION_FILE_RFPI_CONF=/etc/rfpi/config/rfpi_conf.h
+SOURCE_FILE_RFPI_CONF=./rfpi/lib/rfpi_conf.h
 DIRECTORY_WWW=/var/www
 DIRECTORY_SAMBA=/etc/samba
 FILE_FSTAB=/etc/fstab
@@ -87,9 +89,11 @@ DESTINATION=$DIRECTORY_RFPI
 sudo cp -r "$SOURCE/"* "$DESTINATION/"
 
 #check if exist rfpi_conf.h
-if [ ! -f "$DESTINATION/config/rfpi_conf.h" ]; then
+if test -f "$DESTINATION_FILE_RFPI_CONF"; then
+	echo "FILE rfpi_conf.h EXIST! THUS KEEPING OLD CONFIGURATION TO RUN RFPI DEAMON!"
+else
 	#the file rfpi_conf.h does not exist thus copying it under /etc/rfpi/config
-	sudo cp -r "$SOURCE/rfpi/lib/rfpi_conf.h" "$DESTINATION/config/"
+	sudo cp "$SOURCE_FILE_RFPI_CONF" "$DESTINATION_FILE_RFPI_CONF"
 fi
 
 
