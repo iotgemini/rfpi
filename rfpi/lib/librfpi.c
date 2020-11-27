@@ -90,6 +90,20 @@ unsigned char checksum (unsigned char *ptr, size_t sz) {
     return sum;
 }
 
+unsigned char checksum2 (unsigned char *ptr, size_t sz) {
+	unsigned char sum=0;
+	unsigned char i;
+	for(i=1;i<(sz);i++){ //the first byte is the byte to compare for checksum
+		sum += ptr[i];
+	}
+	if(sum != ptr[0]){
+		sum=1; //erro into data!
+	}else{
+		sum=0; //DATA ALL OK!
+	}
+    return sum;
+}
+
 unsigned char calc_checksum (unsigned char *ptr, size_t sz) {
 	unsigned char sum=0;
 	unsigned char i;
@@ -1457,7 +1471,7 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	int i=0;
 	
 	unsigned char array_status[20]; array_status[0]='\0';
-	
+		
 	
 	//pointers used to manage the data of all linked peripheral
 	peripheraldata *currentPeripheralData=0;
@@ -1619,7 +1633,10 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 	
 		//########### v1.1 ###########
 		//ask to the peripheral the type, number of IO
-		SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBt.............", 19, answerRFPI, CMD_WAIT2,1); 
+		
+		//SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBt.............", 19, answerRFPI, CMD_WAIT2,1); 
+		strcpy(strCmd,"C30RBt............."); //C30 is cmd to load the following data to send
+		SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2,1); 
 
 		if( !( 		answerRFPI[2]=='*' 
 					&& answerRFPI[3]==peripheralAddress[0] 
@@ -1701,9 +1718,11 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 
 			//########### v1.1 ###########
 			//ask to the peripheral the name
-			SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT2,1);
-		
+			//SendRadioDataAndGetReplyFromPeri(handleUART, "C30RBn.............", 19, answerRFPI, CMD_WAIT2,1);
+			strcpy(strCmd,"C30RBn............."); //C30 is cmd to load the following data to send
+			SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2,1);
 			
+	
 			if(strlen(answerRFPI)<10){ //no name returned, error!
 				strcpy(statusRFPI,MSG_FIFO_RFPI_STATUS_NONAME);
 				strcpy(NamePeripheral,MSG_FIFO_RFPI_STATUS_NONAME); 
@@ -1712,6 +1731,9 @@ extern peripheraldata *findNewPeripheral(int *handleUART, char *statusRFPI, peri
 				#endif
 			}else{
 				strncpy(NamePeripheral, answerRFPI+10, 23); 
+				if(strlen(NamePeripheral)==0){
+					strcpy(NamePeripheral,MSG_FIFO_RFPI_STATUS_NONAME);
+				}
 			} 
 			
 			#if DEBUG_LEVEL>0
@@ -2256,7 +2278,8 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 					//}else if(answerRFPI[0] == 'O' && answerRFPI[1] == 'K' && answerRFPI[2] == '*' && last_i > (7+16-1)) //7 is the OK*XXXX and the 16 are the 16byte protocol
 					}else if(last_i > (7+16-1)){ //7 is the OK*XXXX and the 16 are the 16byte protocol
 						#ifdef ENABLE_RADIO_DATA_CHECKSUM
-							varchecksum = checksum((unsigned char *)&answerRFPI[7], 16);
+							//varchecksum = checksum((unsigned char *)&answerRFPI[7], 16);
+							varchecksum = checksum2((unsigned char *)&answerRFPI[7], 16);
 							if(varchecksum == 0){ //if it is 0 then data is ok!
 								varExit=2;
 							}else{
@@ -2294,6 +2317,14 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 extern void loadRadioData(int *handleUART, unsigned char *arrayData, int numCharacters, char *answerRFPI, int maxTimeOutMs){
 			int i, numC, contMs;
 			unsigned char varExit=0;
+			
+			#ifdef	ENABLE_RADIO_DATA_CHECKSUM
+			int j;
+			unsigned char data_to_send[16];
+			for(j=0;j<16;j++) data_to_send[j] = arrayData[j+3];
+			data_to_send[0] = calc_checksum (&data_to_send[1], 15);
+			arrayData[3] = data_to_send[0]; //first byte is the checksum instead to be the character 'R'
+			#endif
 			
 			//emptying serial buffer
 			numC=serialDataAvail (*handleUART) ;
@@ -2921,7 +2952,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				
 				}
 				
-				if( (answerRFPI[0]=='O' && answerRFPI[1]=='K') || (answerRFPI[2]=='*' && answerRFPI[7]=='R' && answerRFPI[8]=='B') ){
+				if( (answerRFPI[0]=='O' && answerRFPI[1]=='K') || (answerRFPI[2]=='*' /*&& answerRFPI[7]=='R'*/ && answerRFPI[8]=='B') ){
 					if(strlen(answerRFPI) > 6){ //OK*AAAARBxxxxxxxxxxxxxx -> where AAAA is the address and RBxxxxxxxxxxxxxxx are the 16bytes
 						char strHexData[]="00000000000000000000000000000000 ";
 						
@@ -2963,11 +2994,11 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 				strcpy(statusInit,MSG_FIFO_RFPI_RUN_TRUE);	//when it rewrite the FIFO INIT (into main loop wehn cmd_executed=1) then tell to the GUI that can reads again the FIFO files
 				
 				
-					#ifdef RTC_MODEL
+					#ifdef ENABLE_READING_I2C_RTC
 					if(set_RTC(value1, value2)){
 						//RTC 
 					}
-					#endif // RTC_MODEL
+					#endif // ENABLE_READING_I2C_RTC
 
 					
 			//***************************** Begin: GET_BYTES_U ************************************
@@ -3352,7 +3383,7 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 	while(cont_pos < (*numBytesDataRFPI)){ 
 		//data must be address, filter RB and tag. example: AA00RBi01
 		//check if the data come from RFberry Pi peripheral
-		if(dataRFPI[cont_pos]!='\0' && dataRFPI[cont_pos+4]=='R' && dataRFPI[cont_pos+5]=='B'){
+		if(dataRFPI[cont_pos]!='\0' /*&& dataRFPI[cont_pos+4]=='R'*/ && dataRFPI[cont_pos+5]=='B'){
 				
 			if(dataRFPI[cont_pos+6]=='i'){ //an input has been changed
 					*cmd_executed=1; //that will make to rewrite the fifo with all data of the peripherals
@@ -3526,7 +3557,7 @@ peripheraldata *parseDataFromUART(unsigned char *dataRFPI, int *numBytesDataRFPI
 			if( (cont_pos+18) >= *numBytesDataRFPI){
 				cont_pos += 18;
 				varExit=1;
-			}else if(dataRFPI[cont_pos+4]=='R' && dataRFPI[cont_pos+5]=='B'){
+			}else if(/*dataRFPI[cont_pos+4]=='R' &&*/ dataRFPI[cont_pos+5]=='B'){
 				varExit=1;
 			}else{
 				cont_pos++;
@@ -3702,7 +3733,8 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 		SendRadioDataAndGetReplyFromPeri(handleUART, strCmd, 19, answerRFPI, CMD_WAIT2, 1);
 		
 		#ifdef ENABLE_RADIO_DATA_CHECKSUM
-			varchecksum = checksum( &answerRFPI[7], 16);
+			//varchecksum = checksum( &answerRFPI[7], 16);
+			varchecksum = checksum2( &answerRFPI[7], 16);
 			#if DEBUG_LEVEL>0
 			if(varchecksum!=0){
 				printf(" CHECKSUM ERROR!!! CHECKSUM = %d, ID_IO = %d\n",varchecksum,ID_IO);fflush(stdout);
@@ -3714,7 +3746,7 @@ extern signed long get_IO_Peri_Status(int *handleUART, peripheraldata *currentPe
 				&& answerRFPI[4]==currentPeripheralData->PeriAddress[1]
 				&& answerRFPI[5]==currentPeripheralData->PeriAddress[2] 
 				&& answerRFPI[6]==currentPeripheralData->PeriAddress[3] 
-				&& answerRFPI[7]=='R' 
+				//&& answerRFPI[7]=='R' 
 				&& answerRFPI[8]=='B'
 				&& answerRFPI[9]==type_IO
 				&& answerRFPI[10]==ID_IO  
@@ -4099,7 +4131,7 @@ void blinkLed(){
 
 
 //read the RTC on the i2c bus and update a FIFO called fifortc
-#ifdef RTC_MODEL
+#ifdef ENABLE_READING_I2C_RTC
 unsigned char read_RTC(){
 
 	unsigned var_return = -1;
@@ -4337,11 +4369,11 @@ unsigned char read_RTC(){
 
 	return var_return;
 }
-#endif // RTC_MODEL
+#endif // ENABLE_READING_I2C_RTC
 
 
 //set the RTC on the i2c bus. The str_time has the format: hh:mm:ss
-#ifdef RTC_MODEL
+#ifdef ENABLE_READING_I2C_RTC
 unsigned char set_RTC(unsigned char *str_time, unsigned char *str_data){
 
 	unsigned var_return = -1;
@@ -4513,7 +4545,7 @@ unsigned char set_RTC(unsigned char *str_time, unsigned char *str_data){
 	
 	return var_return;
 }
-#endif // RTC_MODEL
+#endif // ENABLE_READING_I2C_RTC
 
 
 //get the bytes for the function u. Will write into answerRFPI the reply from the peri 
@@ -4545,7 +4577,7 @@ int get_bytes_u_Peri(int *handleUART, unsigned char *peripheralAddress, unsigned
 		
 		
 		//checking the address, the tags and if the id input is equal to the one wanted
-		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] && answerRFPI[7]=='R' && answerRFPI[8]=='B' && answerRFPI[9]=='u' && answerRFPI[10]==num_function){
+		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] /*&& answerRFPI[7]=='R'*/ && answerRFPI[8]=='B' && answerRFPI[9]=='u' && answerRFPI[10]==num_function){
 			statusReply=1;
 		}else{
 			statusReply=-1;
@@ -4652,7 +4684,7 @@ int send_bytes_f_Peri(int *handleUART, unsigned char *peripheralAddress, unsigne
 		
 		
 		//checking the address, the tags and if the id input is equal to the one wanted
-		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] && answerRFPI[7]=='R' && answerRFPI[8]=='B' && answerRFPI[9]=='u' 
+		if(answerRFPI[3]==peripheralAddress[0] && answerRFPI[4]==peripheralAddress[1] && answerRFPI[5]==peripheralAddress[2] && answerRFPI[6]==peripheralAddress[3] /*&& answerRFPI[7]=='R'*/ && answerRFPI[8]=='B' && answerRFPI[9]=='u' 
 		&& answerRFPI[10]==num_function
 		&& answerRFPI[11]==((unsigned char)(num_packet_to_write>>8))
 		&& answerRFPI[12]==((unsigned char)(num_packet_to_write))
@@ -4688,7 +4720,7 @@ int send_bytes_f_Peri(int *handleUART, unsigned char *peripheralAddress, unsigne
 
 
 //this function make to start the DS1307 when it is new!
-#ifdef RTC_MODEL
+#ifdef ENABLE_READING_I2C_RTC
 void start_DS1307_if_new(void){
 
 	
@@ -4822,7 +4854,7 @@ void start_DS1307_if_new(void){
 	}
 			
 }
-#endif // RTC_MODEL
+#endif // ENABLE_READING_I2C_RTC
 
 
 

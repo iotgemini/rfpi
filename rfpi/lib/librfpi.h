@@ -39,11 +39,19 @@ Description: library for the RFPI
 
 
 #ifdef	ENABLE_OLD_SYSTEM_COMPATIBILITY
-	#define PLATFORM 1							//do not touch this, touch the define after the else
+	#ifndef	PLATFORM
+		#define PLATFORM 1							//do not touch this, touch the define after the else
+	#endif
 #else
-	#define PLATFORM 3							//choose the platform where this software will be used
-	#define ENABLE_SEARCH_SERIAL_PORT_PATH		//this disable the search of the port where is connected the radio
-	#define ENABLE_RADIO_DATA_CHECKSUM	//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
+	#ifndef	PLATFORM
+		#define PLATFORM 3							//choose the platform where this software will be used
+	#endif
+	#ifndef	ENABLE_SEARCH_SERIAL_PORT_PATH
+		#define ENABLE_SEARCH_SERIAL_PORT_PATH		//this disable the search of the port where is connected the radio
+	#endif	
+	#ifndef	ENABLE_RADIO_DATA_CHECKSUM
+		#define ENABLE_RADIO_DATA_CHECKSUM	//if defined enable the control of the checksum that is stored on the 16th byte of the radio data. This used for peri 100
+	#endif
 #endif
 
 
@@ -61,15 +69,15 @@ Description: library for the RFPI
 #define PLATFORM_PC_DEBIAN						7				//if the platform is the Beaglebone Black
 
 
-
-
-
-#define PATH_TO_SEARCH_SERIAL_PORT				"/dev"
+#ifndef	PATH_TO_SEARCH_SERIAL_PORT
+	#define PATH_TO_SEARCH_SERIAL_PORT				"/dev"
+#endif
 
 //#define SERIAL_PORT_FTDI_USB	//uncomment to enable usb communication
 
-#define PATH_RFPI_SW	 			"/etc/rfpi"
-//#define PATH_RFPI_SW	 			"/etc/rfpi_usb"
+#ifndef	PATH_TO_SEARCH_SERIAL_PORT
+	#define PATH_RFPI_SW	 			"/etc/rfpi"		//"/etc/rfpi_path"
+#endif	 			
 
 #ifndef SERIAL_PORT_FTDI_USB
 	#define LED_YES	//to turn off leds then comment this define
@@ -80,8 +88,9 @@ Description: library for the RFPI
 #define RTC_M41T62 		1
 #define RTC_DS1307 		2
 
-//#define RTC_MODEL 		NO_RTC	
-
+#ifndef RTC_MODEL
+	#define RTC_MODEL 		NO_RTC	
+#endif
 
 #if PLATFORM == 1
 	#define SERIAL_PORT_PATH		"/dev/ttyAMA0"
