@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 04-05-2020"
+echo "Last update of this script was on 27-11-2020"
 
 if ! [ $(id -u) = 0 ]; then
 	echo "The script need to be run as root."
@@ -85,6 +85,12 @@ echo "Copying rfpi files....."
 SOURCE="./rfpi"
 DESTINATION=$DIRECTORY_RFPI
 sudo cp -r "$SOURCE/"* "$DESTINATION/"
+
+#check if exist rfpi_conf.h
+if [ ! -f "$DESTINATION/config/rfpi_conf.h" ]; then
+	#the file rfpi_conf.h does not exist thus copying it under /etc/rfpi/config
+	sudo cp -r "$SOURCE/rfpi/lib/rfpi_conf.h" "$DESTINATION/config/"
+fi
 
 
 echo "Creating a folder into ram adding a line into /etc/fstab ....."
