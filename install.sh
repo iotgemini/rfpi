@@ -94,6 +94,19 @@ if test -f "$DESTINATION_FILE_RFPI_CONF"; then
 else
 	#the file rfpi_conf.h does not exist thus copying it under /etc/rfpi/config
 	sudo cp "$SOURCE_FILE_RFPI_CONF" "$DESTINATION_FILE_RFPI_CONF"
+	
+	echo "Checking ID Operating System.........!"
+	DISTRIBUTION_ID=$(lsb_release --id)
+	echo $DISTRIBUTION_ID
+	string=$DISTRIBUTION_ID
+	if [[ $string == *"Raspbian"* ]]; then
+	  echo "Found Raspbian OS!"
+	  #echo "Going to edit the file /etc/rfpi/lib/librfpi.h to make rfpi run on Raspberry Pi"
+	  echo "Going to edit the file /etc/rfpi/config/librfpi.h to make rfpi run on Raspberry Pi"
+	  #sed -i 's/#define\ PLATFORM\ 7/#define\ PLATFORM\ 3/g' /etc/rfpi/lib/librfpi.h
+	  sed -i 's/#define\ PLATFORM\ 7/#define\ PLATFORM\ 3/g' "$DESTINATION_FILE_RFPI_CONF"
+	  disable_getty="1"
+	fi
 fi
 
 
@@ -113,18 +126,6 @@ else
 	echo "WARNING! All fifo file will be written on SD memory. These file fifo are written many times per days, thus will erode the SD cards! Find out where is the file fstab and add the following line:"
 	echo "tmpfs /etc/rfpi/fifo tmpfs defaults, noatime, nosuid, mode=0755, size=2m 0 0"
 	sleep 5
-fi
-
-
-echo "Checking ID Operating System.........!"
-DISTRIBUTION_ID=$(lsb_release --id)
-echo $DISTRIBUTION_ID
-string=$DISTRIBUTION_ID
-if [[ $string == *"Raspbian"* ]]; then
-  echo "Found Raspbian OS!"
-  echo "Going to edit the file /etc/rfpi/lib/librfpi.h to make rfpi run on Raspberry Pi"
-  sed -i 's/#define\ PLATFORM\ 7/#define\ PLATFORM\ 3/g' /etc/rfpi/lib/librfpi.h
-  disable_getty="1"
 fi
 
 
