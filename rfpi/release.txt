@@ -1,8 +1,9 @@
-1.7.0.0
-23/11/2020
+1.7.1.0
+27/11/2020
 
 v1.7
 	- Added control panel for the 14th peripheral that is a counter
+	- Changed few parameters for checksum, all peripheral need to be upgraded to the latest firmware.
 	
 	
 v1.6

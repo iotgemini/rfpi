@@ -1,7 +1,7 @@
 /******************************************************************************************
 
 Programmer: 					Emanuele Aimone
-Last Update: 					19/05/2020
+Last Update: 					27/11/2020
 
 
 Description: application rfpi.c to run the RFPI network
@@ -35,13 +35,15 @@ Description: application rfpi.c to run the RFPI network
 
 ******************************************************************************************/
 
-#define DEBUG_LEVEL 			0	//enable the debug setting this parameter with a value above 0
+#define DEBUG_LEVEL 			2	//enable the debug setting this parameter with a value above 0
 #define MAX_BUF_DATA_RFPI		47	 //it is the data coming from the uart
 									 //into the answer there are 23bytes + the \0. Example: OK*0001RBu1............
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
+#include "config/rfpi_conf.h"
 
 #include "lib/librfpi.h"
 #include "lib/iotg.h"
