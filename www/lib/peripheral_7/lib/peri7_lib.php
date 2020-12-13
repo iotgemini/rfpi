@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		02/09/2019
+Last Update: 		13/12/2020
 
 Description: it is the library with all useful function to use RFPI
 
@@ -92,11 +92,22 @@ function temperature_MCP9701_from_8bit_value_peri7($ADC_8bit_value){
 }
 
 function temperature_MCP9701_from_8bit_value_peri7_FW2($ADC_8bit_value){
-	//$tempearure = (($ADC_8bit_value * MAX_TEMPERATURE_MCP9701) / 256)-MIN_TEMPERATURE_MCP9701; //ok for old FW
-	//$tempearure = ((($ADC_8bit_value/4) * MAX_TEMPERATURE_MCP9701) / 256)-MIN_TEMPERATURE_MCP9701; 
-	$tempearure = (((($ADC_8bit_value)*0.0048828125) - 0.4) / 0.0195);
+	//$volt_for_one_bit = 5 / 1024;
+	//$tempearure = (((($ADC_10bit_value)*volt_for_one_bit) - 0.4) / 0.0195);
+	$volt_for_one_bit = 5 / 256;
+	$tempearure = (((($ADC_8bit_value)*$volt_for_one_bit) - 0.4) / 0.0195);
 	//$tempearure = ceil($tempearure);
 	//$tempearure = round($tempearure);
+	
+	return $tempearure;
+}
+
+function temperature_MCP9701_from_10bit_value_peri7_FW2($ADC_10bit_value){
+	$volt_for_one_bit = 5 / 1024;
+	$tempearure = (((($ADC_10bit_value)*volt_for_one_bit) - 0.4) / 0.0195);
+	//$tempearure = ceil($tempearure);
+	//$tempearure = round($tempearure);
+	
 	return $tempearure;
 }
 
@@ -108,7 +119,8 @@ function the_8bit_value_from_temperature_MCP9701_peri7($tempearure){
 }
 
 function the_8bit_value_from_temperature_MCP9701_peri7_FW2($tempearure){
-	$value_8bit =  (($tempearure * 0.0195) + 0.4) / 0.0048828125; 
+	$volt_for_one_bit = 5 / 256;
+	$value_8bit =  (($tempearure * 0.0195) + 0.4) / $volt_for_one_bit; 
 	//$value_8bit = ceil($value_8bit);
 	return $value_8bit;
 }
