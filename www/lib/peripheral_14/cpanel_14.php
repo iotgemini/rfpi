@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		23/11/2020
+Last Update: 		02/01/2021
 
 Description: it is the library to build the control panel for the peripheral
 
@@ -50,6 +50,7 @@ function peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $num
 
 	$lang_msg_counter = "Counter: ";
 	$lang_msg_preset = "Preset: ";
+	$lang_title_divider="Divider: ";
 	$lang_msg_count_mode = "Count Mode: ";
 	$lang_msg_increase_count = " increase";
 	$lang_msg_decrease_count = " decrease";
@@ -58,6 +59,7 @@ function peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $num
 	if($_SESSION["language"]=="IT"){
 		$lang_msg_counter = "Conteggio: ";
 		$lang_msg_preset = "Preset: ";
+		$lang_title_divider="Divisore: ";
 		$lang_msg_count_mode = "Modalit&agrave; conteggio: ";
 		$lang_msg_increase_count = " incremento";
 		$lang_msg_decrease_count = " decremento";
@@ -66,6 +68,7 @@ function peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $num
 	}else if($_SESSION["language"]=="FR"){
 		$lang_msg_counter = "Compter: ";
 		$lang_msg_preset = "Pr&eacute;r&eacute;gl&eacute;: ";
+		$lang_title_divider="Diviseur: ";
 		$lang_msg_count_mode = "Mode de comptage: ";
 		$lang_msg_increase_count = " augmenter";
 		$lang_msg_decrease_count = " diminution";
@@ -74,6 +77,7 @@ function peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $num
 	}else if($_SESSION["language"]=="SP"){
 		$lang_msg_counter = "Contar: ";
 		$lang_msg_preset = "Preestablecida: ";
+		$lang_title_divider="Divisor: ";
 		$lang_msg_count_mode = "Modo de conteo: ";
 		$lang_msg_increase_count = " incrementar";
 		$lang_msg_decrease_count = " disminuci&oacute;n";
@@ -152,7 +156,8 @@ function peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $num
 			echo '<div style="background-color:black;color:red;font-size:30px">';
 			if($arrayStatusInput[$l]>=0){
 				$counter = (int)($arrayStatusInput[$l]);
-				echo $counter;
+				$divider = (int)($arrayStatusInput[3]);
+				echo intval(($counter * 100) / $divider);
 			}else{
 				echo DEFINE_lang_msg_no_communication;
 			}
@@ -168,6 +173,23 @@ function peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $num
 			if($arrayStatusInput[$l]>=0){
 				$preset = (int)($arrayStatusInput[$l]);
 				echo $preset;
+			}else{
+				echo DEFINE_lang_msg_no_communication;
+			}
+			echo '</div>';
+			echo '<br></div>';
+
+		}else if($l==3 && $array_input_to_show[$l]==1){
+			//echo '<br>&nbsp';
+			echo '<div style="border:1px solid #000;border-radius:4px;padding: 2px;">'; //background: #d2f4f3;">';
+			echo 'Input ID = ' . $l . '<br><br>';
+			echo $lang_title_divider;
+			echo '<div style="background-color:black;color:red;font-size:30px">';
+			if($arrayStatusInput[$l]>=0){
+				$divider = (int)($arrayStatusInput[$l]);
+				$divider_int = intval($divider / 100);
+				$divider_dec = $divider - ($divider_int * 100 );
+				echo $divider_int . '.' . $divider_dec;
 			}else{
 				echo DEFINE_lang_msg_no_communication;
 			}

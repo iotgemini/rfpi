@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		23/11/2020
+Last Update: 		02/01/2021
 
 Description: it send the command to set the settings of the counter
 
@@ -51,13 +51,17 @@ $id_hex_special_function=$_GET['id_hex_special_function'];
 $redirect_page = $_GET['redirect_page'];
 
 
-
-
-
 //GETTING CUSTOM INFORMATIONS
 //dechex ( int $number )
 
-$counter=$_GET['counter'];
+
+
+//FIRST PARAMETER
+$counter= $_GET['counter'];
+//$counter=((float)$counter);
+//$counter= $counter * ($divider/100);
+//echo $counter.'<br>';
+//$counter = intval($counter);
 $counter = intval($counter, 10);
 if($counter > 9999){
 	$counter = 9999;
@@ -78,7 +82,7 @@ if(strlen($hex_counter_byte1)<2) $hex_counter_byte1 = "0" . $hex_counter_byte1;
 if(strlen($hex_counter_byte0)<2) $hex_counter_byte0 = "0" . $hex_counter_byte0;
 
 
-
+//SECOND PARAMETER
 $preset=$_GET['preset'];
 $preset = intval($preset, 10);
 if($preset > 9999){
@@ -99,11 +103,46 @@ if(strlen($hex_preset_byte2)<2) $hex_preset_byte2 = "0" . $hex_preset_byte2;
 if(strlen($hex_preset_byte1)<2) $hex_preset_byte1 = "0" . $hex_preset_byte1;
 if(strlen($hex_preset_byte0)<2) $hex_preset_byte0 = "0" . $hex_preset_byte0;
 
+
+//THIRD PARAMETER
+$divider_int=$_GET['divider_int'];
+$divider_int = intval($divider_int, 10);
+if($divider_int > 99){
+	$divider_int = 99;
+}else if($divider_int < 1){
+	$divider_int = 1;
+}
+$divider_dec=$_GET['divider_dec'];
+$divider_dec = intval($divider_dec, 10);
+if($divider_dec > 99){
+	$divider_dec = 99;
+}else if($divider_dec < 0){
+	$divider_dec = 0;
+}
+if($divider_dec < 10){
+	$divider_dec *= 10;
+}
+$divider = $divider_int * 100;
+$divider += $divider_dec;
+
+$int_divider_byte2 = ($divider >> 16) & 0xFF;
+$int_divider_byte1 = ($divider >> 8) & 0xFF;
+$int_divider_byte0 = $divider & 0xFF;
+
+$hex_divider_byte2 = dechex( $int_divider_byte2 );
+$hex_divider_byte1 = dechex( $int_divider_byte1 );
+$hex_divider_byte0 = dechex( $int_divider_byte0 );
+
+if(strlen($hex_divider_byte2)<2) $hex_divider_byte2 = "0" . $hex_divider_byte2;
+if(strlen($hex_divider_byte1)<2) $hex_divider_byte1 = "0" . $hex_divider_byte1;
+if(strlen($hex_divider_byte0)<2) $hex_divider_byte0 = "0" . $hex_divider_byte0;
+
+
 //building the string command and writing into fifo command:
 $TAG0="DATA";
 $TAG1="RF";
 $TAG2=$address_peri;
-$TAG3="524266" . $id_hex_special_function . $hex_counter_byte2 . $hex_counter_byte1 . $hex_counter_byte0 . $hex_preset_byte2 . $hex_preset_byte1 . $hex_preset_byte0 .  "2E2E2E2E2E2E";
+$TAG3="524266" . $id_hex_special_function . $hex_counter_byte2 . $hex_counter_byte1 . $hex_counter_byte0 . $hex_preset_byte2 . $hex_preset_byte1 . $hex_preset_byte0 . $hex_divider_byte2 . $hex_divider_byte1 . $hex_divider_byte0 . "2E2E2E";
 
 $cmd_to_write_into_fifo = $TAG0." ".$TAG1." ".$TAG2." ".$TAG3." "; //the space at the end is important
 
