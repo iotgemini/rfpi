@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		04/05/2019
+Last Update: 		02/01/2021
 
 Description: it shows the list of the linked peripherals.
 
@@ -137,16 +137,32 @@ echo '</head>';
 echo '<body>';
 echo '<div class="div_home">';
 
-echo '<p>';
-echo '<img src="' . DIRECTORY_IMG . 'logo.png"  class="img_logo" alt="RFPI">';
-echo '</p>';
+//echo '<p>';
+//echo '<img src="' . DIRECTORY_IMG . 'logo.png"  class="img_logo" alt="RFPI">';
+//echo '</p>';
 
 //it sends to the client what has been executed and then proceed with next instruction
 ob_flush(); 
 flush();
 
+echo '<br>';
 printToolsBar(); //it print the table with the tools. from ./lib/rfberrypi.php
 
+/*echo '<table align="center">';
+echo '<tr>';
+echo '<td>';
+	echo '<img src="' . DIRECTORY_IMG . 'logo.png"  width="45" height="45" alt="RFPI">';
+echo '</td>';
+echo '<td>';
+	printToolsBar(); //it print the table with the tools. from ./lib/rfberrypi.php
+echo '</td>';
+echo '<td>';
+	echo '<img src="' . DIRECTORY_IMG . 'logo.png"  width="45" height="45" alt="RFPI">';
+echo '</td>';
+echo '</tr>';
+echo '</table>';
+*/
+	
 /*
 echo '<script>';
 echo 'var currentLocation = window.location.href;';

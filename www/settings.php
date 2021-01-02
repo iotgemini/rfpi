@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		01/05/2020
+Last Update: 		02/01/2021
 
 Description: tools to change parameters
 
@@ -78,11 +78,11 @@ echo ' <meta content="width=device-width, initial-scale=1" name="viewport"/>';
 echo '<body>';
 echo '<div class="div_home">';
 
-echo '<p>';
+/*echo '<p>';
 echo '<img src="' . DIRECTORY_IMG . 'logo.png"  class="img_logo" alt="RFPI">';
 echo '</p>';
-
-//echo '<p>';
+*/
+echo '<br>';
 
 //button settings
 
