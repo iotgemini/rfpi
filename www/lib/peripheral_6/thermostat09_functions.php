@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		27/11/2015
+Last Update: 		28/11/2021
 
 Description: this is a panel where to setup the THERMOSTAT
 
@@ -35,6 +35,8 @@ $position_id=$_GET['position_id'];
 
 $address_peri=$_GET['address_peri'];
 
+$fw_version_peri = $_GET['fw_version_peri'];
+
 $thermostat_enabled=$_GET['thermostat_enabled'];
 
 $id_packet=$_GET['id_packet'];
@@ -56,85 +58,85 @@ echo 'var timeRTC ="';
 echo str_rtc_time();
 echo '";';
 
-	?> 	
-	//var timeRTC ="11:dd:ff";
-	var lastRtcTime;
-	var secondRTC;
-	var minuteRTC;
-	var hourRTC;
 	
-	function startYourTime() {
-		var today=new Date();
-		var h=today.getHours();
-		var m=today.getMinutes();
-		var s=today.getSeconds();
-		m = checkTime(m);
-		s = checkTime(s);
-		document.getElementById('ytime').innerHTML = "Your time = "+h+":"+m+":"+s;
-		var t = setTimeout(function(){startYourTime()},500);
-	}
+echo '//var timeRTC ="11:dd:ff";';
+echo 'var lastRtcTime;';
+echo '	var secondRTC;';
+echo '	var minuteRTC;';
+echo '	var hourRTC;';
+	
+echo '	function startYourTime() {';
+echo '		var today=new Date();';
+echo '		var h=today.getHours();';
+echo '		var m=today.getMinutes();';
+echo '		var s=today.getSeconds();';
+echo '		m = checkTime(m);';
+echo '		s = checkTime(s);';
+echo '		document.getElementById("ytime").innerHTML = "Your time = "+h+":"+m+":"+s;';
+echo '		var t = setTimeout(function(){startYourTime()},500);';
+echo '	}';
 	
 	
-	function RtcTime() {
-		var today=new Date();
-		var h=today.getHours();
-		var m=today.getMinutes();
-		s=today.getSeconds();
+echo '	function RtcTime() {';
+echo '		var today=new Date();';
+echo '		var h=today.getHours();';
+echo '		var m=today.getMinutes();';
+echo '		s=today.getSeconds();';
 		
-		if(s != lastRtcTime){
-			lastRtcTime = s;
+echo '		if(s != lastRtcTime){';
+echo '			lastRtcTime = s;';
 			
-			secondRTC++;
-			if(secondRTC>59){
-				secondRTC = 0;
-				minuteRTC++;
-				if(minuteRTC>59){
-					minuteRTC=0;
-					hourRTC++;
-					if(hourRTC>23){
-						hourRTC=0;
-					}
-				}
-			}
+echo '			secondRTC++;';
+echo '			if(secondRTC>59){';
+echo '				secondRTC = 0;';
+echo '				minuteRTC++;';
+echo '				if(minuteRTC>59){';
+echo '					minuteRTC=0;';
+echo '					hourRTC++;';
+echo '					if(hourRTC>23){';
+echo '						hourRTC=0;';
+echo '					}';
+echo '				}';
+echo '			}';
 			
-			var mm = checkTime(minuteRTC);
-			var ss = checkTime(secondRTC);
+echo '			var mm = checkTime(minuteRTC);';
+echo '			var ss = checkTime(secondRTC);';
 			
-			document.getElementById('rtc').innerHTML = "RTC time = "+hourRTC+":"+mm+":"+ss;
-		}
-		var t = setTimeout(function(){RtcTime()},500);
-	}
+echo '			document.getElementById("rtc").innerHTML = "RTC time = "+hourRTC+":"+mm+":"+ss;';
+echo '		}';
+echo '		var t = setTimeout(function(){RtcTime()},500);';
+echo '	}';
 	
-	function startRtcTime() {
-		startYourTime();
+echo '	function startRtcTime() {';
+echo '		startYourTime();';
 		
-		if(timeRTC.substring(0, 2) != "NO"){ //if there is a RTC
-			hourRTC=parseInt(timeRTC.substring(0, 2));
-			minuteRTC=parseInt(timeRTC.substring(3, 5));
-			secondRTC=parseInt(timeRTC.substring(6, 7));
+echo '		if(timeRTC.substring(0, 2) != "NO"){ //if there is a RTC';
+echo '			hourRTC=parseInt(timeRTC.substring(0, 2));';
+echo '			minuteRTC=parseInt(timeRTC.substring(3, 5));';
+echo '			secondRTC=parseInt(timeRTC.substring(6, 7));';
 			
-			document.getElementById('rtc').innerHTML = "RTC time = "+hourRTC+":"+minuteRTC+":"+secondRTC;
-			var t = setTimeout(function(){RtcTime()},500);
-		}
-	}
+echo '			document.getElementById("rtc").innerHTML = "RTC time = "+hourRTC+":"+minuteRTC+":"+secondRTC;';
+echo '			var t = setTimeout(function(){RtcTime()},500);';
+echo '		}';
+echo '	}';
 
-	function checkTime(i) {
-		if (i<10) {i = "0" + i};  // add zero in front of numbers < 10
-		return i;
-	}
+echo '	function checkTime(i) {';
+echo '		if (i<10) {i = "0" + i};  // add zero in front of numbers < 10';
+echo '		return i;';
+echo '	}';
 	
-	function setYourTime(){
-		var setYourTime_today=new Date();
-		var setYourTime_h=setYourTime_today.getHours();
-		var setYourTime_m=setYourTime_today.getMinutes();
-		var setYourTime_s=setYourTime_today.getSeconds();
+echo '	function setYourTime(){';
+echo '		var setYourTime_today=new Date();';
+echo '		var setYourTime_h=setYourTime_today.getHours();';
+echo '		var setYourTime_m=setYourTime_today.getMinutes();';
+echo '		var setYourTime_s=setYourTime_today.getSeconds();';
 		
-		peri6_btn_set_temperature09.temperatures_5.value="" + setYourTime_h.toString();
-		peri6_btn_set_temperature09.temperatures_6.value="" + setYourTime_m.toString();
-		peri6_btn_set_temperature09.temperatures_7.value="" + setYourTime_s.toString();
-	}
+echo '		peri6_btn_set_temperature09.temperatures_5.value="" + setYourTime_h.toString();';
+echo '		peri6_btn_set_temperature09.temperatures_6.value="" + setYourTime_m.toString();';
+echo '		peri6_btn_set_temperature09.temperatures_7.value="" + setYourTime_s.toString();';
+echo '	}';
 	
-	<?
+
 echo '</script>';
 echo '</head>';
 echo '<body  onload="startRtcTime()">';
