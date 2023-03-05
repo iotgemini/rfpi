@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		25/11/2019
+Last Update: 		05/03/2023
 
 Description: this is a panel where to setup the TIMER
 
@@ -226,7 +226,7 @@ echo '<table class="table_peripheral" border=1>';
 
 echo '<tr class="table_title_field_line">';
 echo '<td class="td_peripheral"></td>';  
-//echo '<td class="td_peripheral">'.$lang_title_millisecond.'</td>';   
+echo '<td class="td_peripheral">'.$lang_title_millisecond.'</td>';   
 echo '<td class="td_peripheral">'.$lang_title_second.'</td>';  
 echo '<td class="td_peripheral">'.$lang_title_minutes.'</td>';
 echo '<td class="td_peripheral">'.$lang_title_hours.'</td>';  
@@ -236,10 +236,10 @@ echo '</tr>';
 
 echo '<tr class="table_line_even">';
 echo '<td class="td_peripheral">'.$lang_title_timer.'</td>';  
-/*echo '<td class="td_peripheral" align=center>';
+echo '<td class="td_peripheral" align=center>';
 echo '<input type="text" name="timer_ms" value="'; echo $timer_ms; echo '" size="4" maxlength="4">';
 echo '<br> MAX = 1000';
-echo '</td>';  */ 
+echo '</td>';  
 echo '<td class="td_peripheral" align=center>';
 echo '<input type="text" name="timer_SS" value="'; echo $timer_SS; echo '" size="2" maxlength="2">';
 echo '<br> MAX = 60';
@@ -277,7 +277,7 @@ echo '</tr>';
 
 echo '<tr class="table_line_odd">';
 echo '<td class="td_peripheral">'.$lang_select_output.'</td>';  
-echo '<td colspan=3 class="td_peripheral" align=left>';
+echo '<td colspan=4 class="td_peripheral" align=left>';
 //echo '<input type="radio" name="output_selected" value="0"/ '; if($output_selected==0) echo 'checked'; echo '>Digital Output<br>';
 //echo '<input type="radio" name="output_selected" value="1"/ '; if($output_selected==1) echo 'checked'; echo '>Digital Input<br>';
 //echo '<input type="radio" name="output_selected" value="2"/ '; if($output_selected==2) echo 'checked'; echo '>Analogue Input';
@@ -325,7 +325,7 @@ echo '</tr>';
 
 
 echo '<tr class="table_title_field_line">';
-echo '<td colspan=5 align=center>';
+echo '<td colspan=6 align=center>';
 echo '<input type=submit value="'.$lang_btn_apply.'" class="btn_functions">';		
 echo '</td>';
 echo '</tr>';	
