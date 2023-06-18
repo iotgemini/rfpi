@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		06/12/2017
+Last Update: 		21/05/2023
 
 Description: it write the FIFO and redirect on read_fifo_data.php
 
@@ -48,6 +48,11 @@ $TAG3=$_GET['TAG3'];
 
 $page_to_show_data=$_GET['page_to_show_data'];
 
+$data0 = $_GET['data0'];
+$data1 = $_GET['data1'];
+$data2 = $_GET['data2'];
+$data3 = $_GET['data3'];
+
 $cmd_to_write_into_fifo = $TAG0." ".$TAG1." ".$TAG2." ".$TAG3." "; //the space at the end is important
 
 //echo $cmd_to_write_into_fifo . " <br>";
@@ -73,7 +78,10 @@ header('Location: ./read_fifo_data.php?page_to_show_data='. $page_to_show_data
 						. '&counter=' . $counter
 						. '&cont_retry=' . $cont_retry
 						. '&redirect_page=' . $redirect_page
-
+						. '&data0=' . $data0 
+						. '&data1=' . $data1 
+						. '&data2=' . $data2 
+						. '&data3=' . $data3 
 	);
 
 ?>

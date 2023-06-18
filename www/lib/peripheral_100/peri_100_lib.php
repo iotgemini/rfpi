@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		18/05/2020
+Last Update: 		28/05/2023
 
 Description: it is the library with all useful function to use RFPI
 
@@ -31,27 +31,35 @@ Description: it is the library with all useful function to use RFPI
 
 //-------------------------------BEGIN FUNCTIONS DESCRIPTIONS----------------------------------//
 
-//	function mcu_volt_peri_100($ADC_10bit_value);								//return the volts of the power supply applied to the MCU
+//	function mcu_volt_peri_100($ADC_10bit_value);														//return the volts of the power supply applied to the MCU
 
-//	function str_mcu_volt_peri_100($ADC_10bit_value);							//return a string that contain the volts of the power supply applied to the MCU
+//	function str_mcu_volt_peri_100($ADC_10bit_value);													//return a string that contain the volts of the power supply applied to the MCU
 
-//	function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);			//return the value in Volt
+//	function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);									//return the value in Volt
 
-//	function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);		//return a string that contain the value in Volt of the ADC 10bit resolution
+//	function ADC10bit_from_voltage_0to5V_peri_100($milliVolt,$MCU_Volts_raw_value);						//return the ADC value on 10bits from the value in milli Volt
 
-//	function temperature_DHT11_from_raw_value_peri_100($raw_value);				//return a string with the value of the temperature converted from the raw value read from the sensor DHT11
+//	function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value);								//return a string that contain the value in Volt of the ADC 10bit resolution
 
-//	function humidity_DHT11_from_raw_value_peri_100($raw_value);				//return a string with the value of the humidity converted from the raw value read from the sensor DHT11
+//	function temperature_DHT11_from_raw_value_peri_100($raw_value);										//return a string with the value of the temperature converted from the raw value read from the sensor DHT11
 
-//	function temperature_MCP9701_from_8bit_value_peri_100($ADC_8bit_value); 	//return the temperature in °C
+//	function humidity_DHT11_from_raw_value_peri_100($raw_value);										//return a string with the value of the humidity converted from the raw value read from the sensor DHT11
 
-//	function the_8bit_value_from_temperature_MCP9701_peri_100($tempearure); 	//return the byte of the temperature
+//	function tempORhumid_DHT11_from_threshold_value_peri_100($raw_value);								//return the value of the Temperature OR Humidity set for the threshold functions
 
-//	function voltage_0to10V_from_8bit_value_peri_100($ADC_8bit_value);		//return the value between 0V and 10V from the byte readed by the ADC
+//	function threshold_value_from_tempORhumid_DHT11_peri_100($temperature);								//return the value to set into the peri for the threshold functions from the Temperature OR Humidity value choosen by user
 
-//	function str_voltage_0to10V_from_8bit_value_peri_100($ADC_8bit_value);	//return the string with the value between 0V and 10V from the byte readed by the ADC
+//	function temperature_MCP9701_from_ADC_raw_value_peri_100($ADC_value,$MCU_Volts_raw_value);			//return the temperature from ADC value where is connected the MCP9701 sensor
+	
+//	function temperature_MCP9701_from_8bit_value_peri_100($ADC_8bit_value); 							//return the temperature in °C
 
-//	function value_8bit_from_voltage_0to10V_peri_100($voltage_0to10_value);	//return a byte from a value between 0V and 10V
+//	function the_ADC10bit_value_from_temperature_MCP9701_peri_100($temperature, $MCU_Volts_raw_value); 	//return 10bits on 2bytes of the ADC raw value of the temperature
+
+//	function voltage_0to10V_from_8bit_value_peri_100($ADC_8bit_value);									//return the value between 0V and 10V from the byte readed by the ADC
+
+//	function str_voltage_0to10V_from_8bit_value_peri_100($ADC_8bit_value);								//return the string with the value between 0V and 10V from the byte readed by the ADC
+
+//	function value_8bit_from_voltage_0to10V_peri_100($voltage_0to10_value);								//return a byte from a value between 0V and 10V
 
 
 //-------------------------------END FUNCTIONS DESCRIPTIONS----------------------------------//
@@ -119,6 +127,13 @@ function voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value,$MCU_Volts_raw
 	return $voltage;
 }
 
+function ADC10bit_from_voltage_0to5V_peri_100($milliVolt,$MCU_Volts_raw_value){			
+	$vref_adc = mcu_volt_peri_100($MCU_Volts_raw_value);
+	$milliVolt = $milliVolt / 1000;
+	$ADC_10bit_value = ($milliVolt * 1024)/$vref_adc;
+	return $ADC_10bit_value;
+}
+
 function str_voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value,$MCU_Volts_raw_value){
 	$voltage="";
 	//$voltage=number_format((float)strval(voltage_0to5V_from_10bit_value_peri_100($ADC_10bit_value)), 0, '.', ''); 
@@ -156,14 +171,40 @@ function humidity_DHT22_from_raw_value_peri_100($raw_value){
 	return $humidity/10 ;
 }
 
+function tempORhumid_DHT11_from_threshold_value_peri_100($raw_value){
+	$temperature = $raw_value & 0xFFFF;
+	$temperature_int = $temperature >> 8;
+	$temperature_dec = $temperature & 0x00FF;
+	return $temperature_int . "." . $temperature_dec;
+
+}
+
+function threshold_value_from_tempORhumid_DHT11_peri_100($temperature){
+	$temperature_int = intval($temperature, 10);
+	$temperature_dec = intval(($temperature * 100), 10); 
+	$temperature_dec_sott_int = intval(($temperature_int * 100), 10); 
+	$temperature_dec = $temperature_dec - $temperature_dec_sott_int;
+	$raw_value = ($temperature_int << 8) | $temperature_dec;
+	return $raw_value;
+
+}
 
 function temperature_MCP9701_from_ADC_raw_value_peri_100($ADC_value,$MCU_Volts_raw_value){
 	$vref_adc = mcu_volt_peri_100($MCU_Volts_raw_value); //5V
 	$volt_for_one_bit = $vref_adc / 1024;
-	$tempearure = (((($ADC_value)*$volt_for_one_bit) - 0.4) / 0.0195);
-	//$tempearure = ceil($tempearure);
-	//$tempearure = round($tempearure);
-	return $tempearure;
+	$temperature = (((($ADC_value)*$volt_for_one_bit) - 0.4) / 0.0195);
+	//$temperature = ceil($temperature);
+	//$temperature = round($temperature);
+	return $temperature;
+}
+
+
+function the_ADC10bit_value_from_temperature_MCP9701_peri_100($temperature, $MCU_Volts_raw_value){ 	//return 10bits on 2bytes of the ADC raw value of the temperature
+	$vref_adc = mcu_volt_peri_100($MCU_Volts_raw_value); //5V
+	$volt_for_one_bit = $vref_adc / 1024;
+	$ADC10bitsValue = (($temperature * 0.0195)+0.4) / $volt_for_one_bit;
+	
+	return $ADC10bitsValue;
 }
 
 

@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		06/12/2017
+Last Update: 		21/05/2023
 
 Description: it check if the peri answer with the settings 
 
@@ -61,6 +61,11 @@ $TAG3=$_GET['TAG3'];
 
 $page_to_show_data=$_GET['page_to_show_data'];
 
+$data0 = $_GET['data0'];
+$data1 = $_GET['data1'];
+$data2 = $_GET['data2'];
+$data3 = $_GET['data3'];
+
 if($page_to_show_data!=""){
 	$next_page_name = $page_to_show_data; 
 }else{	
@@ -99,7 +104,7 @@ if($status_rfpi!=""){
 
 
 
-$parameters_retry_page = "address_peri=".$address_peri."&position_id=".$position_id . "&redirect_page=".$redirect_page."&page_to_show_data=" . $page_to_show_data . "&TAG0=" . $TAG0 . "&TAG1=" . $TAG1 . "&TAG2=" . $TAG2 . "&TAG3=" . $TAG3 . "&id_hex_special_function=" . $id_hex_special_function ; 
+$parameters_retry_page = "address_peri=".$address_peri."&position_id=".$position_id . "&redirect_page=".$redirect_page."&page_to_show_data=" . $page_to_show_data . "&TAG0=" . $TAG0 . "&TAG1=" . $TAG1 . "&TAG2=" . $TAG2 . "&TAG3=" . $TAG3 . "&id_hex_special_function=" . $id_hex_special_function . "&data0=" . $data0 . "&data1=" . $data1 . "&data2=" . $data2 . "&data3=" . $data3; 
 
 
 function data_got_then_give_to_next_page($status_rfpi,$data_rfpi,$next_page_name,$address_peri,$position_id,$redirect_page, $parameters_retry_page){

@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		17/04/2020
+Last Update: 		21/05/2023
 
 Description: it is the library to build the control panel for the 100th peripheral
 
@@ -82,7 +82,8 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 	$lang_btn_load_json = "Load Json";
 	$lang_btn_build_json = "Build Json";
 	$lang_btn_trigger = "Temperature";
-	$lang_btn_input = "Input";
+	$lang_btn_input = "Input"; 
+	$lang_btn_threshold = "Thresholds";
 	$lang_temperature="Temperature: ";
 	$lang_btn_thermostat="Thermostat";
 	$lang_btn_rgb="Set RGB";
@@ -96,6 +97,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_btn_build_json = "Costruisci Json";
 		$lang_btn_trigger = "Temperatura";
 		$lang_btn_input = "Entrate";
+		$lang_btn_threshold = "Soglie";
 		$lang_temperature="Temperatura: ";
 		$lang_btn_thermostat="Termostato";
 		$lang_btn_settings = "Impostazioni";
@@ -105,6 +107,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_btn_build_json = "Costruire Json";
 		$lang_btn_trigger = "Temp&eacute;rature";
 		$lang_btn_input = "Entr&eacute;e";
+		$lang_btn_threshold = "Seuils";
 		$lang_temperature="Temp&eacute;rature: ";
 		$lang_btn_thermostat="Thermostat";
 		$lang_btn_settings = "R&eacute;glages";
@@ -114,6 +117,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$lang_btn_build_json = "Costruir Json";
 		$lang_btn_trigger = "Temperatura";
 		$lang_btn_input = "Entrada";
+		$lang_btn_threshold = "Umbrales";
 		$lang_temperature="Temperature: ";
 		$lang_btn_thermostat="Termostato";
 		$lang_btn_settings = "Ajustes";
@@ -547,7 +551,7 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 					echo '<h2>';
 					echo number_format((float)strval($temperature), 1, '.', '');
 					echo '&nbsp&#176C&nbsp'; //°C
-					echo '</h2>';
+					echo '</h2>';//.$arrayStatusInput[$counter];
 				}else if($array_shield_mpn_analogue_inputs_json[$l]==="DHT11" || $array_shield_mpn_analogue_inputs_json[$l]==="dht11"){
 					echo '<h2>';
 					echo humidity_DHT11_from_raw_value_peri_100($arrayStatusInput[$counter]);
@@ -739,6 +743,11 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 /**************************************** END: PRINTING OUTPUS	****************************************/
 
 
+
+
+
+
+/**************************************** BEGIN: PRINTING FUNCTIONS BUTTONS	****************************************/
 	//special functions
 	echo '<td>';
 	
@@ -802,7 +811,33 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$str_TAG3 = "524275" . $id_hex_special_function . "2E2E2E2E2E2E2E2E2E2E2E2E"; 
 		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
 		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_input.php">';
+		echo '<input type=hidden name="data0" value="'.$MCU_Volts_raw_value.'">'; 
+		echo '<input type=hidden name="data1" value="NULL">'; 
+		echo '<input type=hidden name="data2" value="NULL">'; 
+		echo '<input type=hidden name="data3" value="NULL">'; 
 		echo '<input type=submit value="'.$lang_btn_input.'" class="btn_functions">';
+		echo '</form>';
+		}
+		
+		
+		//Button to page THRESHOLD output control
+		if($array_function_to_show[3]==1 && ($count_analogue_input_json>0 && $count_digital_output_json>0) ){
+		echo '<form name="peri_100_btn_threshold_functions_'.$id.'" action="./lib/peripheral_100/lib/cmd_get_settings.php" method=GET>';
+		echo '<input type=hidden name="position_id" value="'.$id.'">';
+		echo '<input type=hidden name="address_peri" value="'.$address_peri.'">';
+		$id_hex_special_function = "04"; //hexadecimal format. example 0x02 as to be written as "02"
+		echo '<input type=hidden name="id_hex_special_function" value="'.$id_hex_special_function.'">'; 
+		echo '<input type=hidden name="TAG0" value="DATA">'; 				//Command
+		echo '<input type=hidden name="TAG1" value="RF">'; 					//second parameter
+		echo '<input type=hidden name="TAG2" value="'.$address_peri.'">';	//third parameter
+		$str_TAG3 = "524275" . $id_hex_special_function . "2E2E2E2E2E2E2E2E2E2E2E2E"; 
+		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
+		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_threshold.php">';
+		echo '<input type=hidden name="data0" value="'.$MCU_Volts_raw_value.'">'; 
+		echo '<input type=hidden name="data1" value="NULL">'; 
+		echo '<input type=hidden name="data2" value="NULL">'; 
+		echo '<input type=hidden name="data3" value="NULL">'; 
+		echo '<input type=submit value="'.$lang_btn_threshold.'" class="btn_functions">';
 		echo '</form>';
 		}
 		
@@ -819,13 +854,19 @@ function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $nu
 		$str_TAG3 = "524275" . $id_hex_special_function . "2E2E2E2E2E2E2E2E2E2E2E2E"; 
 		echo '<input type=hidden name="TAG3" value="'.$str_TAG3.'">';		//fourth parameter
 		echo '<input type=hidden name="page_to_show_data" value="show_settings_fifo_settings.php">';
+		echo '<input type=hidden name="data0" value="'.$MCU_Volts_raw_value.'">'; 
+		echo '<input type=hidden name="data1" value="NULL">'; 
+		echo '<input type=hidden name="data2" value="NULL">'; 
+		echo '<input type=hidden name="data3" value="NULL">'; 
 		echo '<input type=submit value="'.$lang_btn_settings.'" class="btn_functions">';
 		echo '</form>';
 		}
 		
 	}
 	
-	
+/**************************************** END: PRINTING FUNCTIONS BUTTONS	****************************************/
+
+
 	
 	/*if (isset($_SESSION['message']) && $_SESSION['message'])
     {
