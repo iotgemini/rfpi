@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		26/04/2020
+Last Update: 		05/04/2025
 
 Description: it is the library with all useful function to use RFPI
 
@@ -144,6 +144,9 @@ define("MSG_FIFO_RFPI_STATUS_STOPPED", "STOPPED");		//used above all  into comma
 //-------------------------------BEGIN INCLUDE CSS----------------------------------//
 
 //DEFINES of DIRECTORY
+if (!defined('DEFAULT_PATH')) {
+    define('DEFAULT_PATH', 'SI');
+}
 if(DEFAULT_PATH != "NO"){ //in some file this path are redefined
 	define("DIRECTORY_IMG", "/img/"); 		//where all pictures are kept
 	define("DIRECTORY_IMG_FLAGS", "/img/flags"); 		//where all flags are kept
@@ -190,24 +193,30 @@ if (!isset($_SESSION['CREATED'])) {
 }
 
 //if($_SESSION["language"]===""){
+if(defined('PATH_FILE_LANGUAGE_TO_SET')) {
 	if(file_exists(PATH_FILE_LANGUAGE_TO_SET)){
 		$myfile = fopen(PATH_FILE_LANGUAGE_TO_SET, 'r');
 		$language_to_set="";
-		if(feof($handle)!==TRUE) $language_to_set = fgets($myfile);
+		if(feof($myfile)!==TRUE){ $language_to_set = fgets($myfile); }
+		fclose($myfile);
 		//echo $language_to_set."<br>";
 		//$language_to_set = substr ( $language_to_set , 0, $language_to_set.lenght -2 );
 		$language_to_set =  str_replace("\n", '', $language_to_set);
 		$language_to_set =  str_replace("\r", '', $language_to_set);
 		$language_to_set =  str_replace("/\s/", '', $language_to_set);
+		
 		if($language_to_set!="")
 			$_SESSION["language"]=$language_to_set;
 		else
 			$_SESSION["language"]="EN";
-		fclose($myfile);
+		
 	
 	}else{
 		$_SESSION["language"]="EN";
 	}
+}else{
+	$_SESSION["language"]="EN";
+}
 //}
 //echo $_SESSION["language"]."<br>";
 
