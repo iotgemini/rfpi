@@ -37,6 +37,7 @@ include './lib/peripheral_10/cpanel_10.php';  	//library with the control panel 
 include './lib/peripheral_11/cpanel_11.php';  	//library with the control panel for the 11th peripheral. 8 Relay and 8 opto isolated inputs
 include './lib/peripheral_12/cpanel_12.php';  	//library with the control panel for the 12th peripheral. 2 Relay and 4 opto isolated inputs
 include './lib/peripheral_14/cpanel_14.php';  	//library with the control panel for the 14th peripheral. Conta Ancora 00223
+include './lib/peripheral_15/cpanel_15.php';  		//library with the control panel for the 15th peripheral. Peri cod 00213 con 2 relè, 1 out digitale su strip SV1, 2 input 230VAC optoisolati, 1 input digitale su strip SV2, un'sensore temperatura 
 
 include './lib/peripheral_99/cpanel_99.php';  	//library with the control panel that say is not original
 include './lib/peripheral_100/cpanel_100.php';  //library with the control panel with the button to load the configurations from json file
@@ -137,6 +138,11 @@ function checkExistPeripheralFunction($id, $idperipheral, $name, $address_peri, 
 		
 		peripheral_14($id, $idperipheral, $name, $address_peri, $numInput, $numOutput, $arrayNameInput, $arrayStatusInput, $arrayNameOutput, $arrayStatusOutput, $num_special_functions_peri, $fw_version_peri); 
 	
+	}else if($idperipheral==15){
+		//Peri cod 00213 con 2 relè, 1 out digitale su strip SV1, 2 input 230VAC optoisolati, 1 input digitale su strip SV2, un'sensore temperatura
+		
+		peripheral_15($id, $idperipheral, $name, $address_peri, $numInput, $numOutput, $arrayNameInput, $arrayStatusInput, $arrayNameOutput, $arrayStatusOutput, $num_special_functions_peri, $fw_version_peri); 
+
 	}else if($idperipheral==99){
 		//says is not original
 		
