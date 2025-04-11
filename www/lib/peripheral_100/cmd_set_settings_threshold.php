@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		21/05/2023
+Last Update: 		11/04/2025
 
 Description: it send the command to set the settings of the THRESHOLD to control output from analogue Input 
 
@@ -82,6 +82,13 @@ for($i=0;$i<2;$i++){
 	$status_output_to_set[$i] = $_GET['status_output_to_set'.$i];
 	$input_shield_name[$i] = $_GET['input_shield_name'.$input_analogue[$i].$i];
 	
+/*	echo 'threshold_low['.$i.'] = '.$threshold_low[$i].'<br>';
+	echo 'threshold_high['.$i.'] = '.$threshold_high[$i].'<br>';
+	echo 'input_analogue['.$i.'] = '.$input_analogue[$i].'<br>';
+	echo 'output_to_control['.$i.'] = '.$output_to_control[$i].'<br>';
+	echo 'status_output_to_set['.$i.'] = '.$status_output_to_set[$i].'<br>';
+	echo 'input_shield_name['.$i.'] = '.$input_shield_name[$i].'<br>';*/
+	
 	//echo $input_shield_name[$i];echo ' <br>';
 
 	if($input_shield_name[$i]==="MCP9701A" || $input_shield_name[$i]==="mcp9701a"){
@@ -155,7 +162,15 @@ for($i=0;$i<2;$i++){
 	$l+=2;
 
 }
-//for($i=0;$i<20;$i++){ echo '['.$i.']='. $byte_fun_input_ctrl_output[$i] .'<br>';} 
+for($i=0;$i<20;$i++){ 
+	if($byte_fun_input_ctrl_output[$i]==='a') $byte_fun_input_ctrl_output[$i] = 'A';
+	else if($byte_fun_input_ctrl_output[$i]==='b') $byte_fun_input_ctrl_output[$i] = 'B';
+	else if($byte_fun_input_ctrl_output[$i]==='c') $byte_fun_input_ctrl_output[$i] = 'C';
+	else if($byte_fun_input_ctrl_output[$i]==='d') $byte_fun_input_ctrl_output[$i] = 'D';
+	else if($byte_fun_input_ctrl_output[$i]==='e') $byte_fun_input_ctrl_output[$i] = 'E';
+	else if($byte_fun_input_ctrl_output[$i]==='f') $byte_fun_input_ctrl_output[$i] = 'F';
+	//echo '['.$i.']='. $byte_fun_input_ctrl_output[$i] .'<br>';
+} 
 
 //building the string command and writing into fifo command:
 $TAG0="DATA";
@@ -201,7 +216,7 @@ if($redirect_page!=""){
 echo '<script type="text/javascript">';
 echo 'setTimeout("'; 
 	echo "location.href = '". $next_page . "';";
-echo '", 1500);'; 
+echo '", 1500);';
 echo '</script>';
 
 echo '</div>';

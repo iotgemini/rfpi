@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		28/05/2023
+Last Update: 		11/04/2025
 
 Description: this is a panel where to setup the THRESHOLD to control an output with an analogue input
 
@@ -156,7 +156,6 @@ $data0 = $_GET['data0'];
 $data1 = $_GET['data1'];
 $data2 = $_GET['data2'];
 $data3 = $_GET['data3'];
-
 
 /*for($i=0;$i<32;$i+=2){
 	echo $data_rfpi[$i].$data_rfpi[1+$i];
@@ -341,14 +340,19 @@ echo '<td class="td_peripheral">'.$lang_title_output_status_to_set.'</td>';
 echo '</tr>';
 
 for($i=0;$i<2;$i++){ //begin cycle to print the status of the 2 functions concerning threshold duty
-	
-	if(($i%2)==0) 
-		echo '<tr class="table_line_even">';
-	else
-		echo '<tr class="table_line_odd">';
+		
+	if($i>=$count_digital_output_json){ //se vi è un solo output allora farà vedere una sola riga
+		echo '<tr style="display: none; '; 
+	}else{
+		echo '<tr ';
+	}
+	if(($i%2)==0){
+		echo 'class="table_line_even">';
+	}else{
+		echo 'class="table_line_odd">';
+	}
 	
 	echo '<td class="td_peripheral">'.$lang_title_function.' '.$i.':</td>';  
-
 	
 	//I going to write into INPUT TEXT the actual values of the THRESHOLDS
 	$value_threshold_low = $fun_threshold_ctrl_output[($i*5)+2] << 8;
