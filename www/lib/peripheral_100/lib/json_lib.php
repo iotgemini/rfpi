@@ -2,7 +2,7 @@
 /******************************************************************************************
 
 Programmer: 		Emanuele Aimone
-Last Update: 		17/04/2020
+Last Update: 		12/04/2025
 
 Description: it is the library with all useful function to use RFPI
 
@@ -256,15 +256,14 @@ function decode_iotgemini_json(
 
 		//going to get the values for each shield
 		for($i=0; $i<$var_shields_count; $i++){
-			$id_shield = $array_conf_json["MODULE"]["SHIELD_" . $i][ID];
-			
+			$id_shield = $array_conf_json["MODULE"]["SHIELD_" . $i]["ID"];
 			
 			
 			//parsing data by ID
 			if($id_shield==1){ //DIGITAL OUTPUT
 				//$array_pin_digital_outputs_json [$count_digital_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
 				
-				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i]["PINOUT"]["PIN_0"];
 				$varExit = 0;
 				$j=0;
 				for($j=0; $j<$count_digital_output_json && $varExit==0 ; $j++){
@@ -277,15 +276,15 @@ function decode_iotgemini_json(
 							//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
 						}
 						$array_pin_digital_outputs_json[$j] = $num_pin;
-						$array_shield_name_digital_outputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-						$array_shield_mpn_digital_outputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+						$array_shield_name_digital_outputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+						$array_shield_mpn_digital_outputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 						//$array_id_digital_outputs_json[$j] = $j;
 					}
 				}
 				if($varExit==0){
 					$array_pin_digital_outputs_json[$count_digital_output_json] = $num_pin;
-					$array_shield_name_digital_outputs_json [$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_digital_outputs_json[$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					$array_shield_name_digital_outputs_json [$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+					$array_shield_mpn_digital_outputs_json[$count_digital_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 					//$array_id_digital_outputs_json[$count_digital_output_json] = $count_digital_output_json;
 				}
 				
@@ -296,7 +295,7 @@ function decode_iotgemini_json(
 				//$array_pin_digital_inputs_json [$count_digital_input_json]  = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
 				//$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 				
-				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i]["PINOUT"]["PIN_0"];
 				$varExit = 0;
 				$j=0;
 				for($j=0; $j<$count_digital_input_json && $varExit==0 ; $j++){
@@ -309,15 +308,15 @@ function decode_iotgemini_json(
 							//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
 						}
 						$array_pin_digital_inputs_json[$j] = $num_pin;
-						$array_shield_name_digital_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-						$array_shield_mpn_digital_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+						$array_shield_name_digital_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+						$array_shield_mpn_digital_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 						//$array_id_digital_outputs_json[$j] = $j;
 					}
 				}
 				if($varExit==0){
 					$array_pin_digital_inputs_json[$count_digital_input_json] = $num_pin;
-					$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_digital_inputs_json[$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					$array_shield_name_digital_inputs_json [$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+					$array_shield_mpn_digital_inputs_json[$count_digital_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 					//$array_id_digital_outputs_json[$count_digital_input_json] = $count_digital_input_json;
 				}
 				
@@ -327,7 +326,7 @@ function decode_iotgemini_json(
 				//$array_pin_analogue_inputs_json [$count_analogue_input_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
 				//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 				
-				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i]["PINOUT"]["PIN_0"];
 				$varExit = 0;
 				$j=0;
 				for($j=0; $j<$count_analogue_input_json && $varExit==0 ; $j++){
@@ -340,15 +339,15 @@ function decode_iotgemini_json(
 							//$array_id_digital_outputs_json[$h+1] = $array_id_digital_outputs_json[$h];
 						}
 						$array_pin_analogue_inputs_json[$j] = $num_pin;
-						$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-						$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+						$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+						$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 						//$array_id_digital_outputs_json[$j] = $j;
 					}
 				}
 				if($varExit==0){
 					$array_pin_analogue_inputs_json[$count_analogue_input_json] = $num_pin;
-					$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+					$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 					//$array_id_digital_outputs_json[$count_analogue_input_json] = $count_analogue_input_json;
 				}
 				
@@ -356,16 +355,16 @@ function decode_iotgemini_json(
 				
 			}else if($id_shield==4){ //RGB SHIELD
 				$sem_RGB_Shield_connected = 1;
-				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
-				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i]["PINOUT"]["PIN_0"];
+				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
 				//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
 				$count_analogue_output_json++;
-				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_1];
-				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i]["PINOUT"]["PIN_1"];
+				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
 				//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
 				$count_analogue_output_json++;
-				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_2];
-				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
+				$array_pin_analogue_outputs_json [$count_analogue_output_json] = "PIN" . $array_conf_json["MODULE"]["SHIELD_" . $i]["PINOUT"]["PIN_2"];
+				$array_shield_name_analogue_outputs_json [$count_analogue_output_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
 				//$array_id_analogue_outputs_json [$count_analogue_output_json] = $count_analogue_input_json + $count_analogue_output_json;
 				$count_analogue_output_json++;
 				
@@ -374,7 +373,7 @@ function decode_iotgemini_json(
 				//$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
 				//$array_id_analogue_outputs_json [$count_analogue_input_json] = $count_analogue_input_json + $count_analogue_input_json;
 				
-				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i][PINOUT][PIN_0];
+				$num_pin = $array_conf_json["MODULE"]["SHIELD_" . $i]["PINOUT"]["PIN_0"];
 				$varExit = 0;
 				$j=0;
 				for($j=0; $j<$count_analogue_input_json && $varExit==0 ; $j++){
@@ -386,14 +385,14 @@ function decode_iotgemini_json(
 							$array_shield_mpn_analogue_inputs_json[$h+1] = $array_shield_mpn_analogue_inputs_json[$h];
 						}
 						$array_pin_analogue_inputs_json[$j] = $num_pin;
-						$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-						$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+						$array_shield_name_analogue_inputs_json [$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+						$array_shield_mpn_analogue_inputs_json[$j] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 					}
 				}
 				if($varExit==0){
 					$array_pin_analogue_inputs_json[$count_analogue_input_json] = $num_pin;
-					$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][NAME];
-					$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i][MPN];
+					$array_shield_name_analogue_inputs_json [$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["NAME"];
+					$array_shield_mpn_analogue_inputs_json[$count_analogue_input_json] = $array_conf_json["MODULE"]["SHIELD_" . $i]["MPN"];
 				}
 				
 				$count_analogue_input_json++;

@@ -75,7 +75,7 @@ Description: it is the library to build the control panel for the 100th peripher
 
 function peripheral_100($id, $idperipheral, $name, $address_peri, $numInput, $numOutput, $arrayNameInput, $arrayStatusInput, $arrayNameOutput, $arrayStatusOutput, $num_special_functions_peri, $fw_version_peri){
 
-
+	
 	//---------------------------------------------------------------------------------------//
 	//		Strings for languages
 

@@ -82,12 +82,14 @@ for($i=0;$i<2;$i++){
 	$status_output_to_set[$i] = $_GET['status_output_to_set'.$i];
 	$input_shield_name[$i] = $_GET['input_shield_name'.$input_analogue[$i].$i];
 	
-/*	echo 'threshold_low['.$i.'] = '.$threshold_low[$i].'<br>';
+/*	echo 'i = '.$i.'<br>';
+	echo 'threshold_low['.$i.'] = '.$threshold_low[$i].'<br>';
 	echo 'threshold_high['.$i.'] = '.$threshold_high[$i].'<br>';
 	echo 'input_analogue['.$i.'] = '.$input_analogue[$i].'<br>';
 	echo 'output_to_control['.$i.'] = '.$output_to_control[$i].'<br>';
 	echo 'status_output_to_set['.$i.'] = '.$status_output_to_set[$i].'<br>';
-	echo 'input_shield_name['.$i.'] = '.$input_shield_name[$i].'<br>';*/
+	echo 'input_shield_name['.$i.'] = '.$input_shield_name[$i].'<br>';
+*/
 	
 	//echo $input_shield_name[$i];echo ' <br>';
 
@@ -129,7 +131,7 @@ for($i=0;$i<2;$i++){
 	//filling Byte1+Byte2 for LOW THRESHOLD
 	$fun_input_ctrl_output[($i*5)+1] = $threshold_low[$i] & 0xFF; //LSB
 	$fun_input_ctrl_output[($i*5)+2] = ($threshold_low[$i] >> 8) & 0xFF; //MSB
-
+	
 	//adjusting the byte1 to be sendable
 	$byte_temp = dechex( $fun_input_ctrl_output[($i*5)+1] );
 	if(strlen($byte_temp)<2) $byte_temp = "0" . $byte_temp;
@@ -141,13 +143,14 @@ for($i=0;$i<2;$i++){
 	if(strlen($byte_temp)<2) $byte_temp = "0" . $byte_temp;
 	$byte_fun_input_ctrl_output[$l] = $byte_temp[0];
 	$byte_fun_input_ctrl_output[$l+1] = $byte_temp[1];
+//	echo '<br>LOW THRESHOLD = '.$byte_fun_input_ctrl_output[$l-1].'+'.$byte_fun_input_ctrl_output[$l];
 	$l+=2;
 	
 	
 	//filling Byte3+Byte4 for HIGH THRESHOLD
 	$fun_input_ctrl_output[($i*5)+3] = $threshold_high[$i] & 0xFF; //LSB
 	$fun_input_ctrl_output[($i*5)+4] = ($threshold_high[$i] >> 8) & 0xFF; //MSB
-
+	
 	//adjusting the byte3 to be sendable
 	$byte_temp = dechex( $fun_input_ctrl_output[($i*5)+3] );
 	if(strlen($byte_temp)<2) $byte_temp = "0" . $byte_temp;
@@ -159,6 +162,7 @@ for($i=0;$i<2;$i++){
 	if(strlen($byte_temp)<2) $byte_temp = "0" . $byte_temp;
 	$byte_fun_input_ctrl_output[$l] = $byte_temp[0];
 	$byte_fun_input_ctrl_output[$l+1] = $byte_temp[1];
+//	echo '<br>HIGH THRESHOLD = '.$byte_fun_input_ctrl_output[$l-1].'+'.$byte_fun_input_ctrl_output[$l].'<br><br>';
 	$l+=2;
 
 }

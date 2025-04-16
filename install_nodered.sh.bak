@@ -113,7 +113,7 @@ if [ $NODERED_INSTALLED == 1 ]; then
 			npm install node-red-contrib-alexa-home-skill
 			npm update -g node-red-contrib-alexa-home-skill
 		else
-			echo "Installing ALEXA-NODE-RED-SKILL NODES......"
+			echo "Installing ALEXA-NODE-RED_SKILL NODES......"
 			npm install node-red-contrib-alexa-home-skill
 		fi
 	else

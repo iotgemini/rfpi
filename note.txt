@@ -1,0 +1,25 @@
+If the www is not showed than check these file:
+
+	/etc/apache2/sites-available/000-default.conf
+
+	Inside the above file should be written this path: 
+	
+		DocumentRoot /var/www/
+
+	/etc/apache2/mods-available/dir.conf
+
+	Inside the above file should be written this path: 
+
+		DirectoryIndex index.php index.cgi index.pl index.html index.xhtml index.htm
+
+after have modified the files then reboot the service with this command:
+
+	sudo service apache2 restart
+
+
+If the rfpi service does not find the IOTGEMINI transceiver could be possible that your IOTG transceiver
+is connected to the serial port on the gpio of the raspberry pi, this make sure the serial port is
+enabled and no SSH is available on serial port, use this command:
+
+	sudo raspi-config
+

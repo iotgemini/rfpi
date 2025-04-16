@@ -339,9 +339,11 @@ echo '<td class="td_peripheral">'.$lang_title_output.'</td>';
 echo '<td class="td_peripheral">'.$lang_title_output_status_to_set.'</td>'; 
 echo '</tr>';
 
+$num_of_total_output = $count_digital_output_json + $count_analogue_output_json;
+
 for($i=0;$i<2;$i++){ //begin cycle to print the status of the 2 functions concerning threshold duty
-		
-	if($i>=$count_digital_output_json){ //se vi è un solo output allora farà vedere una sola riga
+
+	if($num_of_total_output < 2 ){ //se vi è un solo output allora farà vedere una sola riga
 		echo '<tr style="display: none; '; 
 	}else{
 		echo '<tr ';
@@ -360,12 +362,17 @@ for($i=0;$i<2;$i++){ //begin cycle to print the status of the 2 functions concer
 	$value_threshold_high = $fun_threshold_ctrl_output[($i*5)+4] << 8;
 	$value_threshold_high |= $fun_threshold_ctrl_output[($i*5)+3]; 
 
+//	echo 'i= '.$i.'<br>';
+//	echo 'value_threshold_low= '.$value_threshold_low.'<br>';
+//	echo 'value_threshold_high= '.$value_threshold_high.'<br>';
 
 	$functionToRunToShowRightThresholdValue ="";
 	echo '<td colspan=1 class="td_peripheral" align=left>';
 	if($sem_json_exist==1){
 		$l=0;
 		$counter=0;
+		while ($l<$count_digital_input_json){$counter++;$l++;}
+		$l=0;
 		while ($l<$count_analogue_input_json) {
 
 			echo '<script>'; 
@@ -409,7 +416,7 @@ for($i=0;$i<2;$i++){ //begin cycle to print the status of the 2 functions concer
 			echo '}'; 
 			echo '</script>';
 
-			echo '<input type=hidden name="input_shield_name'.$l.$i.'" id="input_shield_name'.$l.$i.'" value="'.$array_shield_mpn_analogue_inputs_json[$l].'">';
+			echo '<input type=hidden name="input_shield_name'.$counter.$i.'" id="input_shield_name'.$counter.$i.'" value="'.$array_shield_mpn_analogue_inputs_json[$l].'">';
 			echo '<input type="radio" name="input_analogue'.$i.'" id="input_analogue'.$i.'" onclick=SetUnit'.$l.$i.'("'.$array_shield_mpn_analogue_inputs_json[$l].'"); value="'.($counter).'" '; if(($fun_threshold_ctrl_output[($i*5)]&0b00000111)==($counter)) echo 'checked'; echo '>';
 			if(($fun_threshold_ctrl_output[($i*5)]&0b00000111)==($counter)){
 				echo '<script>'; 
@@ -479,9 +486,9 @@ for($i=0;$i<2;$i++){ //begin cycle to print the status of the 2 functions concer
 	echo '<br>';
 	echo '<select name="status_output_to_set'.$i.'">'; 
 	$current_status_to_set = ($fun_threshold_ctrl_output[($i*5)]&0b11000000)>>6;
-	echo '				<option value="1"'; if($current_status_to_set==1) echo "selected"; echo '>'.$lang_OFF_ON.'</option>'; 
-	echo '				<option value="2"'; if($current_status_to_set==2) echo "selected"; echo '>'.$lang_ON_OFF.'</option>'; 
-	echo '				<option value="3"'; if($current_status_to_set==3) echo "selected"; echo '>'.$lang_DISABLED.'</option>'; 
+	echo '				<option value="1"'; if(($current_status_to_set==1 && $i==0) || ($current_status_to_set==1 && $i==1 && $num_of_total_output > 1)) echo "selected"; echo '>'.$lang_OFF_ON.'</option>'; 
+	echo '				<option value="2"'; if(($current_status_to_set==2 && $i==0) || ($current_status_to_set==2 && $i==1 && $num_of_total_output > 1)) echo "selected"; echo '>'.$lang_ON_OFF.'</option>'; 
+	echo '				<option value="3"'; if(($current_status_to_set==3 && $i==0) || ($num_of_total_output < 2)) echo "selected"; echo '>'.$lang_DISABLED.'</option>'; 
 	echo '</select>'; 
 	echo '</td>';   
 		

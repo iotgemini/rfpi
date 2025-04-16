@@ -167,13 +167,13 @@ void delay_ms(unsigned int millis){
 	//millis=millis*2; //to delete! it is here to solve temporarily problem communication.
 
 	struct timespec sleeper;
- 
+
     sleeper.tv_sec  = (time_t)(millis / 1000);
     sleeper.tv_nsec = (long)(millis % 1000) * 1000000;
 
 
 	nanosleep(&sleeper, NULL);
-		
+
 }
 
 
@@ -2224,7 +2224,7 @@ extern void SendRadioDataAndGetReplyFromPeri(int *handleUART, unsigned char *arr
 				
 				//delay_ms(100);
 				
-				if(varExit==1){ delay_ms(random_delay); } //gives time to the peri to get ready 
+				if(varExit==1){ delay_ms(random_delay); } //gives time to the peri to get ready
 				
 				
 				for(i=0;i<MAX_LEN_BUFFER_ANSWER_RF;i++){ answerRFPI[i]=0; }
@@ -3063,7 +3063,7 @@ peripheraldata *ParseFIFOdataGUI(int *handleUART, peripheraldata *rootPeripheral
 							num_time_the_peri_did_not_reply++;
 						}
 						
-						//delay_ms(50); //just to leave the time to the peri 
+						//delay_ms(50); //just to leave the time to the peri
 						
 						//here read the fifo again just to know if the user stopped the process of reading
 						if(fifoReader(data, FIFO_GUI_CMD)) {

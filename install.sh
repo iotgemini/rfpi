@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "Last update of this script was on 27-11-2020"
+echo "Last update of this script was on 12-04-2025"
 
 if ! [ $(id -u) = 0 ]; then
 	echo "The script need to be run as root."
@@ -264,75 +264,6 @@ else
 fi
 fi
 ########################## END SHARE FOLDERS ##########################
-
-
-
-#echo "Change network name:"
-#sed -i 's/raspberry/rfpi/g' /etc/hostname
-#sed -i 's/raspberry/rfpi/g' /etc/hosts
-
-
-########################## BEGIN INSTALL NODE-RED ##########################
-echo "checking if node-red is installed......"
-#NODERED_INSTALLED=0
-#DIRECTORY_NODERED=$(sudo find / -type d -name ".node-red")
-
-#if [ ! -d "$DIRECTORY_NODERED" ]; then
-#	echo " "
-#	echo "########################## INSTALL NODE-RED ##########################"
-#	echo " IT: Vuoi installare Node-Red per creare le tue automazioni personalizzate e pannelli di controllo personalizzati? (Y=si or N=no) "
-#	echo "     se decidi di installare Node-Red dovrai essere paziente perche' ci vorra' un po' di tempo........."
-#	echo " EN: Do you want to install Node-Red to create your custom automations and custom control panels? (Y or N) "
-#	read -p "     if you decide to install Node-Red you will have to be patient because it will take some time ......... " -n 1 -r
-#	echo "" #new line
-#	if [[ $REPLY =~ ^[Yy]$ ]] 
-#	then
-#		echo "Install Node-Red:"
-#		NODERED_SCRIPT=0;
-#		bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)
-#		NODERED_SCRIPT=$?
-#		if [ $NODERED_SCRIPT == 0 ]; then
-#			echo "NODE-RED Script TRUE: $NODERED_SCRIPT"
-#			sudo systemctl enable nodered.service
-#			NODERED_INSTALLED=1
-#		else
-#			echo "NODE-RED Script FALSE: $NODERED_SCRIPT"
-#			NODERED_INSTALLED=0
-#		fi
-#		echo "DONE!"
-#	fi
-#else
-#	echo "NODE-RED is already INSTALLED!"
-#	NODERED_INSTALLED=1
-#fi
-
-#if [ $NODERED_INSTALLED == 1 ]; then
-	DIRECTORY_NODERED=$(sudo find / -type d -name ".node-red")
-	if [  -d "$DIRECTORY_NODERED" ]; then
-		cd $DIRECTORY_NODERED
-		echo "found directory node-red: $DIRECTORY_NODERED"
-		if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_IOTGEMINI" ]; then
-			echo "Updating IOTGEMINI NODES......"
-			npm install node-red-contrib-iotgemini
-			npm update -g node-red-contrib-iotgemini
-		else
-			echo "Installing IOTGEMINI NODES......"
-			npm install node-red-contrib-iotgemini
-		fi
-		if [ -d "$DIRECTORY_NODERED$SUB_DIRECTORY_NODE_DASHBOARD" ]; then
-			echo "Updating DASHBOARD NODES......"
-			npm install node-red-dashboard
-			npm update -g node-red-dashboard
-		else
-			echo "Installing DASHBOARD NODES......"
-			npm install node-red-dashboard
-		fi
-	else
-		echo "NODE-RED Directory does not exist!"
-	fi
-#fi
-
-########################## END INSTALL NODE-RED ##########################
 
 
 echo " "
