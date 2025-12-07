@@ -1,0 +1,24 @@
+this is the operating system that these bash scripts are working:
+
+	Raspberry Pi OS (Legacy,32-bit)
+	A port of Debian Bullseye with security updates and desktop environment
+	Rilasciato: 2024-10-22
+
+the bash script has to be copied to this path:
+	
+	/etc/rfpi/install/LCD5_ADS7846
+
+execute the bash script:
+
+	sudo bash install_all.sh
+
+the command will then run install_flows_lcd5.sh and then install_touch_lcd5.sh
+
+
+OTHERS USEFUL NOTES:
+Disable blank screen:
+	sudo nano /boot/cmdline.txt
+and add
+	consoleblank=0
+right after the rootwait
+then reboot

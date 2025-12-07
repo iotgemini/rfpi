@@ -1,0 +1,223 @@
+[2025-04-16 23:11:46] 🟢 Avvio installazione sistema LCD5
+[2025-04-16 23:11:46] Cartella degli script: /etc/rfpi/install/LCD5_ADS7846
+[2025-04-16 23:11:46] 🔵 Esecuzione script: install_flows_lcd5.sh
+🔍 Verifica installazione Node-RED in corso...
+✅ NODE-RED È INSTALLATO
+
+Creo backup del flow esistente...
+Installo il nuovo flow...
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+mplayer is already the newest version (2:1.4+ds1-1+deb11u1).
+0 upgraded, 0 newly installed, 0 to remove and 94 not upgraded.
+found directory node-red: /home/pi/.node-red
+Updating IOTGEMINI NODES......
+
+up to date, audited 242 packages in 7s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating DASHBOARD NODES......
+
+up to date, audited 242 packages in 9s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating ALEXA-NODE-RED-SKILL NODES......
+
+up to date, audited 242 packages in 5s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating PLAY-SOUND NODES......
+
+up to date, audited 242 packages in 6s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating ADVANCED-PING NODES......
+
+up to date, audited 242 packages in 6s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating FS-OPS NODES......
+
+up to date, audited 242 packages in 6s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating UI-LEVEL NODES......
+
+up to date, audited 242 packages in 6s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating COUNTER NODES......
+
+up to date, audited 242 packages in 8s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+Updating CACHE NODES......
+
+up to date, audited 242 packages in 9s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+3 moderate severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+up to date in 7s
+
+72 packages are looking for funding
+  run `npm fund` for details
+[1mRestarted [38;5;88mNode-RED[0m
+Installazione completata!
+Flow installato: /home/pi/.node-red/flows.json
+Backup creato: /home/pi/.node-red/flows.json.bak
+If you do not see any flow than check the second line of this bash script where is NAME_FILE_FLOW_ORIGINAL
+[2025-04-16 23:14:05] ✅ install_flows_lcd5.sh completato con successo
+[2025-04-16 23:14:05] 🔵 Esecuzione script: install_touch_lcd5.sh
+[H[2J[3JLast update of this script was on 15-04-2025
+BEGIN TO INSTALL DRIVER for LCD 5 INCH TOUCH waveshare-ads7846: 
+ 
+########################## EDITING /boot/config.txt ##########################
+ IT: Vuoi modificare il file /boot/config.txt? (Y=si or N=no) 
+ EN: Do you want edit the file /boot/config.txt? (Y or N) 
+At the end of the file /boot/config.txt have been added these lines:
+hdmi_group=2
+hdmi_mode=87
+hdmi_cvt 800 480 60 6 0 0 0
+dtoverlay=ads7846,cs=1,penirq=25,penirq_pull=2,speed=50000,keep_vref_on=0,swapxy=0,pmax=255,xohms=150
+hdmi_drive=1
+hdmi_force_hotplug=1
+enable_uart=1
+ 
+########################## EDITING /etc/X11/xorg.conf.d/99-calibration.conf ##########################
+Il file /etc/X11/xorg.conf.d/99-calibration.conf esiste già, non faccio nulla.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+xserver-xorg-input-evdev is already the newest version (1:2.10.6-2).
+0 upgraded, 0 newly installed, 0 to remove and 94 not upgraded.
+Installing calibrator: 
+Reading package lists...
+Building dependency tree...
+Reading state information...
+xinput-calibrator is already the newest version (0.7.5+git20140201-1).
+0 upgraded, 0 newly installed, 0 to remove and 94 not upgraded.
+Installing keyboard on screen: 
+Reading package lists...
+Building dependency tree...
+Reading state information...
+matchbox-keyboard is already the newest version (0.2+git20160713-1).
+0 upgraded, 0 newly installed, 0 to remove and 94 not upgraded.
+[2025-04-16 23:15:16] ✅ install_touch_lcd5.sh completato con successo
+[2025-04-16 23:15:16] 🟢 Installazione completata con successo!
+[2025-04-16 23:15:39] 🔄 Riavvio del sistema...
