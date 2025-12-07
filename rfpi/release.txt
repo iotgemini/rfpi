@@ -1,8 +1,9 @@
-1.8.0.2
-16/04/2025
+1.8.0.3
+07/12/2025
 
 v1.8
 	- Added control panel for the 15th peripheral that is a peripheral with 2 relay, 1 digital output general, 2 digital input optoisolated, 1 analog input general, 1 temperature sensor
+	- Added Script under .\rfpi\install\LCD5_ADS7846 to configure LCD
 
 v1.7
 	- Added control panel for the 14th peripheral that is a counter
